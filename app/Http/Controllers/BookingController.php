@@ -19,8 +19,23 @@ class BookingController extends Controller
 
     public function index()
     {
-        $bookings = \App\Models\Booking::with('customer')->get();
-        return view('bookings.index', compact('bookings'));
+        $bookings = Booking::with('customer', 'hall')->get();
+
+        // Prepare events for FullCalendar
+        $calendarEvents = $bookings->map(function ($b) {
+            return [
+                'id'    => $b->id,
+                'title' => $b->customer->name . ' - ' . $b->hall->name,
+                'start' => $b->start_datetime,
+                'end'   => $b->end_datetime,
+                'url'   => route('bookings.edit', $b->id),
+            ];
+        });
+
+        return view('bookings.index', [
+            'bookings'       => $bookings,
+            'calendarEvents' => $calendarEvents,
+        ]);
     }
 
     public function create()

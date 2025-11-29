@@ -1,53 +1,4 @@
 @extends('dashboard.includes.partial.base')
-@section('title', 'Bookings Calendar')
-@section('content')
-    <div class="container-fluid p-0">
-        <div id="calendar"></div>
-    </div>
-@endsection
-
-@section('extra_css')
-    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/main.min.css" rel="stylesheet">
-    <style>
-        #calendar {
-            max-width: 100%;
-            margin: 0 auto;
-        }
-    </style>
-@endsection
-
-@section('extra_js')
-    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/main.min.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const calendarEl = document.getElementById('calendar');
-
-            const calendar = new FullCalendar.Calendar(calendarEl, {
-                initialView: 'dayGridMonth',
-                height: '100vh',
-                headerToolbar: {
-                    left: 'prev,next today',
-                    center: 'title',
-                    right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
-                },
-                events: "{{ route('bookings.events') }}",
-                eventClick: function(info) {
-                    const bookingId = info.event.id;
-                    window.location.href = `/bookings/${bookingId}/edit`;
-                },
-                eventColor: '#378006',
-                navLinks: true,
-                editable: false,
-                selectable: false,
-                nowIndicator: true
-            });
-
-            calendar.render();
-        });
-    </script>
-@endsection
-
-{{-- @extends('dashboard.includes.partial.base')
 @section('title', 'Control Center Dashboard')
 @section('content')
     <div class="container-fluid">
@@ -159,4 +110,4 @@
             }).render();
         @endif
     </script>
-@endsection --}}
+@endsection
