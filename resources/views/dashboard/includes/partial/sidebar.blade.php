@@ -55,15 +55,15 @@
             @endcan --}}
 
             {{-- @if (auth()->user()->isSuperAdmin()) --}}
-                <li>
-                    <a href="{{ route('halls.index') }}">
-                        <div class="parent-icon notranslate"><i class="material-icons-outlined">festival</i></div>
-                        <div class="menu-title">
-                            Halls
-                            <span class="badge bg-primary float-end">{{ $hallsCount ?? 0 }}</span>
-                        </div>
-                    </a>
-                </li>
+            <li>
+                <a href="{{ route('halls.index') }}">
+                    <div class="parent-icon notranslate"><i class="material-icons-outlined">festival</i></div>
+                    <div class="menu-title">
+                        Halls
+                        <span class="badge bg-primary float-end">{{ $hallsCount ?? 0 }}</span>
+                    </div>
+                </a>
+            </li>
             {{-- @elseif(auth()->user()->isHallAdmin())
                 <li>
                     <a href="{{ route('halls.show', auth()->user()->hall_id) }}">
@@ -79,6 +79,7 @@
                     <div class="parent-icon notranslate"><i class="material-icons-outlined">event_available</i></div>
                     <div class="menu-title">
                         Bookings
+                        <span class="badge bg-primary float-end">{{ $bookingsCount ?? 0 }}</span>
                     </div>
                 </a>
             </li>

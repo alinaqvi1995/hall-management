@@ -19,13 +19,27 @@ class BookingController extends Controller
 
     public function index()
     {
-        $bookings = Booking::with('customer', 'hall')->get();
+        $this->authorize('viewAny', Booking::class);
+
+        $user = auth()->user();
+
+        // Fetch bookings based on role
+        if ($user->isSuperAdmin()) {
+            $bookings = Booking::with('customer', 'hall')->get();
+        } elseif ($user->isHallAdmin()) {
+            $bookings = Booking::with('customer', 'hall')
+                ->where('hall_id', $user->hall_id)
+                ->get();
+        } else {
+            // Other users with view-bookings permission
+            $bookings = Booking::with('customer', 'hall')->get();
+        }
 
         // Prepare events for FullCalendar
         $calendarEvents = $bookings->map(function ($b) {
             return [
                 'id'    => $b->id,
-                'title' => $b->customer->name . ' - ' . $b->hall->name,
+                'title' => ($b->customer->name ?? 'Customer') . ' - ' . ($b->hall->name ?? 'Hall'),
                 'start' => $b->start_datetime,
                 'end'   => $b->end_datetime,
                 'url'   => route('bookings.edit', $b->id),

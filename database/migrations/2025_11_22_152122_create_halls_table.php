@@ -27,7 +27,7 @@ return new class extends Migration
 
             // Hall details
             $table->text('description')->nullable();
-            $table->integer('halls_count')->default(0);
+            $table->integer('hall_capacity')->default(0);
             $table->string('hall_types')->nullable();
             $table->string('registration_number')->nullable();
             $table->string('established_at')->nullable();

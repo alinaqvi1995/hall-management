@@ -8,6 +8,7 @@ use App\Models\Subcategory;
 use App\Models\Blog;
 use App\Models\User;
 use App\Models\Hall;
+use App\Models\Booking;
 use Illuminate\Support\Facades\Auth;
 
 class SidebarComposer
@@ -18,10 +19,12 @@ class SidebarComposer
 
         $usersQuery = User::query();
         $hallsQuery = Hall::query();
+        $bookingsQuery = Booking::query();
 
         if ($currentUser && $currentUser->hasRole('hall_admin')) {
             $usersQuery->where('hall_id', $currentUser->hall_id);
             $hallsQuery->where('id', $currentUser->hall_id);
+            $bookingsQuery->where('hall_id', $currentUser->hall_id);
         }
 
         $view->with([
@@ -30,6 +33,7 @@ class SidebarComposer
             'categoriesCount' => Category::count(),
             'subcategoriesCount' => Subcategory::count(),
             'hallsCount' => $hallsQuery->count(),
+            'bookingsCount' => $bookingsQuery->count(),
         ]);
     }
 }

@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Http\Requests\HallRequest;
@@ -30,16 +29,30 @@ class HallController extends Controller
     public function index()
     {
         $this->authorize('viewAny', Hall::class);
-        $halls = $this->service->list();
+
+        if (auth()->user()->hasRole('hall_admin')) {
+            // hall admin sees only their hall
+            $halls = [Hall::find(auth()->user()->hall_id)];
+        } else {
+            // super admin sees all halls
+            $halls = $this->service->list();
+        }
+
         return view('halls.index', compact('halls'));
     }
+    // public function index()
+    // {
+    //     $this->authorize('viewAny', Hall::class);
+    //     $halls = $this->service->list();
+    //     return view('halls.index', compact('halls'));
+    // }
 
     public function show(int $id)
     {
         $currentUser = Auth::user();
-        $hall = $this->service->find($id);
+        $hall        = $this->service->find($id);
 
-        if (!$hall) {
+        if (! $hall) {
             abort(404, 'Hall not found');
         }
 
@@ -55,7 +68,7 @@ class HallController extends Controller
         $currentUser = Auth::user();
 
         // Only super admin can create
-        if (!$currentUser->isSuperAdmin()) {
+        if (! $currentUser->isSuperAdmin()) {
             abort(403, 'Unauthorized');
         }
 
@@ -66,7 +79,7 @@ class HallController extends Controller
     {
         $currentUser = Auth::user();
 
-        if (!$currentUser->isSuperAdmin()) {
+        if (! $currentUser->isSuperAdmin()) {
             abort(403, 'Unauthorized');
         }
 
@@ -108,7 +121,7 @@ class HallController extends Controller
         $currentUser = Auth::user();
 
         // Only super admin can delete
-        if (!$currentUser->isSuperAdmin()) {
+        if (! $currentUser->isSuperAdmin()) {
             abort(403, 'Unauthorized');
         }
 

@@ -1,9 +1,8 @@
 <?php
-
 namespace App\Policies;
 
-use App\Models\User;
 use App\Models\Hall;
+use App\Models\User;
 
 class HallPolicy
 {
@@ -12,7 +11,7 @@ class HallPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->hasRole('super_admin');
+        return $user->hasRole('super_admin') || $user->hasRole('hall_admin');
     }
 
     /**
@@ -29,7 +28,6 @@ class HallPolicy
         if ($user->hasRole('hall_admin')) {
             return $user->hall_id === $hall->id;
         }
-        
 
         return false;
     }

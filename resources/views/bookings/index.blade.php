@@ -3,6 +3,77 @@
 @section('title', 'Bookings')
 
 @section('content')
+    <style>
+        /* Calendar container — match dashboard card background */
+        #calendar {
+            background: #f8f9fa;
+            /* replace with your panel bg color */
+            color: #343a40;
+            /* your standard text color */
+            border-radius: 8px;
+            padding: 12px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
+            font-family: 'Your-Dashboard-Font', sans-serif;
+        }
+
+        /* Header toolbar — match navbar / panel header style */
+        .fc .fc-toolbar-title {
+            color: #212529;
+            /* match dashboard headings */
+            font-weight: 500;
+        }
+
+        .fc .fc-button {
+            background: #ffffff;
+            /* dashboard button bg */
+            border: 1px solid #ced4da;
+            color: #495057;
+            border-radius: 4px;
+            padding: 5px 10px;
+        }
+
+        .fc .fc-button:hover {
+            background: #e9ecef;
+        }
+
+        /* Column headers (Sun–Sat) */
+        .fc-col-header-cell {
+            background: #e9ecef;
+            /* match table header bg in your theme */
+            color: #6c757d;
+            border-color: #dee2e6;
+        }
+
+        /* Day cells */
+        .fc-daygrid-day {
+            background: #ffffff;
+            /* dashboard card bg */
+            border-color: #dee2e6;
+        }
+
+        .fc-daygrid-day-number {
+            color: #495057;
+        }
+
+        /* Today highlight */
+        .fc-day-today {
+            background: #fff3cd;
+            /* subtle highlight color from theme */
+            border: 1px solid #ffeeba;
+            border-radius: 4px;
+        }
+
+        /* Events — use your theme’s primary / success colors */
+        .fc-event {
+            background: #0d6efd;
+            /* e.g. bootstrap primary */
+            color: #ffffff;
+            border: none;
+            border-radius: 4px;
+            padding: 4px 6px;
+            font-size: 0.85rem;
+        }
+    </style>
     <h6 class="mb-0 text-uppercase">Bookings</h6>
     <hr>
 
