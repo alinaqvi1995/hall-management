@@ -26,7 +26,7 @@ class HallRequest extends FormRequest
             'zipcode'             => 'nullable|string|max:20',
             'area'                => 'nullable|string|max:255',
             'description'         => 'nullable|string',
-            'halls_count'         => 'nullable|integer|min:0',
+            'hall_capacity'         => 'nullable|integer|min:0',
             'hall_types'          => 'nullable|string|max:255',
             'registration_number' => 'nullable|string|max:255',
             'established_at'      => 'nullable|date',

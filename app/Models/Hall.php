@@ -23,7 +23,7 @@ class Hall extends Model
         'zipcode',
         'area',
         'description',
-        'halls_count',
+        'hall_capacity',
         'hall_types',
         'registration_number',
         'established_at',
