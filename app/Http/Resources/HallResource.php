@@ -19,7 +19,7 @@ class HallResource extends JsonResource
             'country'             => $this->country,
             'zipcode'             => $this->zipcode,
             'area'                => $this->area,
-            'hall_capacity'         => $this->hall_capacity,
+            'hall_capacity'       => $this->hall_capacity,
             'hall_types'          => $this->hall_types,
             'registration_number' => $this->registration_number,
             'established_at'      => $this->established_at,

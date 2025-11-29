@@ -1,8 +1,8 @@
 <?php
-
 namespace App\Repositories\Hall;
 
 use App\Models\Hall;
+use Illuminate\Support\Facades\Auth;
 
 class HallRepository implements HallRepositoryInterface
 {
@@ -18,11 +18,14 @@ class HallRepository implements HallRepositoryInterface
 
     public function create(array $data): Hall
     {
+        $data['created_by'] = Auth::id();
+        $data['updated_by'] = Auth::id();
         return Hall::create($data);
     }
 
     public function update(Hall $hall, array $data): Hall
     {
+        $data['updated_by'] = Auth::id();
         $hall->update($data);
         return $hall;
     }

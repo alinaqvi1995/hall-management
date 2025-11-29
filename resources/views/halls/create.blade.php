@@ -1,5 +1,5 @@
 @extends('dashboard.includes.partial.base')
-@section('title', 'Add Feed Record')
+@section('title', 'Create Hall')
 
 @section('content')
     <div class="page-breadcrumb d-none d-sm-flex align-items-center mb-3">
@@ -8,27 +8,27 @@
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb mb-0 p-0">
                     <li class="breadcrumb-item"><a href="{{ route('dashboard') }}"><i class="bx bx-home-alt"></i></a></li>
-                    <li class="breadcrumb-item"><a href="{{ route('feed_inventory.index', $hall->id) }}">Feed Inventory</a>
-                    </li>
-                    <li class="breadcrumb-item active" aria-current="page">Add Feed Record</li>
+                    <li class="breadcrumb-item"><a href="{{ route('halls.index') }}">Halls</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Create Hall</li>
                 </ol>
             </nav>
         </div>
     </div>
 
-    <form action="{{ route('feed_inventory.store', $hall->id) }}" method="POST" id="feedForm">
+    <form action="{{ route('halls.store') }}" method="POST" enctype="multipart/form-data" id="hallForm">
         @csrf
+
         <div class="row">
             <div class="col-12">
                 <div class="card">
                     <!-- Top Buttons -->
                     <div class="card-header d-flex justify-content-between align-items-center bg-primary">
-                        <h5 class="mb-0 text-white">Add Feed Record</h5>
+                        <h5 class="mb-0 text-white">Create Hall</h5>
                         <div class="btn-group">
                             <button type="submit" class="btn btn-light btn-sm">
                                 <i class="material-icons-outlined">save</i> Save
                             </button>
-                            <a href="{{ route('feed_inventory.index', $hall->id) }}" class="btn btn-light btn-sm">
+                            <a href="{{ route('halls.index') }}" class="btn btn-light btn-sm">
                                 <i class="material-icons-outlined">cancel</i> Cancel
                             </a>
                         </div>
@@ -37,69 +37,97 @@
                     <div class="card-body p-4">
                         <div class="row g-3">
                             <div class="col-md-6">
-                                <label class="form-label">Entry Type <span class="text-danger">*</span></label>
-                                <select name="entry_type" class="form-select @error('entry_type') is-invalid @enderror"
+                                <label class="form-label">Hall Name <span class="text-danger">*</span></label>
+                                <input type="text" name="name" value="{{ old('name') }}" class="form-control"
                                     required>
-                                    <option value="">Select Type</option>
-                                    <option value="stock_in" {{ old('entry_type') == 'stock_in' ? 'selected' : '' }}>Stock
-                                        In</option>
-                                    <option value="consumption" {{ old('entry_type') == 'consumption' ? 'selected' : '' }}>
-                                        Consumption</option>
-                                </select>
-                                @error('entry_type')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
                             </div>
 
                             <div class="col-md-6">
-                                <label class="form-label">Feed Name</label>
-                                <input type="text" name="feed_name" value="{{ old('feed_name') }}" class="form-control">
-                                @error('feed_name')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <div class="col-md-4">
-                                <label class="form-label">Quantity (kg/L) <span class="text-danger">*</span></label>
-                                <input type="number" step="0.01" name="quantity" value="{{ old('quantity') }}"
-                                    class="form-control" required>
-                                @error('quantity')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <div class="col-md-4">
-                                <label class="form-label">Cost per Unit</label>
-                                <input type="number" step="0.01" name="cost_per_unit"
-                                    value="{{ old('cost_per_unit') }}" class="form-control">
-                                @error('cost_per_unit')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <div class="col-md-4">
-                                <label class="form-label">Vendor</label>
-                                <input type="text" name="vendor" value="{{ old('vendor') }}" class="form-control">
-                                @error('vendor')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
+                                <label class="form-label">Owner Name</label>
+                                <input type="text" name="owner_name" value="{{ old('owner_name') }}"
+                                    class="form-control">
                             </div>
 
                             <div class="col-md-6">
-                                <label class="form-label">Date <span class="text-danger">*</span></label>
-                                <input type="date" name="date" value="{{ old('date', now()->format('Y-m-d')) }}"
-                                    class="form-control" required>
-                                @error('date')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
+                                <label class="form-label">Phone</label>
+                                <input type="text" name="phone" value="{{ old('phone') }}" class="form-control">
                             </div>
 
                             <div class="col-md-6">
-                                <label class="form-label">Remarks</label>
-                                <input type="text" name="remarks" value="{{ old('remarks') }}" class="form-control">
-                                @error('remarks')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
+                                <label class="form-label">Email</label>
+                                <input type="email" name="email" value="{{ old('email') }}" class="form-control">
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">City</label>
+                                <input type="text" name="city" value="{{ old('city') }}" class="form-control">
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">State</label>
+                                <input type="text" name="state" value="{{ old('state') }}" class="form-control">
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">Country</label>
+                                <input type="text" name="country" value="{{ old('country') }}" class="form-control">
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">Zipcode</label>
+                                <input type="text" name="zipcode" value="{{ old('zipcode') }}" class="form-control">
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">Area</label>
+                                <input type="text" name="area" value="{{ old('area') }}" class="form-control">
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">Hall Capacity</label>
+                                <input type="number" name="hall_capacity" value="{{ old('hall_capacity') }}"
+                                    class="form-control">
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">Hall Types</label>
+                                <input type="text" name="hall_types" value="{{ old('hall_types') }}"
+                                    class="form-control" placeholder="e.g. Banquet, Conference">
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">Registration Number</label>
+                                <input type="text" name="registration_number"
+                                    value="{{ old('registration_number') }}" class="form-control">
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">Established At</label>
+                                <input type="date" name="established_at" value="{{ old('established_at') }}"
+                                    class="form-control">
+                            </div>
+
+                            <div class="col-md-12">
+                                <label class="form-label">Description</label>
+                                <textarea name="description" class="form-control" rows="3">{{ old('description') }}</textarea>
+                            </div>
+
+                            @if (auth()->user()->isSuperAdmin())
+                                <div class="col-md-6">
+                                    <label class="form-label">Status</label>
+                                    <select name="status" class="form-select">
+                                        <option value="1" {{ old('status') == 1 ? 'selected' : '' }}>Active</option>
+                                        <option value="0" {{ old('status') == 0 ? 'selected' : '' }}>Inactive
+                                        </option>
+                                    </select>
+                                </div>
+                            @else
+                                <input type="hidden" name="status" value="1">
+                            @endif
+
+                            <div class="col-md-12">
+                                <label class="form-label">Notes</label>
+                                <textarea name="notes" class="form-control" rows="2">{{ old('notes') }}</textarea>
                             </div>
                         </div>
                     </div>
@@ -109,7 +137,7 @@
                         <button type="submit" class="btn btn-primary px-4">
                             <i class="material-icons-outlined">save</i> Save
                         </button>
-                        <a href="{{ route('feed_inventory.index', $hall->id) }}" class="btn btn-secondary px-4">
+                        <a href="{{ route('halls.index') }}" class="btn btn-secondary px-4">
                             <i class="material-icons-outlined">cancel</i> Cancel
                         </a>
                     </div>

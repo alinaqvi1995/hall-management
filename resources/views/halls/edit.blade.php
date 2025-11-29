@@ -42,58 +42,81 @@
                                 <input type="text" name="name" value="{{ old('name', $hall->name) }}"
                                     class="form-control" required>
                             </div>
+
                             <div class="col-md-6">
                                 <label class="form-label">Owner Name</label>
                                 <input type="text" name="owner_name" value="{{ old('owner_name', $hall->owner_name) }}"
                                     class="form-control">
                             </div>
+
                             <div class="col-md-6">
                                 <label class="form-label">Phone</label>
                                 <input type="text" name="phone" value="{{ old('phone', $hall->phone) }}"
                                     class="form-control">
                             </div>
+
                             <div class="col-md-6">
                                 <label class="form-label">Email</label>
                                 <input type="email" name="email" value="{{ old('email', $hall->email) }}"
                                     class="form-control">
                             </div>
+
                             <div class="col-md-6">
                                 <label class="form-label">City</label>
                                 <input type="text" name="city" value="{{ old('city', $hall->city) }}"
                                     class="form-control">
                             </div>
+
                             <div class="col-md-6">
                                 <label class="form-label">State</label>
                                 <input type="text" name="state" value="{{ old('state', $hall->state) }}"
                                     class="form-control">
                             </div>
+
                             <div class="col-md-6">
                                 <label class="form-label">Country</label>
                                 <input type="text" name="country" value="{{ old('country', $hall->country) }}"
                                     class="form-control">
                             </div>
+
                             <div class="col-md-6">
                                 <label class="form-label">Zipcode</label>
                                 <input type="text" name="zipcode" value="{{ old('zipcode', $hall->zipcode) }}"
                                     class="form-control">
                             </div>
+
                             <div class="col-md-6">
                                 <label class="form-label">Area</label>
                                 <input type="text" name="area" value="{{ old('area', $hall->area) }}"
                                     class="form-control">
                             </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">Hall Capacity</label>
+                                <input type="number" name="hall_capacity"
+                                    value="{{ old('hall_capacity', $hall->hall_capacity) }}" class="form-control">
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">Hall Types</label>
+                                <input type="text" name="hall_types" value="{{ old('hall_types', $hall->hall_types) }}"
+                                    class="form-control" placeholder="e.g. Banquet, Conference">
+                            </div>
+
                             <div class="col-md-6">
                                 <label class="form-label">Registration Number</label>
                                 <input type="text" name="registration_number"
                                     value="{{ old('registration_number', $hall->registration_number) }}"
                                     class="form-control">
                             </div>
+
                             <div class="col-md-6">
                                 <label class="form-label">Established At</label>
                                 <input type="date" name="established_at"
                                     value="{{ old('established_at', $hall->established_at ? \Carbon\Carbon::parse($hall->established_at)->format('Y-m-d') : '') }}"
                                     class="form-control">
                             </div>
+
                             <div class="col-md-12">
                                 <label class="form-label">Description</label>
                                 <textarea name="description" class="form-control" rows="3">{{ old('description', $hall->description) }}</textarea>

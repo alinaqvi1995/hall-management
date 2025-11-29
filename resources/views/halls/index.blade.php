@@ -8,9 +8,9 @@
 
     @can('create-halls')
         <div class="mb-3 text-end">
-            <button class="btn btn-grd btn-grd-primary" id="addHallBtn">
+            <a href="{{ route('halls.create') }}" class="btn btn-grd btn-grd-primary">
                 <i class="material-icons-outlined">add</i> Add Hall
-            </button>
+            </a>
         </div>
     @endcan
 
@@ -42,19 +42,19 @@
                                 <td>{{ $hall->owner_name ?? '-' }}</td>
                                 <td>{{ $hall->users()->count() }}</td>
                                 <td>{!! $hall->status_label ?? '-' !!}</td>
-                                <td>{{ $hall->creator_name ?? '-' }}</td>
-                                <td>{{ $hall->editor_name ?? '-' }}</td>
+                                <td>
+                                    {{ $hall->creator_name ?? '-' }} <br>
+                                    {{ $hall->created_atformatted }} 
+                                </td>
+                                <td>
+                                    {{ $hall->editor_name ?? '-' }} <br>
+                                    {{ $hall->updated_atformatted }}
+                                </td>
                                 <td>
                                     @can('edit-halls')
-                                        <button class="btn btn-sm btn-info editHallBtn" data-id="{{ $hall->id }}"
-                                            data-name="{{ $hall->name }}" data-owner="{{ $hall->owner_name }}"
-                                            data-phone="{{ $hall->phone }}" data-email="{{ $hall->email }}"
-                                            data-address="{{ $hall->address }}" data-city="{{ $hall->city }}"
-                                            data-state="{{ $hall->state }}" data-country="{{ $hall->country }}"
-                                            data-zipcode="{{ $hall->zipcode }}" data-area="{{ $hall->area }}"
-                                            data-description="{{ $hall->description }}" data-status="{{ $hall->status }}">
+                                        <a href="{{ route('halls.edit', $hall->id) }}" class="btn btn-sm btn-info">
                                             <i class="material-icons-outlined">edit</i>
-                                        </button>
+                                        </a>
                                     @endcan
                                     @can('delete-halls')
                                         <form action="{{ route('halls.destroy', $hall->id) }}" method="POST" class="d-inline">
