@@ -1,0 +1,20 @@
+[12-Aug-2025 17:54:16 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Testing\TestCase" not found in /home/housesre/bridgeway.alliedfilterhouse.store/tests/TestCase.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/housesre/bridgeway.alliedfilterhouse.store/tests/TestCase.php on line 7
+[12-Aug-2025 17:54:24 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Testing\TestCase" not found in /home/housesre/bridgeway.alliedfilterhouse.store/tests/TestCase.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/housesre/bridgeway.alliedfilterhouse.store/tests/TestCase.php on line 7
+[12-Aug-2025 17:54:34 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Testing\TestCase" not found in /home/housesre/bridgeway.alliedfilterhouse.store/tests/TestCase.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/housesre/bridgeway.alliedfilterhouse.store/tests/TestCase.php on line 7
+[12-Aug-2025 17:54:44 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Testing\TestCase" not found in /home/housesre/bridgeway.alliedfilterhouse.store/tests/TestCase.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/housesre/bridgeway.alliedfilterhouse.store/tests/TestCase.php on line 7
+[12-Aug-2025 17:54:56 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Testing\TestCase" not found in /home/housesre/bridgeway.alliedfilterhouse.store/tests/TestCase.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/housesre/bridgeway.alliedfilterhouse.store/tests/TestCase.php on line 7

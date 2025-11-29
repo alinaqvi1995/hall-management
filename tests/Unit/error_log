@@ -1,0 +1,20 @@
+[12-Aug-2025 19:29:54 UTC] PHP Fatal error:  Uncaught Error: Class "PHPUnit\Framework\TestCase" not found in /home/housesre/bridgeway.alliedfilterhouse.store/tests/Unit/ExampleTest.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/housesre/bridgeway.alliedfilterhouse.store/tests/Unit/ExampleTest.php on line 7
+[12-Aug-2025 19:30:03 UTC] PHP Fatal error:  Uncaught Error: Class "PHPUnit\Framework\TestCase" not found in /home/housesre/bridgeway.alliedfilterhouse.store/tests/Unit/ExampleTest.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/housesre/bridgeway.alliedfilterhouse.store/tests/Unit/ExampleTest.php on line 7
+[12-Aug-2025 19:30:17 UTC] PHP Fatal error:  Uncaught Error: Class "PHPUnit\Framework\TestCase" not found in /home/housesre/bridgeway.alliedfilterhouse.store/tests/Unit/ExampleTest.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/housesre/bridgeway.alliedfilterhouse.store/tests/Unit/ExampleTest.php on line 7
+[12-Aug-2025 19:30:28 UTC] PHP Fatal error:  Uncaught Error: Class "PHPUnit\Framework\TestCase" not found in /home/housesre/bridgeway.alliedfilterhouse.store/tests/Unit/ExampleTest.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/housesre/bridgeway.alliedfilterhouse.store/tests/Unit/ExampleTest.php on line 7
+[12-Aug-2025 19:30:44 UTC] PHP Fatal error:  Uncaught Error: Class "PHPUnit\Framework\TestCase" not found in /home/housesre/bridgeway.alliedfilterhouse.store/tests/Unit/ExampleTest.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/housesre/bridgeway.alliedfilterhouse.store/tests/Unit/ExampleTest.php on line 7

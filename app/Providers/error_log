@@ -1,0 +1,16 @@
+[12-Aug-2025 19:30:26 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Support\ServiceProvider" not found in /home/housesre/bridgeway.alliedfilterhouse.store/app/Providers/AppServiceProvider.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/housesre/bridgeway.alliedfilterhouse.store/app/Providers/AppServiceProvider.php on line 7
+[12-Aug-2025 19:31:14 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Support\ServiceProvider" not found in /home/housesre/bridgeway.alliedfilterhouse.store/app/Providers/AppServiceProvider.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/housesre/bridgeway.alliedfilterhouse.store/app/Providers/AppServiceProvider.php on line 7
+[12-Aug-2025 19:32:28 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Support\ServiceProvider" not found in /home/housesre/bridgeway.alliedfilterhouse.store/app/Providers/AppServiceProvider.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/housesre/bridgeway.alliedfilterhouse.store/app/Providers/AppServiceProvider.php on line 7
+[12-Aug-2025 19:36:11 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Support\ServiceProvider" not found in /home/housesre/bridgeway.alliedfilterhouse.store/app/Providers/AppServiceProvider.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/housesre/bridgeway.alliedfilterhouse.store/app/Providers/AppServiceProvider.php on line 7

@@ -1,0 +1,20 @@
+[12-Aug-2025 17:54:13 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Application" not found in /home/housesre/bridgeway.alliedfilterhouse.store/bootstrap/app.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/housesre/bridgeway.alliedfilterhouse.store/bootstrap/app.php on line 7
+[12-Aug-2025 17:54:22 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Application" not found in /home/housesre/bridgeway.alliedfilterhouse.store/bootstrap/app.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/housesre/bridgeway.alliedfilterhouse.store/bootstrap/app.php on line 7
+[12-Aug-2025 17:54:33 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Application" not found in /home/housesre/bridgeway.alliedfilterhouse.store/bootstrap/app.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/housesre/bridgeway.alliedfilterhouse.store/bootstrap/app.php on line 7
+[12-Aug-2025 17:54:43 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Application" not found in /home/housesre/bridgeway.alliedfilterhouse.store/bootstrap/app.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/housesre/bridgeway.alliedfilterhouse.store/bootstrap/app.php on line 7
+[12-Aug-2025 17:54:56 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Application" not found in /home/housesre/bridgeway.alliedfilterhouse.store/bootstrap/app.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/housesre/bridgeway.alliedfilterhouse.store/bootstrap/app.php on line 7
