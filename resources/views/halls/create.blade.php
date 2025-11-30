@@ -130,6 +130,39 @@
                                 <textarea name="notes" class="form-control" rows="2">{{ old('notes') }}</textarea>
                             </div>
                         </div>
+
+                        <hr class="my-4">
+
+                        <!-- ========================= -->
+                        <!--      LAWNS SECTION        -->
+                        <!-- ========================= -->
+                        <h5 class="mb-3">Lawns</h5>
+
+                        <div id="lawnWrapper">
+                            <!-- Default 1 Lawn Block -->
+                            <div class="row g-3 lawn-item border rounded p-3 mb-3">
+                                <div class="col-md-5">
+                                    <label class="form-label">Lawn Name</label>
+                                    <input type="text" name="lawns[0][name]" class="form-control" required>
+                                </div>
+
+                                <div class="col-md-5">
+                                    <label class="form-label">Capacity</label>
+                                    <input type="number" name="lawns[0][capacity]" class="form-control">
+                                </div>
+
+                                <div class="col-md-2 d-flex align-items-end">
+                                    <button type="button" class="btn btn-danger removeLawn d-none w-100">
+                                        Remove
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="button" id="addLawn" class="btn btn-success btn-sm mt-2">
+                            + Add Lawn
+                        </button>
+
                     </div>
 
                     <!-- Bottom Buttons -->
@@ -141,8 +174,53 @@
                             <i class="material-icons-outlined">cancel</i> Cancel
                         </a>
                     </div>
+
                 </div>
             </div>
         </div>
     </form>
+
+@endsection
+
+@section('extra_js')
+    <script>
+        let lawnCount = 1;
+        const maxLawns = 4;
+
+        $('#addLawn').click(function() {
+
+            if (lawnCount >= maxLawns) {
+                alert('Maximum 4 lawns allowed.');
+                return;
+            }
+
+            let html = `
+        <div class="row g-3 lawn-item border rounded p-3 mb-3">
+            <div class="col-md-5">
+                <label class="form-label">Lawn Name</label>
+                <input type="text" name="lawns[${lawnCount}][name]" class="form-control" required>
+            </div>
+
+            <div class="col-md-5">
+                <label class="form-label">Capacity</label>
+                <input type="number" name="lawns[${lawnCount}][capacity]" class="form-control">
+            </div>
+
+            <div class="col-md-2 d-flex align-items-end">
+                <button type="button" class="btn btn-danger removeLawn w-100">
+                    Remove
+                </button>
+            </div>
+        </div>
+        `;
+
+            $('#lawnWrapper').append(html);
+            lawnCount++;
+        });
+
+        $(document).on('click', '.removeLawn', function() {
+            $(this).closest('.lawn-item').remove();
+            lawnCount--;
+        });
+    </script>
 @endsection

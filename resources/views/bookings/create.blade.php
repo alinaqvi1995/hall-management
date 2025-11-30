@@ -84,6 +84,24 @@
                         <h5 class="mt-4 mb-3">Booking Details</h5>
                         <div class="row g-3">
                             <div class="col-md-6">
+                                <label class="form-label">Start Date & Time <span class="text-danger">*</span></label>
+                                <input type="datetime-local" name="start_datetime" value="{{ old('start_datetime') }}"
+                                    class="form-control" required>
+                                @error('start_datetime')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">End Date & Time <span class="text-danger">*</span></label>
+                                <input type="datetime-local" name="end_datetime" value="{{ old('end_datetime') }}"
+                                    class="form-control" required>
+                                @error('end_datetime')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="col-md-6">
                                 <label class="form-label">Hall <span class="text-danger">*</span></label>
                                 <select name="hall_id" class="form-select" required>
                                     <option value="">Select Hall</option>
@@ -99,28 +117,21 @@
                             </div>
 
                             <div class="col-md-6">
-                                <label class="form-label">Capacity <span class="text-danger">*</span></label>
-                                <input type="number" name="capacity" value="{{ old('capacity') }}" class="form-control"
-                                    required>
+                                <label class="form-label">Lawn <span class="text-danger">*</span></label>
+                                <select name="lawn_id" id="lawnSelect" class="form-select" required>
+                                    <option value="">Select Lawn</option>
+                                    {{-- Options will be populated dynamically --}}
+                                </select>
+                                @error('lawn_id')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">Capacity Requirement <span class="text-danger">*</span></label>
+                                <input type="number" name="capacity" value="{{ old('capacity') }}"
+                                    class="form-control" required>
                                 @error('capacity')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <div class="col-md-6">
-                                <label class="form-label">Start Date & Time <span class="text-danger">*</span></label>
-                                <input type="datetime-local" name="start_datetime" value="{{ old('start_datetime') }}"
-                                    class="form-control" required>
-                                @error('start_datetime')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <div class="col-md-6">
-                                <label class="form-label">End Date & Time <span class="text-danger">*</span></label>
-                                <input type="datetime-local" name="end_datetime" value="{{ old('end_datetime') }}"
-                                    class="form-control" required>
-                                @error('end_datetime')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
@@ -317,6 +328,51 @@
                 });
 
                 if (!valid) e.preventDefault();
+            });
+        });
+    </script>
+    <script>
+        $(document).ready(function() {
+            const hallSelect = $('[name="hall_id"]');
+            const lawnSelect = $('#lawnSelect');
+
+            function loadLawns(hallId, start, end, selectedLawn = null) {
+                // Reset dropdown with default option
+                lawnSelect.html('<option value="">Select Lawn</option>');
+
+                if (!hallId) return;
+
+                $.get('/halls/' + hallId + '/lawns', {
+                    start,
+                    end
+                }, function(data) {
+                    // Build new options as a single string
+                    let options = '';
+                    data.forEach(function(lawn) {
+                        const selected = selectedLawn == lawn.id ? 'selected' : '';
+                        const disabled = !lawn.available ? 'disabled' : '';
+                        const color = !lawn.available ? 'color:red;' : '';
+                        let label = `${lawn.name} (${lawn.capacity})`;
+                        if (!lawn.available) {
+                            label += ` - Booked (${lawn.booked_from} to ${lawn.booked_to})`;
+                        }
+                        options +=
+                            `<option value="${lawn.id}" ${selected} ${disabled} style="${color}">${label}</option>`;
+                    });
+
+                    // Replace options in dropdown
+                    lawnSelect.html('<option value="">Select Lawn</option>' + options);
+                });
+            }
+
+            // On hall or date change
+            hallSelect.on('change', function() {
+                loadLawns($(this).val(), $('[name="start_datetime"]').val(), $('[name="end_datetime"]')
+                    .val());
+            });
+            $('[name="start_datetime"], [name="end_datetime"]').on('change', function() {
+                loadLawns(hallSelect.val(), $('[name="start_datetime"]').val(), $('[name="end_datetime"]')
+                    .val());
             });
         });
     </script>

@@ -72,6 +72,19 @@
                 {{-- Roles / Direct Permissions --}}
                 <div class="row">
                     <div class="col-md-4 mb-3">
+                        <label class="form-label">Hall *</label>
+                        <select name="hall_id" class="form-control" required>
+                            <option value="">Please Select</option>
+                            @foreach ($halls as $hall)
+                                <option value="{{ $hall->id }}">{{ $hall->name }}</option>
+                            @endforeach
+                        </select>
+                        @error('halls')
+                            <small class="text-danger">{{ $message }}</small>
+                        @enderror
+                    </div>
+
+                    <div class="col-md-4 mb-3">
                         <label class="form-label">Roles *</label>
                         <select name="roles[]" class="select2-checkbox form-control" multiple
                             data-placeholder="Select roles">

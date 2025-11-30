@@ -3,6 +3,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\BookingRequest;
 use App\Models\Booking;
+use App\Models\Hall;
 use App\Services\BookingService;
 use App\Services\CustomerService;
 
@@ -54,9 +55,31 @@ class BookingController extends Controller
 
     public function create()
     {
-        $halls = \App\Models\Hall::all();
+        $user = auth()->user();
+
+        if ($user->hasRole('super_admin')) {
+            $halls = Hall::all();
+        } else if ($user->hasRole('hall_admin')) {
+
+            if ($user->hall_id ?? false) {
+                $halls = Hall::where('id', $user->hall_id)->get();
+            } else if ($user->halls()->exists()) {
+                $halls = $user->halls;
+            } else {
+                $halls = collect();
+            }
+        } else {
+            $halls = collect();
+        }
+
         return view('bookings.create', compact('halls'));
     }
+
+    // public function create()
+    // {
+    //     $halls = \App\Models\Hall::all();
+    //     return view('bookings.create', compact('halls'));
+    // }
 
     public function store(BookingRequest $request)
     {
@@ -75,7 +98,7 @@ class BookingController extends Controller
         $this->bookingService->createBooking(array_merge(
             $request->only([
                 'hall_id', 'start_datetime', 'end_datetime', 'capacity',
-                'quote_price', 'booking_price', 'advance_paid', 'payment_status', 'status', 'notes', 'facilities',
+                'quote_price', 'booking_price', 'advance_paid', 'payment_status', 'status', 'notes', 'facilities', 'lawn_id',
             ]),
             ['customer_id' => $customer->id]
         ));
@@ -107,7 +130,7 @@ class BookingController extends Controller
         $this->bookingService->updateBooking($booking, array_merge(
             $request->only([
                 'hall_id', 'start_datetime', 'end_datetime', 'capacity',
-                'quote_price', 'booking_price', 'advance_paid', 'payment_status', 'status', 'notes', 'facilities',
+                'quote_price', 'booking_price', 'advance_paid', 'payment_status', 'status', 'notes', 'facilities', 'lawn_id',
             ]),
             ['customer_id' => $customer->id]
         ));

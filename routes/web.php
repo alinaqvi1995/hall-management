@@ -7,11 +7,11 @@ use App\Http\Controllers\Backend\PermissionController;
 use App\Http\Controllers\Backend\RoleController;
 use App\Http\Controllers\Backend\UserManagementController;
 use App\Http\Controllers\Backend\UserTrustedIpController;
+use App\Http\Controllers\BookingController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CityController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\HallController;
-use App\Http\Controllers\BookingController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\StateController;
 use App\Http\Controllers\SubcategoryController;
@@ -75,10 +75,11 @@ Route::middleware(['auth', 'check_active'])->group(function () {
     Route::resource('bookings', BookingController::class);
     Route::get('bookings/events', [DashboardController::class, 'getBookings'])->name('bookings.events');
 
-
     Route::resource('states', StateController::class);
     Route::resource('cities', CityController::class);
 
+    Route::get('/halls/{hall}/lawns', [HallController::class, 'lawns'])
+        ->name('halls.lawns');
 });
 
 require __DIR__ . '/auth.php';

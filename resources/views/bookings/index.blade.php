@@ -77,13 +77,15 @@
     <h6 class="mb-0 text-uppercase">Bookings</h6>
     <hr>
 
-    @can('create-bookings')
+    {{-- @can('create-bookings') --}}
+    @if (auth()->user()->isSuperAdmin() || auth()->user()->isHallAdmin())
         <div class="mb-3 text-end">
             <a href="{{ route('bookings.create') }}" class="btn btn-grd btn-grd-primary">
                 <i class="material-icons-outlined">add</i> Add Booking
             </a>
         </div>
-    @endcan
+    @endif
+    {{-- @endcan --}}
 
     {{-- TABS --}}
     <ul class="nav nav-tabs mb-3" id="bookingTabs">
@@ -116,12 +118,12 @@
                                 <tr>
                                     <th>Sr#</th>
                                     <th>Customer</th>
-                                    <th>Hall</th>
+                                    <th>Hall - Lawn</th>
                                     <th>Start</th>
                                     <th>End</th>
-                                    <th>Booking Price</th>
-                                    <th>Advance</th>
-                                    <th>Payment</th>
+                                    {{-- <th>Booking Price</th>
+                                    <th>Advance</th> --}}
+                                    <th>Payments</th>
                                     <th>Status</th>
                                     <th>Actions</th>
                                 </tr>
@@ -136,12 +138,19 @@
                                                 ({{ $booking->customer->cnic ?? '-' }})
                                             </a>
                                         </td>
-                                        <td>{{ $booking->hall->name ?? '-' }}</td>
-                                        <td>{{ $booking->start_datetime?->format('d-M-Y H:i') }}</td>
-                                        <td>{{ $booking->end_datetime?->format('d-M-Y H:i') }}</td>
-                                        <td>{{ number_format($booking->booking_price ?? 0, 2) }}</td>
-                                        <td>{{ number_format($booking->advance_paid ?? 0, 2) }}</td>
-                                        <td>{{ ucfirst($booking->payment_status) }}</td>
+                                        <td>
+                                            {{ $booking->hall->name ?? '' }}
+                                            ({{ $booking->lawn->name ?? '' }})
+                                        </td>
+                                        <td>{{ $booking->start_datetime?->format('d M Y h:i A') }}</td>
+                                        <td>{{ $booking->end_datetime?->format('d M Y h:i A') }}</td>
+                                        <td>
+                                            <strong>Booking Price: </strong>
+                                            {{ number_format($booking->booking_price ?? 0, 2) }}Rs<br>
+                                            <strong>Advance: </strong>
+                                            {{ number_format($booking->advance_paid ?? 0, 2) }}Rs<br>
+                                            <strong>Status: </strong> {{ ucfirst($booking->payment_status) }}
+                                        </td>
                                         <td>{{ $booking->status_label }}</td>
                                         <td>
                                             @can('edit-bookings')

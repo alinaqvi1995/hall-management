@@ -81,6 +81,7 @@ class UserManagementController extends Controller
         // dd($roles->toArray());
         $permissions = Permission::all();
         $users = User::all();
+        $halls = Hall::all();
 
         // Order states & cities alphabetically
         $states = State::orderBy('name', 'asc')->get();
@@ -88,12 +89,13 @@ class UserManagementController extends Controller
 
         Gate::authorize('create', $user);
 
-        return view('dashboard.users.create', compact('roles', 'permissions', 'users', 'states', 'cities'));
+        return view('dashboard.users.create', compact('roles', 'permissions', 'users', 'states', 'cities', 'halls'));
     }
 
     public function userStore(Request $request)
     {
         $request->validate([
+            'hall_id' => 'required|string|max:255',
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:6',
@@ -109,6 +111,7 @@ class UserManagementController extends Controller
 
             // Create user
             $user = User::create([
+                'hall_id' => $request->hall_id,
                 'name' => $request->name,
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
@@ -248,8 +251,9 @@ class UserManagementController extends Controller
         $users = User::all();
         $states = State::orderBy('name')->get();
         $cities = City::orderBy('name')->get(); 
+        $halls = Hall::all();
 
-        return view('dashboard.users.edit', compact('user', 'roles', 'permissions', 'users', 'states', 'cities'));
+        return view('dashboard.users.edit', compact('user', 'roles', 'permissions', 'users', 'states', 'cities', 'halls'));
     }
 
     public function userUpdate(Request $request, $id)
@@ -276,6 +280,7 @@ class UserManagementController extends Controller
                 'email' => $request->email,
                 'password' => $request->filled('password') ? Hash::make($request->password) : $user->password,
                 'is_active' => $request->has('is_active') ? 1 : 0,
+                'hall_id' => $request->hall_id,
             ]);
 
             $detail = $user->detail ?: new UserDetail([

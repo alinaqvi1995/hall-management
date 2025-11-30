@@ -14,6 +14,7 @@ class Booking extends Model
         'created_by',
         'updated_by',
         'hall_id',
+        'lawn_id',
         'customer_id',
         'start_datetime',
         'end_datetime',
@@ -41,6 +42,11 @@ class Booking extends Model
     public function hall()
     {
         return $this->belongsTo(Hall::class);
+    }
+
+    public function lawn()
+    {
+        return $this->belongsTo(Lawn::class);
     }
 
     public function customer()

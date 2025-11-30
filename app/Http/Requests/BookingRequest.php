@@ -20,6 +20,7 @@ class BookingRequest extends FormRequest
             'customer_address' => 'nullable|string|max:500',
 
             'hall_id'          => 'required|exists:halls,id',
+            'lawn_id'          => 'required|exists:lawns,id',
             'start_datetime'   => 'required|date|after_or_equal:today',
             'end_datetime'     => 'required|date|after:start_datetime',
             'capacity'         => 'required|integer|min:1',

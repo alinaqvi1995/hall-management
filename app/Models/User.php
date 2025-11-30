@@ -16,6 +16,7 @@ class User extends Authenticatable
         'email',
         'password',
         'is_active',
+        'hall_id',
         'force_logout',
         'otp_code',
         'otp_expires_at',

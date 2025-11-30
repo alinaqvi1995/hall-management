@@ -12,7 +12,15 @@ class CustomerService
             $customer = Customer::findOrFail($customerId);
             $customer->update($data);
         } else {
-            $customer = Customer::create($data);
+            $customer = Customer::where('cnic', $data['cnic'])->first();
+
+            if ($customer) {
+                $updateData = $data;
+                unset($updateData['cnic']);
+                $customer->update($updateData);
+            } else {
+                $customer = Customer::create($data);
+            }
         }
 
         return $customer;

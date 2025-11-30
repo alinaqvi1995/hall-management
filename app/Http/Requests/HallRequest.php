@@ -32,6 +32,12 @@ class HallRequest extends FormRequest
             'established_at'      => 'nullable|date',
             'status'              => 'required|in:0,1',
             'notes'               => 'nullable|string',
+
+            // ───── LAWNS ─────
+            'lawns'               => 'nullable|array',
+            'lawns.*.id'          => 'nullable|integer|exists:lawns,id',
+            'lawns.*.name'        => 'required|string|max:255',
+            'lawns.*.capacity'    => 'nullable|integer|min:0',
         ];
     }
 }

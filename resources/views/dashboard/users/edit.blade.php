@@ -74,6 +74,18 @@
                 {{-- Roles / Direct Permissions --}}
                 <div class="row">
                     <div class="col-md-4 mb-3">
+                        <label class="form-label">Hall *</label>
+                        <select name="hall_id" class="form-control">
+                            @foreach ($halls as $hall)
+                                <option value="{{ $hall->id }}" @if($user->hall_id == $hall->id) selected @endif>{{ $hall->name }}</option>
+                            @endforeach
+                        </select>
+                        @error('halls')
+                            <small class="text-danger">{{ $message }}</small>
+                        @enderror
+                    </div>
+
+                    <div class="col-md-4 mb-3">
                         <label class="form-label">Roles *</label>
                         <select name="roles[]" class="form-control select2-checkbox" multiple="multiple">
                             @foreach ($roles->where('slug', '!=', 'admin') as $role)
@@ -145,12 +157,14 @@
                             name="address_1" class="form-control" value="{{ old('address_1', $detail->address_1 ?? '') }}">
                     </div>
                     <div class="col-md-6 mb-3"><label class="form-label">Address 2</label><input type="text"
-                            name="address_2" class="form-control" value="{{ old('address_2', $detail->address_2 ?? '') }}">
+                            name="address_2" class="form-control"
+                            value="{{ old('address_2', $detail->address_2 ?? '') }}">
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-md-3 mb-3"><label class="form-label">Country</label><input type="text" name="country"
-                            class="form-control" value="{{ old('country', $detail->country ?? 'Pakistan') }}" readonly></div>
+                    <div class="col-md-3 mb-3"><label class="form-label">Country</label><input type="text"
+                            name="country" class="form-control"
+                            value="{{ old('country', $detail->country ?? 'Pakistan') }}" readonly></div>
                     <div class="col-md-3 mb-3">
                         <label class="form-label">State</label>
                         <select name="state" id="state" class="form-control select2">

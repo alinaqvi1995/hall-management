@@ -22,6 +22,7 @@
         <div class="row">
             <div class="col-12">
                 <div class="card">
+
                     <!-- Top Buttons -->
                     <div class="card-header d-flex justify-content-between align-items-center bg-primary">
                         <h5 class="mb-0 text-white">Edit Hall</h5>
@@ -37,6 +38,7 @@
 
                     <div class="card-body p-4">
                         <div class="row g-3">
+
                             <div class="col-md-6">
                                 <label class="form-label">Hall Name <span class="text-danger">*</span></label>
                                 <input type="text" name="name" value="{{ old('name', $hall->name) }}"
@@ -122,6 +124,9 @@
                                 <textarea name="description" class="form-control" rows="3">{{ old('description', $hall->description) }}</textarea>
                             </div>
 
+                            {{-- ─────────────────────────────── --}}
+                            {{--   SUPER ADMIN ONLY – STATUS     --}}
+                            {{-- ─────────────────────────────── --}}
                             @if (auth()->user()->isSuperAdmin())
                                 <div class="col-md-6">
                                     <label class="form-label">Status</label>
@@ -140,10 +145,38 @@
                                 <label class="form-label">Notes</label>
                                 <textarea name="notes" class="form-control" rows="2">{{ old('notes', $hall->notes) }}</textarea>
                             </div>
+
+                            {{-- ========================= --}}
+                            {{-- LAWNS SECTION --}}
+                            {{-- ========================= --}}
+                            <h5 class="mt-4 mb-3">Lawns</h5>
+                            <div id="lawnWrapper">
+                                @foreach (old('lawns', $hall->lawns->toArray()) as $index => $lawn)
+                                    <div class="row g-3 lawn-item border rounded p-3 mb-3">
+                                        <input type="hidden" name="lawns[{{ $index }}][id]"
+                                            value="{{ $lawn['id'] ?? '' }}">
+                                        <div class="col-md-5">
+                                            <label class="form-label">Lawn Name</label>
+                                            <input type="text" name="lawns[{{ $index }}][name]"
+                                                value="{{ $lawn['name'] ?? '' }}" class="form-control" required>
+                                        </div>
+                                        <div class="col-md-5">
+                                            <label class="form-label">Capacity</label>
+                                            <input type="number" name="lawns[{{ $index }}][capacity]"
+                                                value="{{ $lawn['capacity'] ?? '' }}" class="form-control">
+                                        </div>
+                                        <div class="col-md-2 d-flex align-items-end">
+                                            <button type="button" class="btn btn-danger removeLawn w-100">Remove</button>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+
+                            <button type="button" id="addLawn" class="btn btn-success btn-sm mt-2">+ Add Lawn</button>
+
                         </div>
                     </div>
 
-                    <!-- Bottom Buttons -->
                     <div class="card-footer text-end">
                         <button type="submit" class="btn btn-primary px-4">
                             <i class="material-icons-outlined">save</i> Update
@@ -152,8 +185,46 @@
                             <i class="material-icons-outlined">cancel</i> Cancel
                         </a>
                     </div>
+
                 </div>
             </div>
         </div>
     </form>
+@endsection
+
+@section('extra_js')
+    <script>
+        let lawnCount = {{ count(old('lawns', $hall->lawns)) }};
+        const maxLawns = 10; // adjust as needed
+
+        $('#addLawn').click(function() {
+            if (lawnCount >= maxLawns) {
+                alert('Maximum ' + maxLawns + ' lawns allowed.');
+                return;
+            }
+
+            let html = `
+        <div class="row g-3 lawn-item border rounded p-3 mb-3">
+            <div class="col-md-5">
+                <label class="form-label">Lawn Name</label>
+                <input type="text" name="lawns[${lawnCount}][name]" class="form-control" required>
+            </div>
+            <div class="col-md-5">
+                <label class="form-label">Capacity</label>
+                <input type="number" name="lawns[${lawnCount}][capacity]" class="form-control">
+            </div>
+            <div class="col-md-2 d-flex align-items-end">
+                <button type="button" class="btn btn-danger removeLawn w-100">Remove</button>
+            </div>
+        </div>
+        `;
+            $('#lawnWrapper').append(html);
+            lawnCount++;
+        });
+
+        $(document).on('click', '.removeLawn', function() {
+            $(this).closest('.lawn-item').remove();
+            lawnCount--;
+        });
+    </script>
 @endsection

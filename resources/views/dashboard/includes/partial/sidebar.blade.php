@@ -75,7 +75,7 @@
                 </li>
             @endif --}}
             <li>
-                <a href="{{ route('bookings.index', auth()->user()->hall_id) }}">
+                <a href="{{ route('bookings.index') }}">
                     <div class="parent-icon notranslate"><i class="material-icons-outlined">event_available</i></div>
                     <div class="menu-title">
                         Bookings

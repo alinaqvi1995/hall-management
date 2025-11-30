@@ -68,4 +68,9 @@ class Hall extends Model
     {
         return $this->updated_at ? $this->updated_at->format('d-M-Y h:i A') : '-';
     }
+
+    public function lawns()
+    {
+        return $this->hasMany(Lawn::class, 'hall_id');
+    }
 }
