@@ -80,6 +80,24 @@
                         <h5 class="mt-4 mb-3">Booking Details</h5>
                         <div class="row g-3">
                             <div class="col-md-6">
+                                <label class="form-label">Start Date & Time <span class="text-danger">*</span></label>
+                                <input type="datetime-local" name="start_datetime"
+                                    value="{{ $booking->start_datetime->format('Y-m-d\TH:i') }}" class="form-control"
+                                    required>
+                                @error('start_datetime')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">End Date & Time <span class="text-danger">*</span></label>
+                                <input type="datetime-local" name="end_datetime"
+                                    value="{{ $booking->end_datetime->format('Y-m-d\TH:i') }}" class="form-control"
+                                    required>
+                                @error('end_datetime')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            <div class="col-md-6">
                                 <label class="form-label">Hall <span class="text-danger">*</span></label>
                                 {{-- @if (auth()->user()->isHallAdmin()) --}}
                                 <input type="text" class="form-control" value="{{ $booking->hall->name }}" disabled>
@@ -98,29 +116,27 @@
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">Lawn <span class="text-danger">*</span></label>
+                                <select name="lawn_id" id="lawnSelect" class="form-select" required>
+                                    <option value="">Select Lawn</option>
+                                    @foreach ($lawns as $lawn)
+                                        <option value="{{ $lawn->id }}" @if ($booking->lawn_id == $lawn->id) selected @endif>
+                                            {{ $lawn->name }} ({{ $lawn->capacity }})
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('lawn_id')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
                             <div class="col-md-6">
                                 <label class="form-label">Capacity <span class="text-danger">*</span></label>
                                 <input type="number" name="capacity" value="{{ $booking->capacity }}" class="form-control"
                                     required>
                                 @error('capacity')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Start Date & Time <span class="text-danger">*</span></label>
-                                <input type="datetime-local" name="start_datetime"
-                                    value="{{ $booking->start_datetime->format('Y-m-d\TH:i') }}" class="form-control"
-                                    required>
-                                @error('start_datetime')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">End Date & Time <span class="text-danger">*</span></label>
-                                <input type="datetime-local" name="end_datetime"
-                                    value="{{ $booking->end_datetime->format('Y-m-d\TH:i') }}" class="form-control"
-                                    required>
-                                @error('end_datetime')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>

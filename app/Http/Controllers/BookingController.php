@@ -108,9 +108,49 @@ class BookingController extends Controller
 
     public function edit(Booking $booking)
     {
+        $start = $booking->start_datetime;
+        $end   = $booking->end_datetime;
+
+        $hall = $booking->hall;
+        $lawns = $hall->lawns()->select('id', 'name', 'capacity')->get();
+
+        if ($start && $end) {
+            $startDate = \Carbon\Carbon::parse($start);
+            $endDate   = \Carbon\Carbon::parse($end);
+
+            $lawns->transform(function ($lawn) use ($startDate, $endDate) {
+                // Check if any booking overlaps in time
+                $booking = Booking::where('lawn_id', $lawn->id)
+                    ->where(function ($query) use ($startDate, $endDate) {
+                        $query->where('start_datetime', '<', $endDate)
+                            ->where('end_datetime', '>', $startDate);
+                    })
+                    ->first();
+
+                if ($booking) {
+                    $lawn->available   = false;
+                    $lawn->booked_from = $booking->start_datetime->format('d M Y h:i A');
+                    $lawn->booked_to   = $booking->end_datetime->format('d M Y h:i A');
+                } else {
+                    $lawn->available   = true;
+                    $lawn->booked_from = null;
+                    $lawn->booked_to   = null;
+                }
+
+                return $lawn;
+            });
+        } else {
+            $lawns->transform(function ($lawn) {
+                $lawn->available   = true;
+                $lawn->booked_from = null;
+                $lawn->booked_to   = null;
+                return $lawn;
+            });
+        }
+
         $halls = \App\Models\Hall::all();
         $booking->load('customer');
-        return view('bookings.edit', compact('booking', 'halls'));
+        return view('bookings.edit', compact('booking', 'halls', 'lawns'));
     }
 
     public function update(BookingRequest $request, Booking $booking)
