@@ -37,14 +37,18 @@
                         @enderror
                     </div>
                     <div class="col-md-4 mb-3">
+                        <label class="form-label">CNIC</label>
+                        <input type="text" name="cnic" class="form-control" value="{{ old('cnic') }}">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4 mb-3">
                         <label class="form-label">Password *</label>
                         <input type="password" name="password" class="form-control">
                         @error('password')
                             <small class="text-danger">{{ $message }}</small>
                         @enderror
                     </div>
-                </div>
-                <div class="row">
                     <div class="col-md-4 mb-3">
                         <label class="form-label">Confirm Password *</label>
                         <input type="password" name="password_confirmation" class="form-control">
@@ -174,7 +178,7 @@
                 </div>
 
                 {{-- ================= USER_DETAILS (personal) ================= --}}
-                <hr>
+                {{-- <hr>
                 <h5 class="mt-3 mb-3">Personal</h5>
                 <div class="row">
                     <div class="col-md-4 mb-3"><label class="form-label">Father Name</label><input type="text"
@@ -199,10 +203,10 @@
                             name="cnic" class="form-control" value="{{ old('cnic') }}"></div>
                     <div class="col-md-6 mb-3"><label class="form-label">Nationality</label><input type="text"
                             name="nationality" class="form-control" value="{{ old('nationality') }}"></div>
-                </div>
+                </div> --}}
 
                 {{-- ================= USER_DETAILS (education & skills) ================= --}}
-                <hr>
+                {{-- <hr>
                 <h5 class="mt-3 mb-3">Education & Skills</h5>
                 <div class="row">
                     <div class="col-md-4 mb-3"><label class="form-label">Highest Qualification</label><input
@@ -220,10 +224,10 @@
                     <div class="col-md-8 mb-3"><label class="form-label">Skills (comma/line separated)</label>
                         <textarea name="skills" rows="2" class="form-control">{{ old('skills') }}</textarea>
                     </div>
-                </div>
+                </div> --}}
 
                 {{-- ================= USER_DETAILS (employment) ================= --}}
-                <hr>
+                {{-- <hr>
                 <h5 class="mt-3 mb-3">Employment</h5>
                 <div class="row">
                     <div class="col-md-3 mb-3"><label class="form-label">Employee Code</label><input type="text"
@@ -250,10 +254,10 @@
                             <option value="Probation" {{ $es == 'Probation' ? 'selected' : '' }}>Probation</option>
                         </select>
                     </div>
-                </div>
+                </div> --}}
 
                 {{-- ================= USER_DETAILS (financial) ================= --}}
-                <hr>
+                {{-- <hr>
                 <h5 class="mt-3 mb-3">Financial</h5>
                 <div class="row">
                     <div class="col-md-3 mb-3"><label class="form-label">Basic Salary</label><input type="number"
@@ -283,7 +287,7 @@
                             name="iban" class="form-control" value="{{ old('iban') }}"></div>
                     <div class="col-md-6 mb-3"><label class="form-label">Tax Number</label><input type="text"
                             name="tax_number" class="form-control" value="{{ old('tax_number') }}"></div>
-                </div>
+                </div> --}}
 
                 {{-- ================= USER_DETAILS (referral) ================= --}}
                 {{-- <hr>
@@ -300,7 +304,7 @@
                 </div> --}}
 
                 {{-- ================= USER_DETAILS (documents) ================= --}}
-                <hr>
+                {{-- <hr>
                 <h5 class="mt-3 mb-3">Documents</h5>
                 <div class="row">
                     <div class="col-md-3 mb-3"><label class="form-label">Profile Image</label><input type="file"
@@ -311,10 +315,10 @@
                             name="cnic_front_path" class="form-control" accept="image/*,application/pdf"></div>
                     <div class="col-md-3 mb-3"><label class="form-label">CNIC Back</label><input type="file"
                             name="cnic_back_path" class="form-control" accept="image/*,application/pdf"></div>
-                </div>
+                </div> --}}
 
                 {{-- ================= USER_DETAILS (misc + flags) ================= --}}
-                <hr>
+                {{-- <hr>
                 <h5 class="mt-3 mb-3">Miscellaneous</h5>
                 <div class="row">
                     <div class="col-md-3 mb-3"><label class="form-label">Blood Group</label><input type="text"
@@ -347,23 +351,7 @@
                     <div class="col-md-3 mb-3"><label class="form-label">Leave Balance (days)</label><input
                             type="number" name="leave_balance" class="form-control"
                             value="{{ old('leave_balance', 0) }}"></div>
-                    {{-- <div class="col-md-3 mb-3">
-                        <label class="form-label d-block">Can Login?</label>
-                        <div class="form-check form-switch mt-2">
-                            <input class="form-check-input" type="checkbox" name="can_login" value="1"
-                                {{ old('can_login', true) ? 'checked' : '' }}>
-                            <label class="form-check-label">Allow system login</label>
-                        </div>
-                    </div>
-                    <div class="col-md-3 mb-3">
-                        <label class="form-label d-block">2FA Enabled?</label>
-                        <div class="form-check form-switch mt-2">
-                            <input class="form-check-input" type="checkbox" name="two_factor_enabled" value="1"
-                                {{ old('two_factor_enabled') ? 'checked' : '' }}>
-                            <label class="form-check-label">Require OTP/2FA</label>
-                        </div>
-                    </div> --}}
-                </div>
+                </div> --}}
                 <div class="mb-3">
                     <label class="form-label">Notes</label>
                     <textarea name="notes" rows="3" class="form-control">{{ old('notes') }}</textarea>

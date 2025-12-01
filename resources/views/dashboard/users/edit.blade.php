@@ -38,6 +38,12 @@
                         @enderror
                     </div>
                     <div class="col-md-4 mb-3">
+                        <label class="form-label">CNIC</label>
+                        <input type="text" name="cnic" class="form-control" value="{{ old('cnic', $user->cnic) }}">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4 mb-3">
                         <label class="form-label">Password</label>
                         <input type="password" name="password" class="form-control"
                             placeholder="Leave blank to keep current">
@@ -45,8 +51,6 @@
                             <small class="text-danger">{{ $message }}</small>
                         @enderror
                     </div>
-                </div>
-                <div class="row">
                     <div class="col-md-4 mb-3">
                         <label class="form-label">Confirm Password</label>
                         <input type="password" name="password_confirmation" class="form-control">
@@ -100,20 +104,6 @@
                         @enderror
                     </div>
 
-                    {{-- <div class="col-md-4 mb-3">
-                        <label class="form-label">Roles *</label>
-                        <select name="roles[]" class="select2 form-control" multiple data-placeholder="Select roles">
-                            @foreach ($roles->where('slug', '!=', 'admin') as $role)
-                                <option value="{{ $role->id }}"
-                                    {{ in_array($role->id, old('roles', $user->roles->pluck('id')->toArray())) ? 'selected' : '' }}>
-                                    {{ $role->name }}</option>
-                            @endforeach
-                        </select>
-                        @error('roles')
-                            <small class="text-danger">{{ $message }}</small>
-                        @enderror
-                    </div> --}}
-
                     <div class="col-md-4 mb-3">
                         <label class="form-label">Direct User Permissions</label>
                         <select name="permissions[]" class="form-control select2-checkbox" multiple="multiple">
@@ -128,18 +118,6 @@
                             <small class="text-danger">{{ $message }}</small>
                         @enderror
                     </div>
-
-                    {{-- <div class="col-md-4 mb-3">
-                        <label class="form-label">Direct User Permissions</label>
-                        <select name="permissions[]" class="select2 form-control" multiple
-                            data-placeholder="Select permissions">
-                            @foreach ($permissions as $permission)
-                                <option value="{{ $permission->id }}"
-                                    {{ in_array($permission->id, old('permissions', $user->directPermissions->pluck('id')->toArray())) ? 'selected' : '' }}>
-                                    {{ $permission->name }}</option>
-                            @endforeach
-                        </select>
-                    </div> --}}
                 </div>
 
                 {{-- ================= USER_DETAILS (contact) ================= --}}
@@ -217,7 +195,7 @@
         </div>
 
         {{-- ================= USER_DETAILS (personal) ================= --}}
-        <hr>
+        {{-- <hr>
         <h5 class="mt-3 mb-3">Personal</h5>
         <div class="row">
             <div class="col-md-4 mb-3"><label class="form-label">Father Name</label><input type="text"
@@ -250,10 +228,10 @@
             <div class="col-md-6 mb-3"><label class="form-label">Nationality</label><input type="text"
                     name="nationality" class="form-control"
                     value="{{ old('nationality', $detail->nationality ?? '') }}"></div>
-        </div>
+        </div> --}}
 
         {{-- ================= USER_DETAILS (education & skills) ================= --}}
-        <hr>
+        {{-- <hr>
         <h5 class="mt-3 mb-3">Education & Skills</h5>
         <div class="row">
             <div class="col-md-4 mb-3"><label class="form-label">Highest Qualification</label><input type="text"
@@ -273,10 +251,10 @@
             <div class="col-md-8 mb-3"><label class="form-label">Skills (comma/line separated)</label>
                 <textarea name="skills" rows="2" class="form-control">{{ old('skills', $detail->skills ?? '') }}</textarea>
             </div>
-        </div>
+        </div> --}}
 
         {{-- ================= USER_DETAILS (employment) ================= --}}
-        <hr>
+        {{-- <hr>
         <h5 class="mt-3 mb-3">Employment</h5>
         <div class="row">
             <div class="col-md-3 mb-3"><label class="form-label">Employee Code</label><input type="text"
@@ -309,10 +287,10 @@
                     <option value="Probation" {{ $es == 'Probation' ? 'selected' : '' }}>Probation</option>
                 </select>
             </div>
-        </div>
+        </div> --}}
 
         {{-- ================= USER_DETAILS (financial) ================= --}}
-        <hr>
+        {{-- <hr>
         <h5 class="mt-3 mb-3">Financial</h5>
         <div class="row">
             <div class="col-md-3 mb-3"><label class="form-label">Basic Salary</label><input type="number"
@@ -344,7 +322,7 @@
             <div class="col-md-6 mb-3"><label class="form-label">Tax Number</label><input type="text"
                     name="tax_number" class="form-control" value="{{ old('tax_number', $detail->tax_number ?? '') }}">
             </div>
-        </div>
+        </div> --}}
 
         {{-- ================= USER_DETAILS (referral & bonus) ================= --}}
         {{-- <hr>
@@ -362,7 +340,7 @@
                 </div> --}}
 
         {{-- ================= USER_DETAILS (documents) ================= --}}
-        <hr>
+        {{-- <hr>
         <h5 class="mt-3 mb-3">Documents</h5>
         <div class="row">
             <div class="col-md-3 mb-3">
@@ -393,10 +371,10 @@
                     <a href="{{ asset($detail->cnic_back_path) }}" target="_blank">View</a>
                 @endif
             </div>
-        </div>
+        </div> --}}
 
         {{-- ================= USER_DETAILS (misc) ================= --}}
-        <hr>
+        {{-- <hr>
         <h5 class="mt-3 mb-3">Miscellaneous</h5>
         <div class="row">
             <div class="col-md-3 mb-3"><label class="form-label">Blood Group</label><input type="text"
@@ -437,7 +415,7 @@
             <div class="col-md-9 mb-3"><label class="form-label">Notes</label>
                 <textarea name="notes" class="form-control">{{ old('notes', $detail->notes ?? '') }}</textarea>
             </div>
-        </div>
+        </div> --}}
         {{-- <div class="row">
                     <div class="col-md-3 mb-3">
                         <label class="form-label">Can Login?</label>

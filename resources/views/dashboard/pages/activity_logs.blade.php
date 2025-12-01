@@ -32,8 +32,9 @@
                             <th>Description</th>
                             <th>Causer</th>
                             <th>Subject</th>
-                            <th>Old Values</th>
-                            <th>New Values</th>
+                            <th>Change</th>
+                            {{-- <th>Old Values</th>
+                            <th>New Values</th> --}}
                             <th>IP</th>
                             <th>User Agent</th>
                             {{-- <th>Location</th> --}}
@@ -46,18 +47,31 @@
                                 <td>{{ $loop->iteration }}</td>
                                 <td>{{ $log->log_name }}</td>
                                 <td>{{ $log->description }}</td>
-                                <td>
+                                <td>{{ $log->readable_causer }}</td>
+                                <td>{{ $log->readable_subject }}</td>
+                                {{-- <td>
                                     {{ optional($log->causer)->name ?? $log->causer_type . ' #' . $log->causer_id }}
                                 </td>
                                 <td>
                                     {{ optional($log->subject)->id ?? $log->subject_type . ' #' . $log->subject_id }}
-                                </td>
+                                </td> --}}
                                 <td>
+                                    @if (!empty($log->readable_changes))
+                                        <ul class="mb-0">
+                                            @foreach ($log->readable_changes as $change)
+                                                <li>{{ $change }}</li>
+                                            @endforeach
+                                        </ul>
+                                    @else
+                                        -
+                                    @endif
+                                </td>
+                                {{-- <td>
                                     <pre>{{ json_encode($log->properties['old_values'] ?? [], JSON_PRETTY_PRINT) }}</pre>
                                 </td>
                                 <td>
                                     <pre>{{ json_encode($log->properties['new_values'] ?? [], JSON_PRETTY_PRINT) }}</pre>
-                                </td>
+                                </td> --}}
                                 <td>{{ $log->properties['ip_address'] ?? '-' }}</td>
                                 <td>{{ $log->properties['user_agent'] ?? '-' }}</td>
                                 {{-- <td>
