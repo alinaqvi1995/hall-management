@@ -81,14 +81,19 @@
                         <div class="row g-3">
                             <div class="col-md-6">
                                 <label class="form-label">Hall <span class="text-danger">*</span></label>
-                                <select name="hall_id" class="form-select" required>
-                                    <option value="">Select Hall</option>
-                                    @foreach ($halls as $hall)
-                                        <option value="{{ $hall->id }}"
-                                            {{ $booking->hall_id == $hall->id ? 'selected' : '' }}>{{ $hall->name }}
-                                        </option>
-                                    @endforeach
-                                </select>
+                                {{-- @if (auth()->user()->isHallAdmin()) --}}
+                                <input type="text" class="form-control" value="{{ $booking->hall->name }}" disabled>
+                                <input type="hidden" name="hall_id" value="{{ $booking->hall_id }}">
+                                {{-- @else
+                                    <select name="hall_id" class="form-select" required>
+                                        <option value="">Select Hall</option>
+                                        @foreach ($halls as $hall)
+                                            <option value="{{ $hall->id }}"
+                                                {{ $booking->hall_id == $hall->id ? 'selected' : '' }}>{{ $hall->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                @endif --}}
                                 @error('hall_id')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
