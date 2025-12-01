@@ -11,7 +11,7 @@ class HallPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->hasRole('super_admin') || $user->hasRole('hall_admin');
+        return $user->hasRole('super_admin');
     }
 
     /**
