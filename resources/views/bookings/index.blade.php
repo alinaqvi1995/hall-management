@@ -117,6 +117,7 @@
                             <thead>
                                 <tr>
                                     <th>Sr#</th>
+                                    <th>Booking Number</th>
                                     <th>Customer</th>
                                     <th>Hall - Lawn</th>
                                     <th>Start</th>
@@ -132,6 +133,7 @@
                                 @foreach ($bookings as $booking)
                                     <tr>
                                         <td>{{ $loop->iteration }}</td>
+                                        <td>{{ $booking->booking_number }}</td>
                                         <td>
                                             <a href="{{ route('bookings.edit', $booking->id) }}">
                                                 {{ $booking->customer->name ?? '-' }}
@@ -155,10 +157,15 @@
                                         <td>
                                             @can('edit-bookings')
                                                 <a href="{{ route('bookings.edit', $booking->id) }}"
-                                                    class="btn btn-sm btn-info">
+                                                    class="btn btn-sm btn-info" title="Edit">
                                                     <i class="material-icons-outlined">edit</i>
                                                 </a>
                                             @endcan
+
+                                            <a href="{{ route('bookings.invoice', $booking->id) }}"
+                                                class="btn btn-sm btn-secondary" target="_blank" title="Invoice">
+                                                <i class="material-icons-outlined">receipt</i>
+                                            </a>
 
                                             @can('delete-bookings')
                                                 <form action="{{ route('bookings.destroy', $booking->id) }}" method="POST"

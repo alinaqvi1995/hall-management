@@ -73,6 +73,7 @@ Route::middleware(['auth', 'check_active'])->group(function () {
 
     // Hall
     Route::resource('bookings', BookingController::class);
+    Route::get('bookings/{booking}/invoice', [BookingController::class, 'invoice'])->name('bookings.invoice');
     Route::get('bookings/events', [DashboardController::class, 'getBookings'])->name('bookings.events');
 
     Route::resource('states', StateController::class);

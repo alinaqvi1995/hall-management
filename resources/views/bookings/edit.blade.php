@@ -27,6 +27,10 @@
                             <button type="submit" class="btn btn-light btn-sm">
                                 <i class="material-icons-outlined">save</i> Save
                             </button>
+                            <a href="{{ route('bookings.invoice', $booking->id) }}" class="btn btn-light btn-sm"
+                                target="_blank">
+                                <i class="material-icons-outlined">print</i> Invoice
+                            </a>
                             <a href="{{ route('bookings.index') }}" class="btn btn-light btn-sm">
                                 <i class="material-icons-outlined">cancel</i> Cancel
                             </a>
@@ -122,7 +126,8 @@
                                 <select name="lawn_id" id="lawnSelect" class="form-select" required>
                                     <option value="">Select Lawn</option>
                                     @foreach ($lawns as $lawn)
-                                        <option value="{{ $lawn->id }}" @if ($booking->lawn_id == $lawn->id) selected @endif>
+                                        <option value="{{ $lawn->id }}"
+                                            @if ($booking->lawn_id == $lawn->id) selected @endif>
                                             {{ $lawn->name }} ({{ $lawn->capacity }})
                                         </option>
                                     @endforeach
@@ -134,8 +139,8 @@
 
                             <div class="col-md-6">
                                 <label class="form-label">Capacity <span class="text-danger">*</span></label>
-                                <input type="number" name="capacity" value="{{ $booking->capacity }}" class="form-control"
-                                    required>
+                                <input type="number" name="capacity" value="{{ $booking->capacity }}"
+                                    class="form-control" required>
                                 @error('capacity')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror

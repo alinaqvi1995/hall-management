@@ -46,6 +46,17 @@
                             </div>
 
                             <div class="col-md-6">
+                                <label class="form-label">Hall Logo</label>
+                                <input type="file" name="logo" class="form-control" accept="image/*">
+                                @if ($hall->logo)
+                                    <div class="mt-2">
+                                        <img src="{{ asset($hall->logo) }}" alt="Hall Logo" class="img-thumbnail"
+                                            style="height: 50px;">
+                                    </div>
+                                @endif
+                            </div>
+
+                            <div class="col-md-6">
                                 <label class="form-label">Owner Name</label>
                                 <input type="text" name="owner_name" value="{{ old('owner_name', $hall->owner_name) }}"
                                     class="form-control">
@@ -101,8 +112,9 @@
 
                             <div class="col-md-6">
                                 <label class="form-label">Hall Types</label>
-                                <input type="text" name="hall_types" value="{{ old('hall_types', $hall->hall_types) }}"
-                                    class="form-control" placeholder="e.g. Banquet, Conference">
+                                <input type="text" name="hall_types"
+                                    value="{{ old('hall_types', $hall->hall_types) }}" class="form-control"
+                                    placeholder="e.g. Banquet, Conference">
                             </div>
 
                             <div class="col-md-6">

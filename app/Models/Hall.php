@@ -12,6 +12,7 @@ class Hall extends Model
 
     protected $fillable = [
         'name',
+        'logo',
         'owner_name',
         'phone',
         'email',

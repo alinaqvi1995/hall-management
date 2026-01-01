@@ -177,4 +177,10 @@ class BookingController extends Controller
 
         return redirect()->route('bookings.edit', $booking->id)->with('success', 'Booking updated successfully.');
     }
+    public function invoice(Booking $booking)
+    {
+        $this->authorize('view', $booking);
+        $booking->load(['customer', 'hall', 'lawn']);
+        return view('bookings.invoice', compact('booking'));
+    }
 }

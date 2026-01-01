@@ -43,6 +43,11 @@
                             </div>
 
                             <div class="col-md-6">
+                                <label class="form-label">Hall Logo</label>
+                                <input type="file" name="logo" class="form-control" accept="image/*">
+                            </div>
+
+                            <div class="col-md-6">
                                 <label class="form-label">Owner Name</label>
                                 <input type="text" name="owner_name" value="{{ old('owner_name') }}"
                                     class="form-control">

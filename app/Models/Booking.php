@@ -1,14 +1,15 @@
 <?php
+
 namespace App\Models;
 
+use App\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use App\Traits\LogsActivity;
 
 class Booking extends Model
 {
-    use HasFactory, SoftDeletes, LogsActivity;
+    use HasFactory, LogsActivity, SoftDeletes;
 
     protected $fillable = [
         'created_by',
@@ -31,12 +32,12 @@ class Booking extends Model
 
     protected $casts = [
         'start_datetime' => 'datetime',
-        'end_datetime'   => 'datetime',
-        'quote_price'    => 'decimal:2',
-        'booking_price'  => 'decimal:2',
-        'advance_paid'   => 'decimal:2',
-        'capacity'       => 'integer',
-        'facilities'     => 'array',
+        'end_datetime' => 'datetime',
+        'quote_price' => 'decimal:2',
+        'booking_price' => 'decimal:2',
+        'advance_paid' => 'decimal:2',
+        'capacity' => 'integer',
+        'facilities' => 'array',
     ];
 
     public function hall()
@@ -88,13 +89,13 @@ class Booking extends Model
 
     public function getFormattedBookingNumberAttribute()
     {
-        return 'BKG-' . now()->format('Y') . '-' . str_pad($this->id, 5, '0', STR_PAD_LEFT);
+        return $this->booking_number ?? 'HL-' . now()->format('Y') . '-' . str_pad($this->id, 5, '0', STR_PAD_LEFT);
     }
 
     public static function isHallBooked($hallId, $start, $end, $excludeId = null)
     {
         return self::where('hall_id', $hallId)
-            ->when($excludeId, fn($q) => $q->where('id', '!=', $excludeId))
+            ->when($excludeId, fn ($q) => $q->where('id', '!=', $excludeId))
             ->where(function ($q) use ($start, $end) {
                 $q->whereBetween('start_datetime', [$start, $end])
                     ->orWhereBetween('end_datetime', [$start, $end])
@@ -115,9 +116,9 @@ class Booking extends Model
     {
         return match ($this->status) {
             'confirmed' => 'Confirmed',
-            'pending'   => 'Pending',
+            'pending' => 'Pending',
             'cancelled' => 'Cancelled',
-            default     => 'Unknown',
+            default => 'Unknown',
         };
     }
 
@@ -130,7 +131,7 @@ class Booking extends Model
     {
         $facilities = $this->facilities ?? [];
         if (! in_array($facility, $facilities)) {
-            $facilities[]     = $facility;
+            $facilities[] = $facility;
             $this->facilities = $facilities;
             $this->save();
         }

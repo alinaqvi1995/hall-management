@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Http\Requests\HallRequest;
@@ -53,7 +54,7 @@ class HallController extends Controller
     public function show(int $id)
     {
         $currentUser = Auth::user();
-        $hall        = $this->service->find($id);
+        $hall = $this->service->find($id);
 
         if (! $hall) {
             abort(404, 'Hall not found');
@@ -86,7 +87,15 @@ class HallController extends Controller
             abort(403, 'Unauthorized');
         }
 
-        $this->service->createWithLawns($request->validated(), $request->lawns ?? []);
+        $data = $request->validated();
+        if ($request->hasFile('logo')) {
+            $file = $request->file('logo');
+            $filename = time().'_'.$file->getClientOriginalName();
+            $file->move(public_path('hall/logo'), $filename);
+            $data['logo'] = 'hall/logo/'.$filename;
+        }
+
+        $this->service->createWithLawns($data, $request->lawns ?? []);
 
         return redirect()->route('halls.index')->with('success', 'Hall created successfully.');
     }
@@ -126,9 +135,16 @@ class HallController extends Controller
             abort(403, 'Unauthorized');
         }
 
-        $data  = $request->validated();
+        $data = $request->validated();
         $lawns = $data['lawns'] ?? [];
         unset($data['lawns']); // remove lawns from hall update
+
+        if ($request->hasFile('logo')) {
+            $file = $request->file('logo');
+            $filename = time().'_'.$file->getClientOriginalName();
+            $file->move(public_path('hall/logo'), $filename);
+            $data['logo'] = 'hall/logo/'.$filename;
+        }
 
         $this->service->updateWithLawns($hall, $data, $lawns);
 
@@ -166,19 +182,20 @@ class HallController extends Controller
         }
 
         $this->service->delete($hall);
+
         return redirect()->route('halls.index')->with('success', 'Hall deleted successfully.');
     }
 
     public function lawns(Hall $hall, Request $request)
     {
         $start = $request->query('start');
-        $end   = $request->query('end');
+        $end = $request->query('end');
 
         $lawns = $hall->lawns()->select('id', 'name', 'capacity')->get();
 
         if ($start && $end) {
             $startDate = \Carbon\Carbon::parse($start);
-            $endDate   = \Carbon\Carbon::parse($end);
+            $endDate = \Carbon\Carbon::parse($end);
 
             $lawns->transform(function ($lawn) use ($startDate, $endDate) {
                 // Check if any booking overlaps in time
@@ -190,22 +207,23 @@ class HallController extends Controller
                     ->first();
 
                 if ($booking) {
-                    $lawn->available   = false;
+                    $lawn->available = false;
                     $lawn->booked_from = $booking->start_datetime->format('d M Y h:i A');
-                    $lawn->booked_to   = $booking->end_datetime->format('d M Y h:i A');
+                    $lawn->booked_to = $booking->end_datetime->format('d M Y h:i A');
                 } else {
-                    $lawn->available   = true;
+                    $lawn->available = true;
                     $lawn->booked_from = null;
-                    $lawn->booked_to   = null;
+                    $lawn->booked_to = null;
                 }
 
                 return $lawn;
             });
         } else {
             $lawns->transform(function ($lawn) {
-                $lawn->available   = true;
+                $lawn->available = true;
                 $lawn->booked_from = null;
-                $lawn->booked_to   = null;
+                $lawn->booked_to = null;
+
                 return $lawn;
             });
         }
