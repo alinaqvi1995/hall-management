@@ -126,6 +126,7 @@
                                     <th>Advance</th> --}}
                                     <th>Payments</th>
                                     <th>Status</th>
+                                    <th>Created / Modified</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
@@ -154,6 +155,11 @@
                                             <strong>Status: </strong> {{ ucfirst($booking->payment_status) }}
                                         </td>
                                         <td>{{ $booking->status_label }}</td>
+                                        <td>
+                                            {{ $booking->created_at->format('d M Y h:i A') }}
+                                            <br>
+                                            {{ $booking->updated_at->format('d M Y h:i A') }}
+                                        </td>
                                         <td>
                                             @can('edit-bookings')
                                                 <a href="{{ route('bookings.edit', $booking->id) }}"
