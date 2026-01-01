@@ -65,6 +65,13 @@ class BookingService
         return DB::transaction(function () use ($booking, $bookingData) {
             $bookingData['updated_by'] = Auth::id();
             $bookingData['booking_price'] = $bookingData['booking_price'] ?? $bookingData['quote_price'];
+
+            // Ensure booking number exists (for legacy records)
+            if (empty($booking->booking_number)) {
+                $hallId = $bookingData['hall_id'] ?? $booking->hall_id;
+                $bookingData['booking_number'] = $this->generateBookingNumber($hallId);
+            }
+
             $booking->update($bookingData);
 
             return $booking;

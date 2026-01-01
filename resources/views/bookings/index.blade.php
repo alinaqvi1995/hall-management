@@ -161,29 +161,50 @@
                                             Modified: {{ $booking->updated_at->format('d M Y h:i A') }}
                                         </td>
                                         <td>
-                                            @can('edit-bookings')
-                                                <a href="{{ route('bookings.edit', $booking->id) }}"
-                                                    class="btn btn-sm btn-info" title="Edit">
-                                                    <i class="material-icons-outlined">edit</i>
-                                                </a>
-                                            @endcan
+                                            <div class="dropdown">
+                                                <button class="btn btn-sm btn-secondary dropdown-toggle" type="button"
+                                                    data-bs-toggle="dropdown" aria-expanded="false">
+                                                    Actions
+                                                </button>
+                                                <ul class="dropdown-menu">
+                                                    @can('edit-bookings')
+                                                        <li>
+                                                            <a class="dropdown-item"
+                                                                href="{{ route('bookings.edit', $booking->id) }}">
+                                                                <i
+                                                                    class="material-icons-outlined align-middle fs-6 me-1">edit</i>
+                                                                Edit
+                                                            </a>
+                                                        </li>
+                                                    @endcan
 
-                                            <a href="{{ route('bookings.invoice', $booking->id) }}"
-                                                class="btn btn-sm btn-secondary" target="_blank" title="Invoice">
-                                                <i class="material-icons-outlined">receipt</i>
-                                            </a>
+                                                    <li>
+                                                        <a class="dropdown-item"
+                                                            href="{{ route('bookings.invoice', $booking->id) }}"
+                                                            target="_blank">
+                                                            <i
+                                                                class="material-icons-outlined align-middle fs-6 me-1">receipt</i>
+                                                            Invoice
+                                                        </a>
+                                                    </li>
 
-                                            @can('delete-bookings')
-                                                <form action="{{ route('bookings.destroy', $booking->id) }}" method="POST"
-                                                    class="d-inline">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button class="btn btn-sm btn-danger"
-                                                        onclick="return confirm('Are you sure?')">
-                                                        <i class="material-icons-outlined">delete</i>
-                                                    </button>
-                                                </form>
-                                            @endcan
+                                                    @can('delete-bookings')
+                                                        <li>
+                                                            <form action="{{ route('bookings.destroy', $booking->id) }}"
+                                                                method="POST" class="d-inline">
+                                                                @csrf
+                                                                @method('DELETE')
+                                                                <button class="dropdown-item text-danger" type="button"
+                                                                    onclick="if(confirm('Are you sure?')) this.closest('form').submit();">
+                                                                    <i
+                                                                        class="material-icons-outlined align-middle fs-6 me-1">delete</i>
+                                                                    Delete
+                                                                </button>
+                                                            </form>
+                                                        </li>
+                                                    @endcan
+                                                </ul>
+                                            </div>
                                         </td>
                                     </tr>
                                 @endforeach
