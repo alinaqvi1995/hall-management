@@ -156,9 +156,9 @@
                                         </td>
                                         <td>{{ $booking->status_label }}</td>
                                         <td>
-                                            {{ $booking->created_at->format('d M Y h:i A') }}
+                                            Created: {{ $booking->created_at->format('d M Y h:i A') }}
                                             <br>
-                                            {{ $booking->updated_at->format('d M Y h:i A') }}
+                                            Modified: {{ $booking->updated_at->format('d M Y h:i A') }}
                                         </td>
                                         <td>
                                             @can('edit-bookings')
