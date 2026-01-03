@@ -35,11 +35,15 @@ class LogAuthenticationActivity
             $description = 'User logged out';
             $subject = $event->user;
         } elseif ($event instanceof Failed) {
-            $description = 'Failed login attempt';
+            if ($event->user) {
+                $description = 'Failed login attempt (Incorrect password)';
+                $subject = $event->user;
+            } else {
+                $description = 'Failed login attempt (Email not registered)';
+            }
             $properties['credentials'] = [
                 'email' => $event->credentials['email'] ?? 'unknown',
             ];
-            $subject = $event->user; // Might be null if user not found
         } elseif ($event instanceof Lockout) {
             $description = 'User account locked out';
             $properties['email'] = $event->request->input('email');
