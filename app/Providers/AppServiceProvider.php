@@ -11,6 +11,12 @@ use App\Models\Category;
 use App\Models\Subcategory;
 use App\Repositories\Hall\HallRepositoryInterface;
 use App\Repositories\Hall\HallRepository;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Auth\Events\Login;
+use Illuminate\Auth\Events\Logout;
+use Illuminate\Auth\Events\Failed;
+use Illuminate\Auth\Events\Lockout;
+use App\Listeners\LogAuthenticationActivity;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -35,5 +41,16 @@ class AppServiceProvider extends ServiceProvider
             });
         } catch (\Exception $e) {
         }
+
+        // Authentication Event Listeners
+        Event::listen(
+            [
+                Login::class,
+                Logout::class,
+                Failed::class,
+                Lockout::class,
+            ],
+            LogAuthenticationActivity::class
+        );
     }
 }
