@@ -2,14 +2,14 @@
 
 namespace App\Models;
 
+use App\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use App\Traits\LogsActivity;
 
 class User extends Authenticatable
 {
-    use LogsActivity, HasFactory, Notifiable;
+    use HasFactory, LogsActivity, Notifiable;
 
     protected $fillable = [
         'name',
@@ -61,7 +61,6 @@ class User extends Authenticatable
     }
 
     /** Relationships */
-
     public function hall()
     {
         return $this->belongsTo(Hall::class, 'hall_id');
@@ -155,13 +154,14 @@ class User extends Authenticatable
     {
         $all = $this->allPermissions()->pluck('slug')->toArray();
 
-        return collect($slugs)->every(fn($slug) => in_array($slug, $all));
+        return collect($slugs)->every(fn ($slug) => in_array($slug, $all));
     }
 
     public function hasAnyPermission(array $slugs): bool
     {
         $all = $this->allPermissions()->pluck('slug')->toArray();
-        return collect($slugs)->contains(fn($slug) => in_array($slug, $all));
+
+        return collect($slugs)->contains(fn ($slug) => in_array($slug, $all));
     }
 
     public function hasRole(string $slug): bool
@@ -180,7 +180,6 @@ class User extends Authenticatable
     }
 
     /** Timestamps formatting */
-
     public function getCreatedAtFormattedAttribute()
     {
         return $this->created_at ? $this->created_at->format('Md,  Y h:ia') : '-';

@@ -12,7 +12,7 @@ class RoleMiddleware
         $user = $request->user();
         $roles = array_filter(explode('|', $roles));
 
-        if (!$user || !$user->hasAnyRole($roles)) {
+        if (!$user || (!$user->hasRole('super_admin') && !$user->hasAnyRole($roles))) {
             abort(403, 'Forbidden');
         }
         return $next($request);

@@ -9,6 +9,14 @@ use Illuminate\Http\Request;
 
 class UserTrustedIpController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('permission:view-trustedIps')->only(['index']);
+        $this->middleware('permission:create-trustedIps')->only(['store']);
+        $this->middleware('permission:edit-trustedIps')->only(['update']);
+        $this->middleware('permission:delete-trustedIps')->only(['destroy']);
+    }
+
     public function index()
     {
         $ips = UserTrustedIp::with('user')->get();

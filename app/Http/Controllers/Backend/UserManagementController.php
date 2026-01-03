@@ -3,24 +3,30 @@
 namespace App\Http\Controllers\Backend;
 
 use App\Http\Controllers\Controller;
+use App\Models\City;
 use App\Models\Hall;
-use Illuminate\Http\Request;
+use App\Models\Permission;
+use App\Models\Role;
+use App\Models\State;
 use App\Models\User;
 use App\Models\UserDetail;
-use App\Models\Role;
-use App\Models\Permission;
-use App\Models\State;
-use App\Models\City;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Gate;
 
 class UserManagementController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('permission:view-users')->only(['allUsers', 'show']);
+        $this->middleware('permission:create-users')->only(['userCreate', 'userStore']);
+        $this->middleware('permission:edit-users')->only(['userEdit', 'userUpdate', 'toggleActive', 'forceLogout']);
+        $this->middleware('permission:delete-users')->only(['userDestroy']);
+    }
     // public function __construct()
     // {
     //     $permissions = [
@@ -120,7 +126,7 @@ class UserManagementController extends Controller
 
             // Upload Paths
             $uploadPath = public_path('userDocs');
-            if (!file_exists($uploadPath)) {
+            if (! file_exists($uploadPath)) {
                 mkdir($uploadPath, 0777, true);
             }
 
@@ -218,28 +224,30 @@ class UserManagementController extends Controller
             DB::rollBack();
 
             foreach ($uploadedFiles as $file) {
-                if (file_exists($file))
+                if (file_exists($file)) {
                     unlink($file);
+                }
             }
 
-            Log::error('User creation failed: ' . $e->getMessage());
+            Log::error('User creation failed: '.$e->getMessage());
 
-            return back()->with('error', 'Failed to create user. ' . $e->getMessage());
+            return back()->with('error', 'Failed to create user. '.$e->getMessage());
         }
     }
 
     private function moveFile($file, $destinationPath, &$uploadedFiles)
     {
-        if (!$file)
+        if (! $file) {
             return null;
+        }
 
-        $fileName = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+        $fileName = time().'_'.uniqid().'.'.$file->getClientOriginalExtension();
         $file->move($destinationPath, $fileName);
 
-        $fullPath = $destinationPath . '/' . $fileName;
+        $fullPath = $destinationPath.'/'.$fileName;
         $uploadedFiles[] = $fullPath;
 
-        return 'userDocs/' . $fileName;
+        return 'userDocs/'.$fileName;
     }
 
     public function userEdit(User $user)
@@ -250,7 +258,7 @@ class UserManagementController extends Controller
         $permissions = Permission::all();
         $users = User::all();
         $states = State::orderBy('name')->get();
-        $cities = City::orderBy('name')->get(); 
+        $cities = City::orderBy('name')->get();
         $halls = Hall::all();
 
         return view('dashboard.users.edit', compact('user', 'roles', 'permissions', 'users', 'states', 'cities', 'halls'));
@@ -264,10 +272,10 @@ class UserManagementController extends Controller
 
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $user->id,
+            'email' => 'required|email|unique:users,email,'.$user->id,
             'password' => 'nullable|string|min:6',
             'permissions' => 'nullable|array',
-            'referral_code' => 'nullable|string|unique:user_details,referral_code,' . ($user->detail->id ?? 'NULL'),
+            'referral_code' => 'nullable|string|unique:user_details,referral_code,'.($user->detail->id ?? 'NULL'),
         ]);
 
         if ($validator->fails()) {
@@ -292,8 +300,9 @@ class UserManagementController extends Controller
             ]);
 
             $uploadPath = public_path('userDocs');
-            if (!file_exists($uploadPath))
+            if (! file_exists($uploadPath)) {
                 mkdir($uploadPath, 0777, true);
+            }
 
             $uploadedFiles = [];
 
@@ -315,7 +324,7 @@ class UserManagementController extends Controller
                 'profile_image',
                 'resume_path',
                 'cnic_front_path',
-                'cnic_back_path'
+                'cnic_back_path',
             ]));
 
             $detail->commission = is_numeric($request->commission) ? $request->commission : 0;
@@ -326,7 +335,7 @@ class UserManagementController extends Controller
 
             $detail->save();
 
-            if ($request->has('roles') && !empty($request->roles)) {
+            if ($request->has('roles') && ! empty($request->roles)) {
                 $user->roles()->sync($request->roles);
             }
             $user->directPermissions()->sync($request->permissions ?? []);
@@ -335,11 +344,10 @@ class UserManagementController extends Controller
                 ->with('success', 'User updated successfully.');
         } catch (\Exception $e) {
             return redirect()->back()
-                ->withErrors(['error' => 'An error occurred: ' . $e->getMessage()])
+                ->withErrors(['error' => 'An error occurred: '.$e->getMessage()])
                 ->withInput();
         }
     }
-
 
     public function userDestroy($id)
     {
@@ -352,12 +360,11 @@ class UserManagementController extends Controller
         return redirect()->route('dashboard.users.index')->with('success', 'User deleted successfully.');
     }
 
-
     public function toggleActive(User $user)
     {
         Gate::authorize('update', $user);
 
-        $user->is_active = !$user->is_active;
+        $user->is_active = ! $user->is_active;
         if ($user->is_active) {
             $user->force_logout = false;
         }
@@ -365,7 +372,6 @@ class UserManagementController extends Controller
 
         return back()->with('success', 'User status updated.');
     }
-
 
     public function forceLogout(User $user)
     {
@@ -402,7 +408,6 @@ class UserManagementController extends Controller
 
 //         return view('dashboard.users.index', compact('users'));
 //     }
-
 
 //     public function userCreate()
 //     {

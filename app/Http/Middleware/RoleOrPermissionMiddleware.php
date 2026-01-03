@@ -11,12 +11,14 @@ class RoleOrPermissionMiddleware
     public function handle(Request $request, Closure $next, string $roles = '', string $permissions = '')
     {
         $user = $request->user();
-        if (!$user) abort(403, 'Forbidden');
+        if (! $user) {
+            abort(403, 'Forbidden');
+        }
 
         $rolesArr = array_filter(explode('|', (string) $roles));
         $permsArr = array_filter(explode('|', (string) $permissions));
 
-        if (($rolesArr && $user->hasAnyRole($rolesArr)) || ($permsArr && $user->hasAnyPermission($permsArr))) {
+        if ($user->hasRole('super_admin') || ($rolesArr && $user->hasAnyRole($rolesArr)) || ($permsArr && $user->hasAnyPermission($permsArr))) {
             return $next($request);
         }
 

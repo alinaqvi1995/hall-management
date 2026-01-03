@@ -18,16 +18,10 @@ class HallController extends Controller
     {
         $this->service = $service;
 
-        // $permissions = [
-        //     'index'   => 'view-halls',
-        //     'store'   => 'create-halls',
-        //     'update'  => 'edit-halls',
-        //     'destroy' => 'delete-halls',
-        // ];
-
-        // foreach ($permissions as $method => $permission) {
-        //     $this->middleware("permission:{$permission}")->only($method);
-        // }
+        $this->middleware('permission:view-halls')->only(['index', 'show', 'lawns']);
+        $this->middleware('permission:create-halls')->only(['create', 'store']);
+        $this->middleware('permission:edit-halls')->only(['edit', 'update']);
+        $this->middleware('permission:delete-halls')->only(['destroy']);
     }
 
     public function index()

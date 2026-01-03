@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Http\Requests\BookingRequest;
@@ -10,12 +11,18 @@ use App\Services\CustomerService;
 class BookingController extends Controller
 {
     protected $customerService;
+
     protected $bookingService;
 
     public function __construct(CustomerService $customerService, BookingService $bookingService)
     {
         $this->customerService = $customerService;
-        $this->bookingService  = $bookingService;
+        $this->bookingService = $bookingService;
+
+        $this->middleware('permission:view-bookings')->only(['index', 'show', 'invoice']);
+        $this->middleware('permission:create-bookings')->only(['create', 'store']);
+        $this->middleware('permission:edit-bookings')->only(['edit', 'update']);
+        $this->middleware('permission:delete-bookings')->only(['destroy']);
     }
 
     public function index()
@@ -39,16 +46,16 @@ class BookingController extends Controller
         // Prepare events for FullCalendar
         $calendarEvents = $bookings->map(function ($b) {
             return [
-                'id'    => $b->id,
-                'title' => ($b->customer->name ?? 'Customer') . ' - ' . ($b->hall->name ?? 'Hall'),
+                'id' => $b->id,
+                'title' => ($b->customer->name ?? 'Customer').' - '.($b->hall->name ?? 'Hall'),
                 'start' => $b->start_datetime,
-                'end'   => $b->end_datetime,
-                'url'   => route('bookings.edit', $b->id),
+                'end' => $b->end_datetime,
+                'url' => route('bookings.edit', $b->id),
             ];
         });
 
         return view('bookings.index', [
-            'bookings'       => $bookings,
+            'bookings' => $bookings,
             'calendarEvents' => $calendarEvents,
         ]);
     }
@@ -59,11 +66,11 @@ class BookingController extends Controller
 
         if ($user->hasRole('super_admin')) {
             $halls = Hall::all();
-        } else if ($user->hasRole('hall_admin')) {
+        } elseif ($user->hasRole('hall_admin')) {
 
             if ($user->hall_id ?? false) {
                 $halls = Hall::where('id', $user->hall_id)->get();
-            } else if ($user->halls()->exists()) {
+            } elseif ($user->halls()->exists()) {
                 $halls = $user->halls;
             } else {
                 $halls = collect();
@@ -84,10 +91,10 @@ class BookingController extends Controller
     public function store(BookingRequest $request)
     {
         $customer = $this->customerService->createOrUpdate([
-            'name'    => $request->customer_name,
-            'phone'   => $request->customer_phone,
-            'email'   => $request->customer_email,
-            'cnic'    => $request->customer_cnic,
+            'name' => $request->customer_name,
+            'phone' => $request->customer_phone,
+            'email' => $request->customer_email,
+            'cnic' => $request->customer_cnic,
             'address' => $request->customer_address,
         ]);
 
@@ -109,14 +116,14 @@ class BookingController extends Controller
     public function edit(Booking $booking)
     {
         $start = $booking->start_datetime;
-        $end   = $booking->end_datetime;
+        $end = $booking->end_datetime;
 
         $hall = $booking->hall;
         $lawns = $hall->lawns()->select('id', 'name', 'capacity')->get();
 
         if ($start && $end) {
             $startDate = \Carbon\Carbon::parse($start);
-            $endDate   = \Carbon\Carbon::parse($end);
+            $endDate = \Carbon\Carbon::parse($end);
 
             $lawns->transform(function ($lawn) use ($startDate, $endDate) {
                 // Check if any booking overlaps in time
@@ -128,38 +135,40 @@ class BookingController extends Controller
                     ->first();
 
                 if ($booking) {
-                    $lawn->available   = false;
+                    $lawn->available = false;
                     $lawn->booked_from = $booking->start_datetime->format('d M Y h:i A');
-                    $lawn->booked_to   = $booking->end_datetime->format('d M Y h:i A');
+                    $lawn->booked_to = $booking->end_datetime->format('d M Y h:i A');
                 } else {
-                    $lawn->available   = true;
+                    $lawn->available = true;
                     $lawn->booked_from = null;
-                    $lawn->booked_to   = null;
+                    $lawn->booked_to = null;
                 }
 
                 return $lawn;
             });
         } else {
             $lawns->transform(function ($lawn) {
-                $lawn->available   = true;
+                $lawn->available = true;
                 $lawn->booked_from = null;
-                $lawn->booked_to   = null;
+                $lawn->booked_to = null;
+
                 return $lawn;
             });
         }
 
         $halls = \App\Models\Hall::all();
         $booking->load('customer');
+
         return view('bookings.edit', compact('booking', 'halls', 'lawns'));
     }
 
     public function update(BookingRequest $request, Booking $booking)
     {
         $customer = $this->customerService->createOrUpdate([
-            'name'    => $request->customer_name,
-            'phone'   => $request->customer_phone,
-            'email'   => $request->customer_email,
-            'cnic'    => $request->customer_cnic,
+            'name' => $request->customer_name,
+            'phone' => $request->customer_phone,
+            'email' => $request->customer_email,
+            'cnic' => $request->customer_cnic,
             'address' => $request->customer_address,
         ], $booking->customer_id);
 
@@ -177,10 +186,12 @@ class BookingController extends Controller
 
         return redirect()->route('bookings.edit', $booking->id)->with('success', 'Booking updated successfully.');
     }
+
     public function invoice(Booking $booking)
     {
         $this->authorize('view', $booking);
         $booking->load(['customer', 'hall', 'lawn']);
+
         return view('bookings.invoice', compact('booking'));
     }
 }

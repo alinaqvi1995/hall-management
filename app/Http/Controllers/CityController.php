@@ -9,6 +9,13 @@ use Illuminate\Support\Facades\Auth;
 
 class CityController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('permission:view-cities')->only(['index']);
+        $this->middleware('permission:create-cities')->only(['store']);
+        $this->middleware('permission:edit-cities')->only(['update']);
+        $this->middleware('permission:delete-cities')->only(['destroy']);
+    }
     public function index()
     {
         // Eager load state for all cities

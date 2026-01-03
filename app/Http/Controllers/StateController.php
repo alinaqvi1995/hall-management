@@ -8,6 +8,13 @@ use Illuminate\Support\Facades\Auth;
 
 class StateController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('permission:view-states')->only(['index']);
+        $this->middleware('permission:create-states')->only(['store']);
+        $this->middleware('permission:edit-states')->only(['update']);
+        $this->middleware('permission:delete-states')->only(['destroy']);
+    }
     public function index()
     {
         // Get all states for table and modal dropdowns
