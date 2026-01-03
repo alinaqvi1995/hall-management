@@ -34,13 +34,16 @@ class BookingController extends Controller
         // Fetch bookings based on role
         if ($user->isSuperAdmin()) {
             $bookings = Booking::with('customer', 'hall')->get();
-        } elseif ($user->isHallAdmin()) {
+            // } elseif ($user->isHallAdmin()) {
+            //     $bookings = Booking::with('customer', 'hall')
+            //         ->where('hall_id', $user->hall_id)
+            //         ->get();
+        } else {
+            // Other users with view-bookings permission
+            // $bookings = Booking::with('customer', 'hall')->get();
             $bookings = Booking::with('customer', 'hall')
                 ->where('hall_id', $user->hall_id)
                 ->get();
-        } else {
-            // Other users with view-bookings permission
-            $bookings = Booking::with('customer', 'hall')->get();
         }
 
         // Prepare events for FullCalendar
