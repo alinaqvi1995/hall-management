@@ -130,13 +130,8 @@
                     </li>
                 @endcan
             @endif
-            ">Roles
-    </div>
-    </a>
-    </li>
-    @endif
 
-    {{-- <li>
+            {{-- <li>
                     <a href="{{ route('trusted-ips.index') }}">
                         <div class="parent-icon notranslate"><i class="material-icons-outlined">security</i></div>
                         <div class="menu-title">Trusted IPs</div>
@@ -149,8 +144,7 @@
                         <div class="menu-title">Report</div>
                     </a>
                 </li> --}}
-    @endif
-    </ul>
+        </ul>
     </div>
 </aside>
 <!--end sidebar-->
