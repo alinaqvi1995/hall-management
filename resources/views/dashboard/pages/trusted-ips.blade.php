@@ -6,11 +6,13 @@
     <h6 class="mb-0 text-uppercase">Trusted IPs</h6>
     <hr>
 
-    <div class="mb-3 text-end">
-        <button class="btn btn-grd btn-grd-primary" id="addIpBtn">
-            <i class="material-icons-outlined">add</i> Add Trusted IP
-        </button>
-    </div>
+    @can('create-trustedIps')
+        <div class="mb-3 text-end">
+            <button class="btn btn-grd btn-grd-primary" id="addIpBtn">
+                <i class="material-icons-outlined">add</i> Add Trusted IP
+            </button>
+        </div>
+    @endcan
 
     <div class="card">
         <div class="card-body">
@@ -33,18 +35,22 @@
                                 <td>{{ $ip->ip_address }}</td>
                                 <td>{{ $ip->created_at_formatted }}</td>
                                 <td>
-                                    <button class="btn btn-sm btn-info editIpBtn" data-id="{{ $ip->id }}"
-                                        data-user_id="{{ $ip->user_id }}" data-ip="{{ $ip->ip_address }}">
-                                        <i class="material-icons-outlined">edit</i>
-                                    </button>
-                                    <form action="{{ route('trusted-ips.destroy', $ip->id) }}" method="POST"
-                                        class="d-inline">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?')">
-                                            <i class="material-icons-outlined">delete</i>
+                                    @can('edit-trustedIps')
+                                        <button class="btn btn-sm btn-info editIpBtn" data-id="{{ $ip->id }}"
+                                            data-user_id="{{ $ip->user_id }}" data-ip="{{ $ip->ip_address }}">
+                                            <i class="material-icons-outlined">edit</i>
                                         </button>
-                                    </form>
+                                    @endcan
+                                    @can('delete-trustedIps')
+                                        <form action="{{ route('trusted-ips.destroy', $ip->id) }}" method="POST"
+                                            class="d-inline">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?')">
+                                                <i class="material-icons-outlined">delete</i>
+                                            </button>
+                                        </form>
+                                    @endcan
                                 </td>
                             </tr>
                         @endforeach

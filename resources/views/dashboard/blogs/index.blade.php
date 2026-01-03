@@ -12,9 +12,11 @@
                 <div>
                     <h5 class="mb-0">Recent Blogs</h5>
                 </div>
-                <a href="{{ route('blogs.create') }}" class="btn btn-grd btn-grd-primary">
-                    <i class="material-icons-outlined">add</i> Add New Blog
-                </a>
+                @can('create-blogs')
+                    <a href="{{ route('blogs.create') }}" class="btn btn-grd btn-grd-primary">
+                        <i class="material-icons-outlined">add</i> Add New Blog
+                    </a>
+                @endcan
             </div>
 
             <div class="table-responsive">
@@ -38,18 +40,22 @@
                                 <td>{{ $blog->tags }}</td>
                                 <td>{{ $blog->created_at->format('d M, Y') }}</td>
                                 <td>
-                                    <a href="{{ route('blogs.edit', $blog->id) }}" class="btn btn-sm btn-info">
-                                        <i class="material-icons-outlined">edit</i>
-                                    </a>
-                                    <form action="{{ route('blogs.destroy', $blog->id) }}" method="POST"
-                                          style="display:inline;">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-danger"
+                                    @can('edit-blogs')
+                                        <a href="{{ route('blogs.edit', $blog->id) }}" class="btn btn-sm btn-info">
+                                            <i class="material-icons-outlined">edit</i>
+                                        </a>
+                                    @endcan
+                                    @can('delete-blogs')
+                                        <form action="{{ route('blogs.destroy', $blog->id) }}" method="POST"
+                                            style="display:inline;">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-sm btn-danger"
                                                 onclick="return confirm('Are you sure?')">
-                                            <i class="material-icons-outlined">delete</i>
-                                        </button>
-                                    </form>
+                                                <i class="material-icons-outlined">delete</i>
+                                            </button>
+                                        </form>
+                                    @endcan
                                 </td>
                             </tr>
                         @empty
@@ -67,13 +73,17 @@
 
 @section('extra_js')
     <script>
-        $(document).ready(function () {
+        $(document).ready(function() {
             $('#blogsTable').DataTable({
                 pageLength: 10,
                 autoWidth: false,
-                order: [[3, 'desc']], // Sort by Created At
-                columnDefs: [
-                    { orderable: false, targets: [4] } // Disable sorting on Actions column
+                order: [
+                    [3, 'desc']
+                ], // Sort by Created At
+                columnDefs: [{
+                        orderable: false,
+                        targets: [4]
+                    } // Disable sorting on Actions column
                 ]
             });
         });

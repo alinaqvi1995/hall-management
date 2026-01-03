@@ -77,15 +77,13 @@
     <h6 class="mb-0 text-uppercase">Bookings</h6>
     <hr>
 
-    {{-- @can('create-bookings') --}}
-    @if (auth()->user()->isSuperAdmin() || auth()->user()->isHallAdmin())
+    @can('create-bookings')
         <div class="mb-3 text-end">
             <a href="{{ route('bookings.create') }}" class="btn btn-grd btn-grd-primary">
                 <i class="material-icons-outlined">add</i> Add Booking
             </a>
         </div>
-    @endif
-    {{-- @endcan --}}
+    @endcan
 
     {{-- TABS --}}
     <ul class="nav nav-tabs mb-3" id="bookingTabs">

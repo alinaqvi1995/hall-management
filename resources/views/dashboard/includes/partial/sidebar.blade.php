@@ -18,18 +18,17 @@
         @endphp
         <ul class="metismenu" id="menu">
 
-            <!-- Dashboard -->
-            {{-- @can('view-dashboard') --}}
-            <li>
-                <a href="{{ route('dashboard') }}">
-                    <div class="parent-icon notranslate"><i class="material-icons-outlined">dashboard</i></div>
-                    <div class="menu-title">Dashboard</div>
-                </a>
-            </li>
-            {{-- @endcan --}}
+            @can('view-dashboard')
+                <li>
+                    <a href="{{ route('dashboard') }}">
+                        <div class="parent-icon notranslate"><i class="material-icons-outlined">dashboard</i></div>
+                        <div class="menu-title">Dashboard</div>
+                    </a>
+                </li>
+            @endcan
 
             <!-- Categories -->
-            {{-- @can('view-categories')
+            @can('view-categories')
                 <li class="menu-label">Categories</li>
                 <li>
                     <a href="{{ route('categories.index') }}">
@@ -52,61 +51,48 @@
                         </div>
                     </a>
                 </li>
-            @endcan --}}
+            @endcan
 
-            @if (auth()->user()->isSuperAdmin())
-            <li>
-                <a href="{{ route('halls.index') }}">
-                    <div class="parent-icon notranslate"><i class="material-icons-outlined">festival</i></div>
-                    <div class="menu-title">
-                        Halls
-                        <span class="badge bg-primary float-end">{{ $hallsCount ?? 0 }}</span>
-                    </div>
-                </a>
-            </li>
-            @elseif(auth()->user()->isHallAdmin())
+            @can('view-halls')
                 <li>
-                    <a href="{{ route('halls.show', auth()->user()->hall_id) }}">
+                    <a href="{{ route('halls.index') }}">
                         <div class="parent-icon notranslate"><i class="material-icons-outlined">festival</i></div>
                         <div class="menu-title">
-                            Hall
+                            Halls
+                            <span class="badge bg-primary float-end">{{ $hallsCount ?? 0 }}</span>
                         </div>
                     </a>
                 </li>
-            @endif
-            <li>
-                <a href="{{ route('bookings.index') }}">
-                    <div class="parent-icon notranslate"><i class="material-icons-outlined">event_available</i></div>
-                    <div class="menu-title">
-                        Bookings
-                        <span class="badge bg-primary float-end">{{ $bookingsCount ?? 0 }}</span>
-                    </div>
-                </a>
-            </li>
+            @endcan
 
-            {{-- <li>
-                <a href="{{ route('dashboard.invoice.index') }}">
-                    <div class="parent-icon notranslate"><i class="material-icons-outlined">inventory_2</i></div>
-                    <div class="menu-title">
-                        Invoice
-                    </div>
-                </a>
-            </li> --}}
+            @can('view-bookings')
+                <li>
+                    <a href="{{ route('bookings.index') }}">
+                        <div class="parent-icon notranslate"><i class="material-icons-outlined">event_available</i></div>
+                        <div class="menu-title">
+                            Bookings
+                            <span class="badge bg-primary float-end">{{ $bookingsCount ?? 0 }}</span>
+                        </div>
+                    </a>
+                </li>
+            @endcan
 
             <!-- Users & Roles -->
-            @if (auth()->user()->isSuperAdmin() || auth()->user()->isHallAdmin())
+            @if (auth()->user()->can('view-users') || auth()->user()->can('view-roles'))
                 <li class="menu-label">Users & Roles</li>
-                <li>
-                    <a href="{{ route('dashboard.users.index') }}">
-                        <div class="parent-icon notranslate"><i class="material-icons-outlined">people</i></div>
-                        <div class="menu-title">
-                            Users
-                            <span class="badge bg-primary float-end">{{ $usersCount ?? 0 }}</span>
-                        </div>
-                    </a>
-                </li>
+                @can('view-users')
+                    <li>
+                        <a href="{{ route('dashboard.users.index') }}">
+                            <div class="parent-icon notranslate"><i class="material-icons-outlined">people</i></div>
+                            <div class="menu-title">
+                                Users
+                                <span class="badge bg-primary float-end">{{ $usersCount ?? 0 }}</span>
+                            </div>
+                        </a>
+                    </li>
+                @endcan
 
-                @if (auth()->user()->isSuperAdmin())
+                @can('view-cities')
                     <li>
                         <a href="{{ route('cities.index') }}">
                             <div class="parent-icon notranslate"><i class="material-icons-outlined">location_city</i>
@@ -114,32 +100,43 @@
                             <div class="menu-title">Cities</div>
                         </a>
                     </li>
+                @endcan
 
+                @can('view-states')
                     <li>
                         <a href="{{ route('states.index') }}">
                             <div class="parent-icon notranslate"><i class="material-icons-outlined">map</i></div>
                             <div class="menu-title">States</div>
                         </a>
                     </li>
+                @endcan
 
+                @can('view-activityLogs')
                     <li>
                         <a href="{{ route('view.activity_logs') }}">
                             <div class="parent-icon notranslate"><i class="material-icons-outlined">people</i></div>
                             <div class="menu-title">Activity Logs</div>
                         </a>
                     </li>
+                @endcan
 
+                @can('view-roles')
                     <li>
                         <a href="{{ route('roles.index') }}">
-                            <div class="parent-icon notranslate"><i
-                                    class="material-icons-outlined">admin_panel_settings</i>
+                            <div class="parent-icon notranslate"><i class="material-icons-outlined">admin_panel_settings</i>
                             </div>
                             <div class="menu-title">Roles</div>
                         </a>
                     </li>
-                @endif
+                @endcan
+            @endif
+            ">Roles
+    </div>
+    </a>
+    </li>
+    @endif
 
-                {{-- <li>
+    {{-- <li>
                     <a href="{{ route('trusted-ips.index') }}">
                         <div class="parent-icon notranslate"><i class="material-icons-outlined">security</i></div>
                         <div class="menu-title">Trusted IPs</div>
@@ -152,8 +149,8 @@
                         <div class="menu-title">Report</div>
                     </a>
                 </li> --}}
-            @endif
-        </ul>
+    @endif
+    </ul>
     </div>
 </aside>
 <!--end sidebar-->

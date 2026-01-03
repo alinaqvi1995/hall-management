@@ -12,7 +12,7 @@
                     <h5 class="mb-0">Users List</h5>
                 </div>
 
-                @can('update', $users)
+                @can('create-users')
                     <a href="{{ route('dashboard.users.create') }}" class="btn btn-grd btn-grd-primary">
                         <i class="material-icons-outlined">add</i> Add New User
                     </a>
@@ -77,14 +77,13 @@
                                                 View Options
                                             </a>
                                             <ul class="dropdown-menu">
-                                                {{-- @can('edit-users') --}}
-                                                <li>
-                                                    <a class="dropdown-item"
-                                                        href="{{ route('users.show', $user->id) }}">
-                                                        <i class="material-icons-outlined me-1">edit</i> Edit
-                                                    </a>
-                                                </li>
-                                                {{-- @endcan --}}
+                                                @can('edit-users')
+                                                    <li>
+                                                        <a class="dropdown-item" href="{{ route('users.show', $user->id) }}">
+                                                            <i class="material-icons-outlined me-1">edit</i> Edit
+                                                        </a>
+                                                    </li>
+                                                @endcan
                                                 @can('delete-users')
                                                     <li>
                                                         <form action="{{ route('dashboard.users.destroy', $user->id) }}"
@@ -98,26 +97,28 @@
                                                         </form>
                                                     </li>
                                                 @endcan
-                                                <li>
-                                                    <form action="{{ route('users.toggleActive', $user->id) }}"
-                                                        method="POST">
-                                                        @csrf
-                                                        <button type="submit" class="dropdown-item">
-                                                            <i
-                                                                class="material-icons-outlined me-1">{{ $user->is_active ? 'lock' : 'lock_open' }}</i>
-                                                            {{ $user->is_active ? 'Freeze' : 'Activate' }}
-                                                        </button>
-                                                    </form>
-                                                </li>
-                                                <li>
-                                                    <form action="{{ route('users.forceLogout', $user->id) }}"
-                                                        method="POST">
-                                                        @csrf
-                                                        <button type="submit" class="dropdown-item">
-                                                            <i class="material-icons-outlined me-1">logout</i> Force Logout
-                                                        </button>
-                                                    </form>
-                                                </li>
+                                                @can('edit-users')
+                                                    <li>
+                                                        <form action="{{ route('users.toggleActive', $user->id) }}"
+                                                            method="POST">
+                                                            @csrf
+                                                            <button type="submit" class="dropdown-item">
+                                                                <i
+                                                                    class="material-icons-outlined me-1">{{ $user->is_active ? 'lock' : 'lock_open' }}</i>
+                                                                {{ $user->is_active ? 'Freeze' : 'Activate' }}
+                                                            </button>
+                                                        </form>
+                                                    </li>
+                                                    <li>
+                                                        <form action="{{ route('users.forceLogout', $user->id) }}"
+                                                            method="POST">
+                                                            @csrf
+                                                            <button type="submit" class="dropdown-item">
+                                                                <i class="material-icons-outlined me-1">logout</i> Force Logout
+                                                            </button>
+                                                        </form>
+                                                    </li>
+                                                @endcan
                                             </ul>
                                         </div>
                                     @else

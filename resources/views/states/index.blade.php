@@ -6,11 +6,13 @@
     <h6 class="mb-0 text-uppercase">States</h6>
     <hr>
 
-    <div class="mb-3 text-end">
-        <button class="btn btn-grd btn-grd-primary" id="addStateBtn">
-            <i class="material-icons-outlined">add</i> Add State
-        </button>
-    </div>
+    @can('create-states')
+        <div class="mb-3 text-end">
+            <button class="btn btn-grd btn-grd-primary" id="addStateBtn">
+                <i class="material-icons-outlined">add</i> Add State
+            </button>
+        </div>
+    @endcan
 
     <div class="card">
         <div class="card-body">
@@ -33,20 +35,24 @@
                                 <td>{{ $state->creator->name ?? '-' }}</td>
                                 <td>{{ $state->updater->name ?? '-' }}</td>
                                 <td>
-                                    <button class="btn btn-sm btn-info editStateBtn" data-id="{{ $state->id }}"
-                                        data-name="{{ $state->name }}">
-                                        <i class="material-icons-outlined">edit</i>
-                                    </button>
-
-                                    <form action="{{ route('states.destroy', $state->id) }}" method="POST"
-                                        class="d-inline">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button class="btn btn-sm btn-danger"
-                                            onclick="return confirm('Delete this state?')">
-                                            <i class="material-icons-outlined">delete</i>
+                                    @can('edit-states')
+                                        <button class="btn btn-sm btn-info editStateBtn" data-id="{{ $state->id }}"
+                                            data-name="{{ $state->name }}">
+                                            <i class="material-icons-outlined">edit</i>
                                         </button>
-                                    </form>
+                                    @endcan
+
+                                    @can('delete-states')
+                                        <form action="{{ route('states.destroy', $state->id) }}" method="POST"
+                                            class="d-inline">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button class="btn btn-sm btn-danger"
+                                                onclick="return confirm('Delete this state?')">
+                                                <i class="material-icons-outlined">delete</i>
+                                            </button>
+                                        </form>
+                                    @endcan
 
                                 </td>
                             </tr>

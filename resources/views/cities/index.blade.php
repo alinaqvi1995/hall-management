@@ -7,11 +7,13 @@
     <hr>
 
     {{-- Add City Button --}}
-    <div class="mb-3 text-end">
-        <button class="btn btn-grd btn-grd-primary" id="addCityBtn">
-            <i class="material-icons-outlined">add</i> Add City
-        </button>
-    </div>
+    @can('create-cities')
+        <div class="mb-3 text-end">
+            <button class="btn btn-grd btn-grd-primary" id="addCityBtn">
+                <i class="material-icons-outlined">add</i> Add City
+            </button>
+        </div>
+    @endcan
 
     <div class="card">
         <div class="card-body">
@@ -39,23 +41,23 @@
 
                                 <td>
                                     {{-- Edit Button --}}
-                                    <button class="btn btn-sm btn-info editCityBtn"
-                                        data-id="{{ $city->id }}"
-                                        data-name="{{ $city->name }}"
-                                        data-state="{{ $city->state_id }}">
-                                        <i class="material-icons-outlined">edit</i>
-                                    </button>
+                                    @can('edit-cities')
+                                        <button class="btn btn-sm btn-info editCityBtn" data-id="{{ $city->id }}"
+                                            data-name="{{ $city->name }}" data-state="{{ $city->state_id }}">
+                                            <i class="material-icons-outlined">edit</i>
+                                        </button>
+                                    @endcan
 
                                     {{-- Delete Form --}}
-                                    <form action="{{ route('cities.destroy', $city->id) }}"
-                                          method="POST" class="d-inline">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button class="btn btn-sm btn-danger"
-                                            onclick="return confirm('Are you sure?')">
-                                            <i class="material-icons-outlined">delete</i>
-                                        </button>
-                                    </form>
+                                    @can('delete-cities')
+                                        <form action="{{ route('cities.destroy', $city->id) }}" method="POST" class="d-inline">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?')">
+                                                <i class="material-icons-outlined">delete</i>
+                                            </button>
+                                        </form>
+                                    @endcan
 
                                 </td>
                             </tr>
@@ -153,29 +155,29 @@
 
 
 @section('extra_js')
-<script>
-    // ADD CITY MODAL
-    document.getElementById('addCityBtn').addEventListener('click', function() {
-        new bootstrap.Modal(document.getElementById('addCityModal')).show();
-    });
-
-    // EDIT CITY MODAL
-    document.querySelectorAll('.editCityBtn').forEach(btn => {
-        btn.addEventListener('click', function() {
-
-            let id = this.dataset.id;
-            let name = this.dataset.name;
-            let state = this.dataset.state;
-
-            document.getElementById('edit_name').value = name;
-            document.getElementById('edit_state_id').value = state;
-
-            // Set form action dynamically
-            document.getElementById('editCityForm').action =
-                `/cities/${id}`;
-
-            new bootstrap.Modal(document.getElementById('editCityModal')).show();
+    <script>
+        // ADD CITY MODAL
+        document.getElementById('addCityBtn').addEventListener('click', function() {
+            new bootstrap.Modal(document.getElementById('addCityModal')).show();
         });
-    });
-</script>
+
+        // EDIT CITY MODAL
+        document.querySelectorAll('.editCityBtn').forEach(btn => {
+            btn.addEventListener('click', function() {
+
+                let id = this.dataset.id;
+                let name = this.dataset.name;
+                let state = this.dataset.state;
+
+                document.getElementById('edit_name').value = name;
+                document.getElementById('edit_state_id').value = state;
+
+                // Set form action dynamically
+                document.getElementById('editCityForm').action =
+                    `/cities/${id}`;
+
+                new bootstrap.Modal(document.getElementById('editCityModal')).show();
+            });
+        });
+    </script>
 @endsection
