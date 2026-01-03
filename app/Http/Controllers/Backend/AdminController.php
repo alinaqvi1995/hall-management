@@ -100,10 +100,6 @@ class AdminController extends Controller
                 if (isset($log->properties['ip_address'])) {
                     $changes[] = "IP: " . $log->properties['ip_address'];
                 }
-
-                if (isset($log->properties['accuracy_hint'])) {
-                    $changes[] = "Accuracy: " . $log->properties['accuracy_hint'];
-                }
             }
 
             $log->readable_changes = $changes;

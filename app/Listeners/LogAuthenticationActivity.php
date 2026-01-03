@@ -38,17 +38,8 @@ class LogAuthenticationActivity
             if ($event->user) {
                 $description = 'Failed login attempt (Incorrect password)';
                 $subject = $event->user;
-
-                // ⭐ Smart Insight: Check if it was just a Case error (e.g. Caps Lock)
-                $attempted = $event->credentials['password'] ?? '';
-                if ($attempted && \Illuminate\Support\Facades\Hash::check(strtolower($attempted), $event->user->password)) {
-                    $properties['accuracy_hint'] = 'Near Match (Possible Caps Lock/Case error)';
-                } else {
-                    $properties['accuracy_hint'] = 'Low Match (Characters do not match)';
-                }
             } else {
-                $description = 'Failed login attempt (Email not registered)';
-                $properties['accuracy_hint'] = '0% (User not found)';
+                $    description = 'Failed login attempt (Email not registered)';
             }
             $properties['credentials'] = [
                 'email' => $event->credentials['email'] ?? 'unknown',
