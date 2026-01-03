@@ -21,7 +21,7 @@ class SidebarComposer
         $hallsQuery = Hall::query();
         $bookingsQuery = Booking::query();
 
-        if ($currentUser && $currentUser->hasRole('hall_admin')) {
+        if ($currentUser && !$currentUser->hasRole('super_admin')) {
             $usersQuery->where('hall_id', $currentUser->hall_id);
             $hallsQuery->where('id', $currentUser->hall_id);
             $bookingsQuery->where('hall_id', $currentUser->hall_id);
