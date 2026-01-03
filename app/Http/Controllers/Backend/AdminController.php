@@ -100,6 +100,8 @@ class AdminController extends Controller
                 if (isset($log->properties['ip_address'])) {
                     $changes[] = "IP: " . $log->properties['ip_address'];
                 }
+                
+                $changes[] = "Password Accuracy: [Securely Hashed]";
             }
 
             $log->readable_changes = $changes;
