@@ -81,7 +81,8 @@
                         <label class="form-label">Hall *</label>
                         <select name="hall_id" class="form-control">
                             @foreach ($halls as $hall)
-                                <option value="{{ $hall->id }}" @if($user->hall_id == $hall->id) selected @endif>{{ $hall->name }}</option>
+                                <option value="{{ $hall->id }}" @if ($user->hall_id == $hall->id) selected @endif>
+                                    {{ $hall->name }}</option>
                             @endforeach
                         </select>
                         @error('halls')
@@ -443,23 +444,7 @@
 
 @section('extra_js')
     <script>
-        $(document).ready(function() {
-            $('.select2').select2({
-                theme: 'bootstrap-5',
-                width: '100%',
-                allowClear: true,
-            });
-
-            $('.select2-checkbox').select2({
-                theme: 'bootstrap-5',
-                width: '100%',
-                placeholder: "Select options",
-                allowClear: true,
-                closeOnSelect: false, // keep dropdown open for multiple selection
-                maximumSelectionLength: 50, // optional limit
-                dropdownCssClass: "bigdrop", // add custom height via CSS
-            });
-        });
+        $(document).ready(function() {});
 
         // Group cities by state
         const citiesByState = @json($cities->groupBy('state_id'));

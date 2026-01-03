@@ -79,6 +79,56 @@
         select option {
             white-space: nowrap;
         }
+
+        /* Select2 Checkbox Styling */
+        .select2-results__option[aria-selected=true]:before {
+            content: "\e834";
+            font-family: 'Material Icons Outlined';
+            font-weight: normal;
+            font-style: normal;
+            font-size: 20px;
+            line-height: 1;
+            letter-spacing: normal;
+            text-transform: none;
+            display: inline-block;
+            white-space: nowrap;
+            word-wrap: normal;
+            direction: ltr;
+            -webkit-font-smoothing: antialiased;
+            color: #FC5523;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+
+        .select2-results__option:before {
+            content: "\e835";
+            font-family: 'Material Icons Outlined';
+            font-weight: normal;
+            font-style: normal;
+            font-size: 20px;
+            line-height: 1;
+            letter-spacing: normal;
+            text-transform: none;
+            display: inline-block;
+            white-space: nowrap;
+            word-wrap: normal;
+            direction: ltr;
+            -webkit-font-smoothing: antialiased;
+            color: #ccc;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+
+        .select2-container--bootstrap-5 .select2-selection--multiple .select2-selection__choice {
+            background-color: #FC5523 !important;
+            border: none !important;
+            color: #fff !important;
+        }
+
+        .select2-container--bootstrap-5 .select2-selection--multiple .select2-selection__choice__remove {
+            color: #fff !important;
+            border-right: 1px solid rgba(255, 255, 255, 0.3) !important;
+        }
     </style>
 
     @section('navbar')
@@ -175,10 +225,31 @@
                 }
             }
 
-            $('.select2').select2({
-                theme: 'bootstrap-5',
-                width: '100%',
-                allowClear: true,
+            // Initialize standard Select2
+            $('.select2').each(function() {
+                $(this).select2({
+                    theme: 'bootstrap-5',
+                    width: '100%',
+                    allowClear: true,
+                    placeholder: $(this).data('placeholder') || 'Select option',
+                    dropdownParent: $(this).closest('.modal').length ? $(this).closest('.modal') : null
+                });
+            });
+
+            // Initialize Multi-Select with Checkboxes
+            $('.select2-checkbox').each(function() {
+                $(this).select2({
+                    theme: 'bootstrap-5',
+                    width: '100%',
+                    allowClear: true,
+                    closeOnSelect: false,
+                    placeholder: $(this).data('placeholder') || 'Select options',
+                    dropdownParent: $(this).closest('.modal').length ? $(this).closest('.modal') : null,
+                    templateResult: function(data) {
+                        if (!data.id) return data.text;
+                        return $('<span>' + data.text + '</span>');
+                    }
+                });
             });
 
             // summernote
