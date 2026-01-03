@@ -2,11 +2,11 @@
 
 namespace App\Listeners;
 
-use Illuminate\Auth\Events\Login;
-use Illuminate\Auth\Events\Logout;
+use App\Models\Activity;
 use Illuminate\Auth\Events\Failed;
 use Illuminate\Auth\Events\Lockout;
-use App\Models\Activity;
+use Illuminate\Auth\Events\Login;
+use Illuminate\Auth\Events\Logout;
 use Illuminate\Support\Facades\Request;
 
 class LogAuthenticationActivity
@@ -21,11 +21,11 @@ class LogAuthenticationActivity
         $properties = [
             'ip_address' => Request::ip(),
             'user_agent' => Request::userAgent(),
-            'location'   => [
-                'city'    => Request::header('X-Geo-City'),
-                'region'  => Request::header('X-Geo-Region'),
+            'location' => [
+                'city' => Request::header('X-Geo-City'),
+                'region' => Request::header('X-Geo-Region'),
                 'country' => Request::header('X-Geo-Country'),
-            ]
+            ],
         ];
 
         if ($event instanceof Login) {
@@ -51,13 +51,13 @@ class LogAuthenticationActivity
 
         if ($description) {
             Activity::create([
-                'log_name'     => 'auth',
-                'description'  => $description,
-                'causer_type'  => $subject ? get_class($subject) : null,
-                'causer_id'    => $subject ? $subject->id : null,
+                'log_name' => 'auth',
+                'description' => $description,
+                'causer_type' => $subject ? get_class($subject) : null,
+                'causer_id' => $subject ? $subject->id : null,
                 'subject_type' => $subject ? get_class($subject) : null,
-                'subject_id'   => $subject ? $subject->id : null,
-                'properties'   => $properties,
+                'subject_id' => $subject ? $subject->id : null,
+                'properties' => $properties,
             ]);
         }
     }

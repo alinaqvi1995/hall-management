@@ -90,11 +90,21 @@ class AdminController extends Controller
                 }
             } elseif (Str::contains(strtolower($log->description), 'deleted')) {
                 $changes[] = "{$modelName} deleted: #" . ($log->subject_id ?? '-');
+            } elseif ($log->log_name === 'auth') {
+                if (isset($log->properties['credentials']['email'])) {
+                    $changes[] = "Attempted Email: " . $log->properties['credentials']['email'];
+                } elseif (isset($log->properties['email'])) {
+                    $changes[] = "Email: " . $log->properties['email'];
+                }
+                
+                if (isset($log->properties['ip_address'])) {
+                    $changes[] = "IP: " . $log->properties['ip_address'];
+                }
             }
 
             $log->readable_changes = $changes;
-            $log->readable_causer  = $log->causer->name ?? ($log->causer_type . ' #' . $log->causer_id);
-            $log->readable_subject = "{$modelName} #{$log->subject_id}";
+            $log->readable_causer  = $log->causer->name ?? ($log->causer_type ? ($log->causer_type . ' #' . $log->causer_id) : 'Guest');
+            $log->readable_subject = $log->subject_id ? "{$modelName} #{$log->subject_id}" : '-';
         }
 
         return view('dashboard.pages.activity_logs', compact('logs', 'search'));
