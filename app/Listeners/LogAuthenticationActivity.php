@@ -39,7 +39,7 @@ class LogAuthenticationActivity
                 $description = 'Failed login attempt (Incorrect password)';
                 $subject = $event->user;
             } else {
-                $    description = 'Failed login attempt (Email not registered)';
+                $description = 'Failed login attempt (Email not registered)';
             }
             $properties['credentials'] = [
                 'email' => $event->credentials['email'] ?? 'unknown',
