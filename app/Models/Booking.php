@@ -92,9 +92,9 @@ class Booking extends Model
         return $this->booking_number ?? 'HL-' . now()->format('Y') . '-' . str_pad($this->id, 5, '0', STR_PAD_LEFT);
     }
 
-    public static function isHallBooked($hallId, $start, $end, $excludeId = null)
+    public static function isLawnBooked($lawnId, $start, $end, $excludeId = null)
     {
-        return self::where('hall_id', $hallId)
+        return self::where('lawn_id', $lawnId)
             ->when($excludeId, fn ($q) => $q->where('id', '!=', $excludeId))
             ->where(function ($q) use ($start, $end) {
                 $q->whereBetween('start_datetime', [$start, $end])

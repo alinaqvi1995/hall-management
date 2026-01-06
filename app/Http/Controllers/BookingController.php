@@ -7,6 +7,7 @@ use App\Models\Booking;
 use App\Models\Hall;
 use App\Services\BookingService;
 use App\Services\CustomerService;
+use App\Services\InvoiceService;
 
 class BookingController extends Controller
 {
@@ -14,10 +15,13 @@ class BookingController extends Controller
 
     protected $bookingService;
 
-    public function __construct(CustomerService $customerService, BookingService $bookingService)
+    protected $invoiceService;
+
+    public function __construct(CustomerService $customerService, BookingService $bookingService, InvoiceService $invoiceService)
     {
         $this->customerService = $customerService;
         $this->bookingService = $bookingService;
+        $this->invoiceService = $invoiceService;
 
         $this->middleware('permission:view-bookings')->only(['index', 'show', 'invoice']);
         $this->middleware('permission:create-bookings')->only(['create', 'store']);
@@ -101,8 +105,8 @@ class BookingController extends Controller
             'address' => $request->customer_address,
         ]);
 
-        if (! $this->bookingService->checkAvailability($request->hall_id, $request->start_datetime, $request->end_datetime)) {
-            return back()->withErrors(['hall_id' => 'Selected hall is already booked for this time range.'])->withInput();
+        if (! $this->bookingService->checkAvailability($request->lawn_id, $request->start_datetime, $request->end_datetime)) {
+            return back()->withErrors(['lawn_id' => 'Selected lawn is already booked for this time range.'])->withInput();
         }
 
         $booking = $this->bookingService->createBooking(array_merge(
@@ -113,7 +117,19 @@ class BookingController extends Controller
             ['customer_id' => $customer->id]
         ));
 
-        return redirect()->route('bookings.show', $booking->id)->with('success', 'Booking created successfully.');
+        // Generate invoice PDF
+        $invoiceData = $this->invoiceService->generateInvoicePdf($booking);
+        
+        // Generate WhatsApp and Gmail URLs
+        $whatsappUrl = $this->invoiceService->generateWhatsAppUrl($booking, url($invoiceData['url']));
+        $gmailUrl = $this->invoiceService->generateGmailUrl($booking, url($invoiceData['url']));
+
+        return view('bookings.booking-success', [
+            'booking' => $booking,
+            'invoiceUrl' => $invoiceData['url'],
+            'whatsappUrl' => $whatsappUrl,
+            'gmailUrl' => $gmailUrl,
+        ]);
     }
 
     public function show(Booking $booking)
@@ -183,8 +199,8 @@ class BookingController extends Controller
             'address' => $request->customer_address,
         ], $booking->customer_id);
 
-        if (! $this->bookingService->checkAvailability($request->hall_id, $request->start_datetime, $request->end_datetime, $booking->id)) {
-            return back()->withErrors(['hall_id' => 'Selected hall is already booked for this time range.'])->withInput();
+        if (! $this->bookingService->checkAvailability($request->lawn_id, $request->start_datetime, $request->end_datetime, $booking->id)) {
+            return back()->withErrors(['lawn_id' => 'Selected lawn is already booked for this time range.'])->withInput();
         }
 
         $this->bookingService->updateBooking($booking, array_merge(

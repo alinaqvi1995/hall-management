@@ -78,9 +78,9 @@ class BookingService
         });
     }
 
-    public function checkAvailability(int $hallId, string $start, string $end, ?int $excludeId = null): bool
+    public function checkAvailability(int $lawnId, string $start, string $end, ?int $excludeId = null): bool
     {
-        return ! Booking::where('hall_id', $hallId)
+        return ! Booking::where('lawn_id', $lawnId)
             ->when($excludeId, fn ($q) => $q->where('id', '!=', $excludeId))
             ->where(function ($q) use ($start, $end) {
                 $q->whereBetween('start_datetime', [$start, $end])
