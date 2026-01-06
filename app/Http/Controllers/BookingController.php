@@ -105,7 +105,7 @@ class BookingController extends Controller
             return back()->withErrors(['hall_id' => 'Selected hall is already booked for this time range.'])->withInput();
         }
 
-        $this->bookingService->createBooking(array_merge(
+        $booking = $this->bookingService->createBooking(array_merge(
             $request->only([
                 'hall_id', 'start_datetime', 'end_datetime', 'capacity',
                 'quote_price', 'booking_price', 'advance_paid', 'payment_status', 'status', 'notes', 'facilities', 'lawn_id',
@@ -113,7 +113,15 @@ class BookingController extends Controller
             ['customer_id' => $customer->id]
         ));
 
-        return redirect()->route('bookings.create')->with('success', 'Booking created successfully.');
+        return redirect()->route('bookings.show', $booking->id)->with('success', 'Booking created successfully.');
+    }
+
+    public function show(Booking $booking)
+    {
+        $this->authorize('view', $booking);
+        $booking->load(['customer', 'hall', 'lawn']);
+
+        return view('bookings.show', compact('booking'));
     }
 
     public function edit(Booking $booking)
@@ -187,7 +195,7 @@ class BookingController extends Controller
             ['customer_id' => $customer->id]
         ));
 
-        return redirect()->route('bookings.edit', $booking->id)->with('success', 'Booking updated successfully.');
+        return redirect()->route('bookings.show', $booking->id)->with('success', 'Booking updated successfully.');
     }
 
     public function invoice(Booking $booking)
