@@ -8,6 +8,8 @@ use App\Models\Hall;
 use App\Services\BookingService;
 use App\Services\CustomerService;
 use App\Services\InvoiceService;
+use Illuminate\Support\Facades\Storage;
+use Carbon\Carbon;
 
 class BookingController extends Controller
 {
@@ -137,7 +139,15 @@ class BookingController extends Controller
         $this->authorize('view', $booking);
         $booking->load(['customer', 'hall', 'lawn']);
 
-        return view('bookings.show', compact('booking'));
+        // Generate URLs
+        $filename = 'invoice_' . $booking->formatted_booking_number . '.pdf';
+        $invoiceUrl = \Illuminate\Support\Facades\Storage::disk('public')->url('invoices/' . $filename);
+        $fullInvoiceUrl = url($invoiceUrl);
+        
+        $whatsappUrl = $this->invoiceService->generateWhatsAppUrl($booking, $fullInvoiceUrl);
+        $gmailUrl = $this->invoiceService->generateGmailUrl($booking, $fullInvoiceUrl);
+
+        return view('bookings.show', compact('booking', 'whatsappUrl', 'gmailUrl', 'invoiceUrl'));
     }
 
     public function edit(Booking $booking)

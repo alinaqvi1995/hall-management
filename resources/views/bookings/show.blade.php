@@ -95,6 +95,30 @@
 
                         <!-- Right Column -->
                         <div class="col-12 col-lg-4">
+                            <!-- Quick Actions -->
+                            <div class="card mb-3">
+                                <div class="card-body">
+                                    <h6 class="mb-3 fw-bold text-primary">Quick Actions</h6>
+                                    <div class="d-grid gap-2">
+                                        <a href="{{ $whatsappUrl }}" target="_blank" class="btn btn-success">
+                                            <i class="bx bxl-whatsapp me-2"></i>Send Invoice via WhatsApp
+                                        </a>
+                                        <a href="{{ $gmailUrl }}" target="_blank" class="btn btn-danger">
+                                            <i class="bx bxl-gmail me-2"></i>Send Invoice via Gmail
+                                        </a>
+                                    </div>
+                                    <div class="mt-3 pt-3 border-top">
+                                        <small class="text-muted d-block mb-2">Invoice Link:</small>
+                                        <div class="input-group input-group-sm">
+                                            <input type="text" class="form-control" value="{{ $invoiceUrl }}" readonly>
+                                            <button class="btn btn-outline-secondary" type="button" onclick="navigator.clipboard.writeText('{{ $invoiceUrl }}')">
+                                                <i class="bx bx-copy"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
                             <!-- Customer Details -->
                             <div class="card mb-3">
                                 <div class="card-body">
