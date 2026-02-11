@@ -59,7 +59,7 @@ class BookingController extends Controller
                 'title' => ($b->customer->name ?? 'Customer').' - '.($b->hall->name ?? 'Hall'),
                 'start' => $b->start_datetime,
                 'end' => $b->end_datetime,
-                'url' => route('bookings.edit', $b->id),
+                'url' => route('bookings.show', $b->id),
             ];
         });
 

@@ -134,7 +134,7 @@
                                         <td>{{ $loop->iteration }}</td>
                                         <td>{{ $booking->booking_number }}</td>
                                         <td>
-                                            <a href="{{ route('bookings.edit', $booking->id) }}">
+                                            <a href="{{ route('bookings.show', $booking->id) }}">
                                                 {{ $booking->customer->name ?? '-' }}
                                                 ({{ $booking->customer->cnic ?? '-' }})
                                             </a>
@@ -165,16 +165,14 @@
                                                     Actions
                                                 </button>
                                                 <ul class="dropdown-menu">
-                                                    @can('edit-bookings')
-                                                        <li>
-                                                            <a class="dropdown-item"
-                                                                href="{{ route('bookings.edit', $booking->id) }}">
-                                                                <i
-                                                                    class="material-icons-outlined align-middle fs-6 me-1">edit</i>
-                                                                Edit
-                                                            </a>
-                                                        </li>
-                                                    @endcan
+                                                    <li>
+                                                        <a class="dropdown-item"
+                                                            href="{{ route('bookings.show', $booking->id) }}">
+                                                            <i
+                                                                class="material-icons-outlined align-middle fs-6 me-1">visibility</i>
+                                                            View
+                                                        </a>
+                                                    </li>
 
                                                     <li>
                                                         <a class="dropdown-item"
