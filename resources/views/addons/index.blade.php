@@ -43,7 +43,7 @@
                             @endif
                             <td class="text-end"><x-money :amount="$addon->price" /></td>
                             <td>
-                                <span class="badge text-bg-light">{{ $addon->pricing_mode_label }}</span>
+                                <span class="chip">{{ $addon->pricing_mode_label }}</span>
                             </td>
                             <td>
                                 <x-status-badge :label="$addon->is_active ? 'Active' : 'Inactive'"

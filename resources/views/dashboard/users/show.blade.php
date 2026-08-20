@@ -21,8 +21,8 @@
         <!-- User Info Panel -->
         <div class="col-12">
             <div class="card mb-3">
-                <div class="card-header bg-primary d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0 text-white">User Information</h5>
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span>User Information</span>
                     @if ($currentUser->isSuperAdmin() || ($currentUser->isHallAdmin() && $currentUser->hall_id == $user->hall->id))
                         <div class="btn-group" role="group">
                             <a href="{{ route('dashboard.users.edit', $user->id) }}" class="btn btn-light btn-sm">
@@ -63,8 +63,8 @@
         @if ($user->detail)
             <div class="col-12">
                 <div class="card mb-3">
-                    <div class="card-header bg-secondary">
-                        <h5 class="mb-0 text-white">Additional Details</h5>
+                    <div class="card-header">
+                        <span>Additional Details</span>
                     </div>
                     <div class="card-body">
                         <div class="row g-3">
@@ -93,8 +93,8 @@
         <!-- Trusted IPs Subpanel -->
         {{-- <div class="col-12">
             <div class="card mb-3">
-                <div class="card-header bg-secondary">
-                    <h5 class="mb-0 text-white">Trusted IPs ({{ $user->trustedIps->count() }})</h5>
+                <div class="card-header">
+                    <span>Trusted IPs ({{ $user->trustedIps->count() }})</span>
                 </div>
                 <div class="card-body">
                     @if ($user->trustedIps->count())

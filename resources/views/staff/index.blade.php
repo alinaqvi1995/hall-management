@@ -101,7 +101,7 @@
                                     <small class="text-secondary d-block">{{ $member->cnic }}</small>
                                 @endif
                             </td>
-                            <td><span class="badge text-bg-light">{{ $member->employment_type_label }}</span></td>
+                            <td><span class="chip">{{ $member->employment_type_label }}</span></td>
                             <td class="text-end">
                                 <x-money :amount="$member->monthly_salary" zero="—" />
                             </td>

@@ -6,14 +6,405 @@
    ========================================================================== */
 
 :root {
+    /* ---------------------------------------------------------- brand scale */
     --hm-brand: #fc5523;
     --hm-brand-rgb: 252, 85, 35;
+    --hm-brand-600: #e8420f;   /* hover  */
+    --hm-brand-700: #c2350c;   /* active */
+    /* Darker step for brand-coloured TEXT and links on a light background:
+       #fc5523 only reaches ~3.2:1 against white, which is uncomfortable at
+       body sizes. Fills keep the true brand colour; text uses this. */
+    --hm-brand-text: #b83309;
+    --hm-brand-subtle: rgba(252, 85, 35, .12);
+    --hm-brand-border: rgba(252, 85, 35, .35);
+
     --hm-radius: 14px;
     --hm-radius-sm: 10px;
     --hm-shadow: 0 1px 2px rgba(16, 24, 40, .06), 0 4px 16px rgba(16, 24, 40, .06);
     --hm-surface: var(--bs-body-bg);
     --hm-muted: var(--bs-secondary-color);
     --hm-line: var(--bs-border-color);
+
+    /* ------------------------------------------------------------------------
+       Point Bootstrap's `primary` at the brand.
+       Without this the theme shipped stock blue (#0d6efd), so every
+       .btn-primary, .bg-primary badge, focus ring, active tab and pagination
+       pip rendered blue next to an orange-branded sidebar.
+       ------------------------------------------------------------------------ */
+    --bs-primary: #fc5523;
+    --bs-primary-rgb: 252, 85, 35;
+    --bs-primary-text-emphasis: var(--hm-brand-text);
+    --bs-primary-bg-subtle: #ffece6;
+    --bs-primary-border-subtle: #ffc7b5;
+
+    --bs-link-color: var(--hm-brand-text);
+    --bs-link-color-rgb: 184, 51, 9;
+    --bs-link-hover-color: var(--hm-brand-700);
+    --bs-link-hover-color-rgb: 194, 53, 12;
+
+    --bs-focus-ring-color: rgba(var(--hm-brand-rgb), .25);
+}
+
+/* Bootstrap repeats its palette under [data-bs-theme=light]; match it there
+   too so the brand does not depend on stylesheet ordering. */
+[data-bs-theme="light"],
+:root[data-bs-theme="light"] {
+    --bs-primary: #fc5523;
+    --bs-primary-rgb: 252, 85, 35;
+    --bs-primary-text-emphasis: var(--hm-brand-text);
+    --bs-primary-bg-subtle: #ffece6;
+    --bs-primary-border-subtle: #ffc7b5;
+
+    --bs-link-color: var(--hm-brand-text);
+    --bs-link-color-rgb: 184, 51, 9;
+    --bs-link-hover-color: var(--hm-brand-700);
+    --bs-link-hover-color-rgb: 194, 53, 12;
+
+    --bs-focus-ring-color: rgba(var(--hm-brand-rgb), .25);
+}
+
+/* Dark theme: the same hue, lifted so it reads on a dark surface. */
+[data-bs-theme="dark"],
+:root[data-bs-theme="dark"] {
+    --hm-brand-text: #ff8b63;
+    --hm-brand-subtle: rgba(252, 85, 35, .18);
+
+    --bs-primary: #fc5523;
+    --bs-primary-rgb: 252, 85, 35;
+    --bs-primary-text-emphasis: #ff8b63;
+    --bs-primary-bg-subtle: #3a1508;
+    --bs-primary-border-subtle: #7a2a10;
+    --bs-focus-ring-color: rgba(var(--hm-brand-rgb), .3);
+
+    --bs-link-color: #ff8b63;
+    --bs-link-color-rgb: 255, 139, 99;
+    --bs-link-hover-color: #ffa588;
+    --bs-link-hover-color-rgb: 255, 165, 136;
+}
+
+/* ======================================================================
+   Brand-coloured components
+   Bootstrap 5.3 drives these through --bs-btn-* / --bs-* custom properties,
+   so the colour is set in one place per component rather than per rule.
+   ====================================================================== */
+
+.btn-primary {
+    --bs-btn-bg: var(--hm-brand);
+    --bs-btn-border-color: var(--hm-brand);
+    --bs-btn-hover-bg: var(--hm-brand-600);
+    --bs-btn-hover-border-color: var(--hm-brand-600);
+    --bs-btn-active-bg: var(--hm-brand-700);
+    --bs-btn-active-border-color: var(--hm-brand-700);
+    --bs-btn-disabled-bg: var(--hm-brand);
+    --bs-btn-disabled-border-color: var(--hm-brand);
+    --bs-btn-color: #fff;
+    --bs-btn-hover-color: #fff;
+    --bs-btn-active-color: #fff;
+    --bs-btn-disabled-color: #fff;
+    --bs-btn-focus-shadow-rgb: var(--hm-brand-rgb);
+}
+
+.btn-outline-primary {
+    --bs-btn-color: var(--hm-brand-text);
+    --bs-btn-border-color: var(--hm-brand-border);
+    --bs-btn-hover-bg: var(--hm-brand);
+    --bs-btn-hover-border-color: var(--hm-brand);
+    --bs-btn-hover-color: #fff;
+    --bs-btn-active-bg: var(--hm-brand-700);
+    --bs-btn-active-border-color: var(--hm-brand-700);
+    --bs-btn-active-color: #fff;
+    --bs-btn-disabled-color: var(--hm-brand-text);
+    --bs-btn-disabled-border-color: var(--hm-brand-border);
+    --bs-btn-focus-shadow-rgb: var(--hm-brand-rgb);
+}
+
+.btn-link {
+    --bs-btn-color: var(--hm-brand-text);
+    --bs-btn-hover-color: var(--hm-brand-700);
+}
+
+.bg-primary,
+.text-bg-primary {
+    background-color: var(--hm-brand) !important;
+    color: #fff !important;
+}
+
+.text-primary {
+    color: var(--hm-brand-text) !important;
+}
+
+.border-primary {
+    border-color: var(--hm-brand) !important;
+}
+
+.bg-primary-subtle {
+    background-color: var(--bs-primary-bg-subtle) !important;
+}
+
+/* The vendor theme ships gradient buttons (pink -> violet) that clash with the
+   brand. Neutralise them so any stray markup still lands on-brand. */
+.btn-grd,
+.btn-grd-primary,
+.btn-grd-info,
+.btn-grd-success,
+.btn-grd-danger,
+.btn-grd-warning,
+.btn-grd-royal,
+.btn-grd-deep-blue {
+    background-image: none !important;
+    background-color: var(--hm-brand) !important;
+    border-color: var(--hm-brand) !important;
+    color: #fff !important;
+}
+
+.btn-grd:hover,
+.btn-grd-primary:hover {
+    background-color: var(--hm-brand-600) !important;
+}
+
+/* ----------------------------------------------------------------------------
+   Remaining blue hover / active states.
+
+   Bootstrap scopes these colours to per-component custom properties on the
+   component's own class, so overriding `--bs-primary` on :root does NOT reach
+   them. Each family has to be re-pointed explicitly, otherwise menus, list
+   groups and pagination keep their stock blue on hover.
+   ---------------------------------------------------------------------------- */
+
+/* Dropdown menus — the row "Actions" menus throughout the app. */
+.dropdown-menu {
+    --bs-dropdown-link-active-bg: var(--hm-brand);
+    --bs-dropdown-link-active-color: #fff;
+    --bs-dropdown-link-hover-bg: var(--bs-tertiary-bg);
+    --bs-dropdown-link-hover-color: var(--bs-body-color);
+}
+
+.dropdown-menu-dark {
+    --bs-dropdown-link-active-bg: var(--hm-brand);
+}
+
+/* Keep destructive menu items red on hover instead of inheriting the brand. */
+.dropdown-item.text-danger:hover,
+.dropdown-item.text-danger:focus {
+    background-color: var(--bs-danger-bg-subtle);
+    color: var(--bs-danger-text-emphasis) !important;
+}
+
+/* List groups — dashboard work lists and the hall/staff panels. */
+.list-group {
+    --bs-list-group-active-bg: var(--hm-brand);
+    --bs-list-group-active-border-color: var(--hm-brand);
+    --bs-list-group-action-hover-bg: var(--bs-tertiary-bg);
+}
+
+/* Tabs rendered as pills. */
+.nav-pills {
+    --bs-nav-pills-link-active-bg: var(--hm-brand);
+}
+
+.nav {
+    --bs-nav-link-hover-color: var(--hm-brand-text);
+}
+
+/* Pagination, including DataTables' Bootstrap pagination. */
+.pagination {
+    --bs-pagination-color: var(--hm-brand-text);
+    --bs-pagination-hover-color: var(--hm-brand-700);
+    --bs-pagination-hover-bg: var(--bs-tertiary-bg);
+    --bs-pagination-focus-color: var(--hm-brand-700);
+    --bs-pagination-focus-bg: var(--bs-tertiary-bg);
+    --bs-pagination-focus-box-shadow: 0 0 0 .25rem rgba(var(--hm-brand-rgb), .25);
+    --bs-pagination-active-bg: var(--hm-brand);
+    --bs-pagination-active-border-color: var(--hm-brand);
+}
+
+.progress {
+    --bs-progress-bar-bg: var(--hm-brand);
+}
+
+.accordion {
+    --bs-accordion-btn-focus-box-shadow: 0 0 0 .25rem rgba(var(--hm-brand-rgb), .25);
+    --bs-accordion-active-color: var(--hm-brand-text);
+    --bs-accordion-active-bg: var(--hm-brand-subtle);
+}
+
+.btn-close {
+    --bs-btn-close-focus-shadow: 0 0 0 .25rem rgba(var(--hm-brand-rgb), .25);
+}
+
+/* Theme's own inverse-button variant. */
+.btn-inverse-primary {
+    --bs-btn-color: var(--hm-brand-text);
+    --bs-btn-hover-color: #fff;
+    --bs-btn-hover-bg: var(--hm-brand);
+    --bs-btn-active-color: #fff;
+    --bs-btn-active-bg: var(--hm-brand-700);
+    --bs-btn-disabled-bg: var(--hm-brand-subtle);
+    --bs-btn-disabled-color: var(--hm-brand-text);
+    --bs-btn-disabled-border-color: var(--hm-brand-border);
+}
+
+/* Range slider thumbs are hard-coded blue in Bootstrap. */
+.form-range::-webkit-slider-thumb {
+    background-color: var(--hm-brand);
+}
+
+.form-range::-moz-range-thumb {
+    background-color: var(--hm-brand);
+}
+
+.form-range:focus::-webkit-slider-thumb,
+.form-range:focus::-moz-range-thumb {
+    box-shadow: 0 0 0 1px var(--bs-body-bg), 0 0 0 .25rem rgba(var(--hm-brand-rgb), .25);
+}
+
+/* Select2: both the default skin and the Bootstrap 5 skin highlight the hovered
+   option in blue. */
+.select2-container--default .select2-results__option--highlighted[aria-selected],
+.select2-container--default .select2-results__option--highlighted,
+.select2-container--bootstrap-5 .select2-results__option--highlighted,
+.select2-container--bootstrap-5 .select2-results__option--selected,
+.select2-container--classic .select2-results__option--highlighted[aria-selected] {
+    background-color: var(--hm-brand) !important;
+    color: #fff !important;
+}
+
+.select2-container--bootstrap-5 .select2-selection:focus,
+.select2-container--bootstrap-5.select2-container--focus .select2-selection {
+    border-color: var(--hm-brand-border) !important;
+    box-shadow: 0 0 0 .2rem rgba(var(--hm-brand-rgb), .18) !important;
+}
+
+/* Theme demo components that tint their hover with the old blue. */
+.email-navigation a.list-group-item:hover,
+.email-navigation a.list-group-item.active,
+.chat-list .list-group-item:hover,
+.chat-list .list-group-item.active {
+    background-color: var(--hm-brand-subtle) !important;
+    color: var(--hm-brand-text) !important;
+}
+
+/* Any remaining focus ring in the vendor CSS. */
+.form-control:focus,
+.form-select:focus,
+.form-check-input:focus,
+.btn:focus-visible,
+.btn-check:focus-visible + .btn {
+    box-shadow: 0 0 0 .2rem rgba(var(--hm-brand-rgb), .2) !important;
+}
+
+/*
+   Pace's page-load bar sits at the very top of every navigation and was still
+   drawing in stock blue.
+*/
+.pace .pace-progress {
+    background: var(--hm-brand) !important;
+}
+
+.pace .pace-progress-inner {
+    box-shadow: 0 0 10px var(--hm-brand), 0 0 5px var(--hm-brand) !important;
+}
+
+.pace .pace-activity {
+    border-top-color: var(--hm-brand) !important;
+    border-left-color: var(--hm-brand) !important;
+}
+
+/* Tri-state ("select all") checkboxes are styled separately from :checked. */
+.form-check-input[type="checkbox"]:indeterminate {
+    background-color: var(--hm-brand);
+    border-color: var(--hm-brand);
+}
+
+/* Keyboard focus ring on nav links (sidebar entries, tabs). */
+.nav-link:focus-visible {
+    box-shadow: 0 0 0 .25rem rgba(var(--hm-brand-rgb), .25);
+}
+
+/* Focus borders (Bootstrap uses a pale blue #86b7fe here). */
+.form-control:focus,
+.form-select:focus,
+.form-check-input:focus,
+.form-control-plaintext:focus {
+    border-color: var(--hm-brand-border) !important;
+}
+
+.accordion {
+    --bs-accordion-btn-focus-border-color: var(--hm-brand-border);
+}
+
+/* Pressed range thumb. */
+.form-range::-webkit-slider-thumb:active,
+.form-range::-moz-range-thumb:active {
+    background-color: var(--hm-brand-600);
+}
+
+/* Theme gradient backgrounds, matching the button treatment above. */
+[class*="bg-grd-"] {
+    background-image: none !important;
+    background-color: var(--hm-brand) !important;
+    color: #fff !important;
+}
+
+/* Blue-tinted table rows, if ever used. */
+.table-primary {
+    --bs-table-bg: var(--bs-primary-bg-subtle);
+    --bs-table-border-color: var(--bs-primary-border-subtle);
+    --bs-table-color: var(--bs-primary-text-emphasis);
+    --bs-table-striped-bg: var(--bs-primary-bg-subtle);
+    --bs-table-striped-color: var(--bs-primary-text-emphasis);
+    --bs-table-hover-bg: var(--bs-primary-border-subtle);
+    --bs-table-hover-color: var(--bs-primary-text-emphasis);
+    --bs-table-active-bg: var(--bs-primary-border-subtle);
+    --bs-table-active-color: var(--bs-primary-text-emphasis);
+}
+
+/* Text selection. */
+::selection {
+    background: rgba(var(--hm-brand-rgb), .22);
+}
+
+/* Interactive controls that default to blue. */
+.form-check-input:checked {
+    background-color: var(--hm-brand);
+    border-color: var(--hm-brand);
+}
+
+.form-check-input:focus {
+    border-color: var(--hm-brand-border);
+    box-shadow: 0 0 0 .2rem rgba(var(--hm-brand-rgb), .18);
+}
+
+.nav-tabs .nav-link.active {
+    color: var(--hm-brand-text);
+    border-bottom-color: var(--hm-brand);
+}
+
+.nav-tabs .nav-link:hover {
+    color: var(--hm-brand-text);
+}
+
+.page-link {
+    color: var(--hm-brand-text);
+}
+
+.page-item.active .page-link {
+    background-color: var(--hm-brand);
+    border-color: var(--hm-brand);
+    color: #fff;
+}
+
+.list-group-item.active {
+    background-color: var(--hm-brand);
+    border-color: var(--hm-brand);
+}
+
+a {
+    color: var(--bs-link-color);
+}
+
+a:hover {
+    color: var(--bs-link-hover-color);
 }
 
 body {
@@ -65,8 +456,8 @@ h1, h2, h3, h4, h5, h6 {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    background: rgba(var(--hm-brand-rgb), .12);
-    color: var(--hm-brand);
+    background: var(--hm-brand-subtle);
+    color: var(--hm-brand-text);
     flex: 0 0 auto;
 }
 
@@ -217,10 +608,17 @@ h1, h2, h3, h4, h5, h6 {
     padding-top: .85rem;
 }
 
-.dataTables_wrapper .dataTables_paginate .paginate_button.current {
+.dataTables_wrapper .dataTables_paginate .paginate_button.current,
+.dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
     background: var(--hm-brand) !important;
     border-color: var(--hm-brand) !important;
     color: #fff !important;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+    background: var(--bs-tertiary-bg) !important;
+    border-color: var(--hm-line) !important;
+    color: var(--bs-body-color) !important;
 }
 
 /* ------------------------------------------------------------- empty states */
@@ -276,7 +674,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .sidebar-brand-name {
-    color: var(--hm-brand) !important;
+    color: var(--hm-brand-text) !important;
     font-weight: 700;
 }
 
@@ -289,14 +687,52 @@ h1, h2, h3, h4, h5, h6 {
     font-weight: 700;
 }
 
-.sidebar-wrapper .metismenu li.active > a {
-    background: rgba(var(--hm-brand-rgb), .12);
-    color: var(--hm-brand);
+/*
+   Sidebar hover / focus / active.
+
+   Selectors mirror the theme's own shape (.sidebar-wrapper .sidebar-nav
+   .metismenu ...) so they match its specificity; app.css loads last, so an
+   equal-specificity rule wins. `.mm-active` is added by metisMenu at runtime,
+   `.active` is set server-side for the current route — both are covered.
+*/
+.sidebar-wrapper .sidebar-nav .metismenu a:hover,
+.sidebar-wrapper .sidebar-nav .metismenu a:focus,
+.sidebar-wrapper .sidebar-nav .metismenu a:active {
+    color: var(--hm-brand-text);
+    background-color: var(--hm-brand-subtle);
+}
+
+.sidebar-wrapper .sidebar-nav .metismenu .mm-active > a,
+.sidebar-wrapper .sidebar-nav .metismenu li.active > a {
+    color: var(--hm-brand-text);
+    background-color: var(--hm-brand-subtle);
     font-weight: 600;
 }
 
-.sidebar-wrapper .metismenu li.active > a .parent-icon i {
-    color: var(--hm-brand);
+.sidebar-wrapper .sidebar-nav .metismenu a:hover .parent-icon i,
+.sidebar-wrapper .sidebar-nav .metismenu .mm-active > a .parent-icon i,
+.sidebar-wrapper .sidebar-nav .metismenu li.active > a .parent-icon i {
+    color: var(--hm-brand-text);
+}
+
+/* Nested report links get the same treatment. */
+.sidebar-wrapper .sidebar-nav .metismenu ul a:hover,
+.sidebar-wrapper .sidebar-nav .metismenu ul a.active {
+    color: var(--hm-brand-text);
+    background-color: var(--hm-brand-subtle);
+}
+
+/* Sidebar counts: one calm pill style, rather than a mix of blue and grey. */
+.sidebar-wrapper .metismenu .badge {
+    background: var(--bs-tertiary-bg) !important;
+    color: var(--hm-muted) !important;
+    font-weight: 600;
+    font-size: .7rem;
+}
+
+.sidebar-wrapper .metismenu li.active > a .badge {
+    background: var(--hm-brand) !important;
+    color: #fff !important;
 }
 
 /* ------------------------------------------------------------------- topbar */
@@ -339,6 +775,44 @@ h1, h2, h3, h4, h5, h6 {
 .badge {
     font-weight: 600;
     letter-spacing: .01em;
+}
+
+/*
+   Neutral metadata chip (role names, employment type, "Overhead"...).
+   `text-bg-light` was being used for these, which inverts to a bright block in
+   dark mode; this follows the theme instead. Reserve the coloured badges for
+   status, where the colour actually carries meaning.
+*/
+.chip {
+    display: inline-flex;
+    align-items: center;
+    gap: .25rem;
+    padding: .2rem .55rem;
+    border-radius: 999px;
+    border: 1px solid var(--hm-line);
+    background: var(--bs-tertiary-bg);
+    color: var(--bs-secondary-color);
+    font-size: .74rem;
+    font-weight: 600;
+    line-height: 1.4;
+    white-space: nowrap;
+}
+
+/* "Completed" needs its own tone: Bootstrap's `primary` is the brand orange,
+   which is too close to the amber used for "pending". Matches the calendar. */
+.text-bg-completed {
+    background-color: #2563eb !important;
+    color: #fff !important;
+}
+
+[data-bs-theme="dark"] .text-bg-completed {
+    background-color: #3b82f6 !important;
+}
+
+.chip--brand {
+    border-color: var(--hm-brand-border);
+    background: var(--hm-brand-subtle);
+    color: var(--hm-brand-text);
 }
 
 /* ------------------------------------------------------------------- forms */

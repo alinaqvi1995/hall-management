@@ -68,11 +68,15 @@
             <div class="card">
                 <div class="card-body">
                     <div id="calendar"></div>
+                    {{-- Driven by Booking::STATUS_COLOURS so the legend always
+                         matches the event colours. --}}
                     <div class="calendar-legend mt-3 pt-3 border-top">
-                        <span><span class="dot" style="background:#d97706"></span>Pending</span>
-                        <span><span class="dot" style="background:#16a34a"></span>Confirmed</span>
-                        <span><span class="dot" style="background:#2563eb"></span>Completed</span>
-                        <span><span class="dot" style="background:#dc2626"></span>Cancelled</span>
+                        @foreach (\App\Models\Booking::STATUS_COLOURS as $key => $hex)
+                            <span>
+                                <span class="dot" style="background:{{ $hex }}"></span>
+                                {{ \App\Models\Booking::STATUSES[$key] }}
+                            </span>
+                        @endforeach
                     </div>
                 </div>
             </div>

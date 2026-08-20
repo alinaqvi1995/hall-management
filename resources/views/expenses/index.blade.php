@@ -101,7 +101,7 @@
                                         {{ $expense->booking->formatted_booking_number }}
                                     </a>
                                 @else
-                                    <span class="badge text-bg-light">Overhead</span>
+                                    <span class="chip">Overhead</span>
                                 @endif
                             </td>
                             <td class="text-secondary">{{ $expense->vendor->name ?? '—' }}</td>

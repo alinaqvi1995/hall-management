@@ -50,7 +50,7 @@
                         <div class="menu-title">
                             Bookings
                             @if (($counts['upcoming'] ?? 0) > 0)
-                                <span class="badge bg-primary float-end">{{ $counts['upcoming'] }}</span>
+                                <span class="badge float-end">{{ $counts['upcoming'] }}</span>
                             @endif
                         </div>
                     </a>
@@ -82,7 +82,7 @@
                         <div class="menu-title">
                             Customers
                             @if (($counts['customers'] ?? 0) > 0)
-                                <span class="badge bg-secondary float-end">{{ $counts['customers'] }}</span>
+                                <span class="badge float-end">{{ $counts['customers'] }}</span>
                             @endif
                         </div>
                     </a>
@@ -101,7 +101,7 @@
                         <div class="menu-title">
                             {{ $user->isSuperAdmin() ? 'Halls' : 'My Hall' }}
                             @if ($user->isSuperAdmin() && ($counts['halls'] ?? 0) > 0)
-                                <span class="badge bg-secondary float-end">{{ $counts['halls'] }}</span>
+                                <span class="badge float-end">{{ $counts['halls'] }}</span>
                             @endif
                         </div>
                     </a>
@@ -138,7 +138,7 @@
                         <div class="menu-title">
                             Staff
                             @if (($counts['staff'] ?? 0) > 0)
-                                <span class="badge bg-secondary float-end">{{ $counts['staff'] }}</span>
+                                <span class="badge float-end">{{ $counts['staff'] }}</span>
                             @endif
                         </div>
                     </a>
@@ -187,7 +187,7 @@
                         <div class="menu-title">
                             Users
                             @if (($counts['users'] ?? 0) > 0)
-                                <span class="badge bg-secondary float-end">{{ $counts['users'] }}</span>
+                                <span class="badge float-end">{{ $counts['users'] }}</span>
                             @endif
                         </div>
                     </a>

@@ -195,6 +195,37 @@ public/admin/
 Money is always `decimal` in the database and formatted through the `<x-money>`
 component, so amounts are consistent and never drift through float arithmetic.
 
+### Colour system
+
+The brand is a single orange (`#fc5523`) and it is wired into Bootstrap rather
+than sitting beside it. `public/admin/css/app.css` repoints `--bs-primary` and
+the whole `--bs-primary-*` family at the brand, so `btn-primary`, `bg-primary`,
+focus rings, active tabs and pagination all follow it. Before this the theme
+shipped stock blue (`#0d6efd`), which clashed with the orange sidebar.
+
+Two things to know when adding UI:
+
+- **Bootstrap scopes colours to per-component custom properties** on the
+  component's own class — `.dropdown-menu`, `.list-group`, `.pagination`,
+  `.nav-pills`, `.progress`, `.accordion`, `.btn-close`. Overriding
+  `--bs-primary` on `:root` does *not* reach them; each family is repointed
+  explicitly in app.css. If a hover suddenly looks blue, that is why.
+- **The vendor theme has its own accent, `#008cff`, separate from Bootstrap's
+  blue.** It paints the sidebar hover / focus / `.mm-active` states in
+  `sass/main.css` at four classes of specificity, so an override has to mirror
+  that selector shape (`.sidebar-wrapper .sidebar-nav .metismenu …`) to win.
+  Pace's page-load bar and a handful of demo components use it too.
+- **When hunting a stray colour, match by hue, not by hex.** Grepping for
+  `#0d6efd` misses `#008cff`, `#5897fb` and `#377dff`, which all read as blue.
+- **`--hm-brand` for fills, `--hm-brand-text` for text.** The brand only
+  reaches ~3.2:1 against white, so brand-coloured *text* and links use the
+  darker `--hm-brand-text`; fills keep the true brand colour.
+
+Status colours live in `Booking::STATUS_COLOURS` and are used by both the badges
+and the calendar, so the legend cannot drift from the events. Reserve the
+semantic badges (`success`/`danger`/`warning`) for status; use the `.chip` class
+for neutral metadata such as role names or employment type.
+
 ### Performance notes
 
 Things that were slow and why they are not any more — worth knowing before

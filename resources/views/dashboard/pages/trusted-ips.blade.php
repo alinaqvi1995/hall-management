@@ -36,7 +36,7 @@
                                 <td>{{ $ip->created_at_formatted }}</td>
                                 <td>
                                     @can('edit-trustedIps')
-                                        <button class="btn btn-sm btn-info editIpBtn" data-id="{{ $ip->id }}"
+                                        <button class="btn btn-sm btn-outline-secondary editIpBtn" data-id="{{ $ip->id }}"
                                             data-user_id="{{ $ip->user_id }}" data-ip="{{ $ip->ip_address }}">
                                             <i class="material-icons-outlined">edit</i>
                                         </button>
@@ -88,7 +88,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-grd btn-grd-primary">Save</button>
+                        <button type="submit" class="btn btn-primary">Save</button>
                     </div>
                 </div>
             </form>

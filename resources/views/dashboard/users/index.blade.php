@@ -56,7 +56,7 @@
                                 <td>{{ $user->hall?->name ?? 'No Hall' }}</td>
                                 <td>
                                     @foreach ($user->roles as $role)
-                                        <span class="badge bg-primary">{{ $role->name }}</span>
+                                        <span class="chip chip--brand">{{ $role->name }}</span>
                                     @endforeach
                                 </td>
 
@@ -70,7 +70,7 @@
                                 <td>
                                     @if (!$user->hasRole('super_admin'))
                                         <div class="dropdown d-inline">
-                                            <a href="javascript:;" class="dropdown-toggle btn btn-sm btn-secondary"
+                                            <a href="javascript:;" class="dropdown-toggle btn btn-sm btn-outline-secondary"
                                                 data-bs-toggle="dropdown">
                                                 View Options
                                             </a>

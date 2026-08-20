@@ -30,6 +30,19 @@ class Booking extends Model
         'refunded' => 'Refunded',
     ];
 
+    /**
+     * Status palette, shared by the badges and the calendar so the two cannot
+     * drift apart. Previously "completed" was blue on the calendar but rendered
+     * a `primary` badge, which became brand orange and clashed with the amber
+     * used for "pending".
+     */
+    public const STATUS_COLOURS = [
+        'pending' => '#d97706',
+        'confirmed' => '#16a34a',
+        'completed' => '#2563eb',
+        'cancelled' => '#dc2626',
+    ];
+
     public const EVENT_TYPES = [
         'shadi' => 'Shadi / Wedding',
         'mehndi' => 'Mehndi',
@@ -207,15 +220,24 @@ class Booking extends Model
         return self::EVENT_TYPES[$this->event_type] ?? ucfirst($this->event_type);
     }
 
-    /** Bootstrap contextual colour used by badges across the UI. */
+    /**
+     * Badge tone for this status. `completed` maps to a custom utility rather
+     * than a Bootstrap contextual class, so it matches its calendar colour.
+     */
     public function getStatusColourAttribute(): string
     {
         return match ($this->status) {
             'confirmed' => 'success',
-            'completed' => 'primary',
+            'completed' => 'completed',
             'cancelled' => 'danger',
             default => 'warning',
         };
+    }
+
+    /** Hex used for this booking's calendar event. */
+    public function getCalendarColourAttribute(): string
+    {
+        return self::STATUS_COLOURS[$this->status] ?? self::STATUS_COLOURS['pending'];
     }
 
     public function getPaymentStatusColourAttribute(): string

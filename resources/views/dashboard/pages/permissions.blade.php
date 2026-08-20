@@ -36,12 +36,12 @@
                                 <td>{{ $permission->slug }}</td>
                                 <td>
                                     @foreach ($permission->roles as $role)
-                                        <span class="badge bg-primary me-1 mb-1">{{ $role->name }}</span>
+                                        <span class="chip chip--brand me-1 mb-1">{{ $role->name }}</span>
                                     @endforeach
                                 </td>
                                 <td>
                                     @can('edit-permissions')
-                                        <button class="btn btn-sm btn-info editPermissionBtn" data-id="{{ $permission->id }}"
+                                        <button class="btn btn-sm btn-outline-secondary editPermissionBtn" data-id="{{ $permission->id }}"
                                             data-name="{{ $permission->name }}" data-slug="{{ $permission->slug }}">
                                             <i class="material-icons-outlined">edit</i>
                                         </button>
@@ -88,7 +88,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-grd btn-grd-primary">Save</button>
+                        <button type="submit" class="btn btn-primary">Save</button>
                     </div>
                 </div>
             </form>

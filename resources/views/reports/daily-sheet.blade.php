@@ -108,7 +108,7 @@
                                     </span>
                                 @else
                                     {{-- Kitchen has nothing to prepare for this event. --}}
-                                    <span class="badge text-bg-light">Own caterer</span>
+                                    <span class="chip">Own caterer</span>
                                     <span class="d-block text-secondary small">Venue only</span>
                                 @endif
                             </p>

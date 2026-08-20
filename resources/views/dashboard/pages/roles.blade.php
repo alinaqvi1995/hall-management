@@ -37,12 +37,12 @@
                                 <td>{{ $role->slug }}</td>
                                 <td>
                                     @foreach ($role->permissions as $perm)
-                                        <span class="badge bg-primary me-1 mb-1">{{ $perm->name }}</span>
+                                        <span class="chip me-1 mb-1">{{ $perm->name }}</span>
                                     @endforeach
                                 </td>
                                 <td>
                                     @can('edit-roles')
-                                        <button class="btn btn-sm btn-info editRoleBtn" data-id="{{ $role->id }}"
+                                        <button class="btn btn-sm btn-outline-secondary editRoleBtn" data-id="{{ $role->id }}"
                                             data-name="{{ $role->name }}" data-slug="{{ $role->slug }}"
                                             data-permissions='@json($role->permissions->pluck('id'))'>
                                             <i class="material-icons-outlined">edit</i>
@@ -98,7 +98,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-grd btn-grd-primary">Save</button>
+                        <button type="submit" class="btn btn-primary">Save</button>
                     </div>
                 </div>
             </form>

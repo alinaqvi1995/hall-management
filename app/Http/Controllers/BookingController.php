@@ -68,24 +68,14 @@ class BookingController extends Controller
             'start' => $b->start_datetime?->toIso8601String(),
             'end' => $b->end_datetime?->toIso8601String(),
             'url' => route('bookings.show', $b->id),
-            'backgroundColor' => $this->calendarColour($b->status),
-            'borderColor' => $this->calendarColour($b->status),
+            'backgroundColor' => $b->calendar_colour,
+            'borderColor' => $b->calendar_colour,
             'extendedProps' => [
                 'status' => $b->status_label,
                 'paymentStatus' => $b->payment_status_label,
                 'guests' => $b->guest_count,
             ],
         ]));
-    }
-
-    private function calendarColour(string $status): string
-    {
-        return match ($status) {
-            'confirmed' => '#16a34a',
-            'completed' => '#2563eb',
-            'cancelled' => '#dc2626',
-            default => '#d97706',
-        };
     }
 
     public function create()

@@ -11,7 +11,7 @@
         }
     </style>
     <div class="card">
-        <div class="card-header bg-light">
+        <div class="card-header">
             <h6>Create New User</h6>
         </div>
 
@@ -358,7 +358,7 @@
                 </div>
 
                 <div class="d-flex gap-2">
-                    <button type="submit" class="btn btn-grd btn-grd-primary">Create User</button>
+                    <button type="submit" class="btn btn-primary">Create User</button>
                     <a href="{{ route('dashboard.users.index') }}" class="btn btn-secondary">Cancel</a>
                 </div>
             </form>

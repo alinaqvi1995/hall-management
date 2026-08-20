@@ -11,7 +11,7 @@
         }
     </style>
     <div class="card">
-        <div class="card-header bg-light">
+        <div class="card-header">
             <h6>Edit User</h6>
         </div>
 

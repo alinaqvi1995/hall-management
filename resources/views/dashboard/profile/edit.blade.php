@@ -14,7 +14,7 @@
             <!-- Profile Info Card -->
             <div class="col-12 col-lg-5 mb-4">
                 <div class="card shadow-sm h-100">
-                    <div class="card-header bg-light">
+                    <div class="card-header">
                         <h6 class="mb-0">Your Profile</h6>
                     </div>
                     <div class="card-body text-center">
@@ -44,14 +44,14 @@
 
                         <h6 class="mb-1">Roles</h6>
                         @forelse($user->roles as $role)
-                            <span class="badge bg-primary">{{ $role->name }}</span>
+                            <span class="chip chip--brand">{{ $role->name }}</span>
                         @empty
                             <span class="text-muted">No roles assigned</span>
                         @endforelse
 
                         <h6 class="mt-3 mb-1">Permissions</h6>
                         @forelse($user->allPermissions() as $perm)
-                            <span class="badge bg-success">{{ $perm->name }}</span>
+                            <span class="chip">{{ $perm->name }}</span>
                         @empty
                             <span class="text-muted">No permissions</span>
                         @endforelse
@@ -62,7 +62,7 @@
             <!-- Edit Form -->
             <div class="col-12 col-lg-7 mb-4">
                 <div class="card shadow-sm h-100">
-                    <div class="card-header bg-light">
+                    <div class="card-header">
                         <h6 class="mb-0">Edit Your Details</h6>
                     </div>
                     <div class="card-body">
@@ -209,7 +209,7 @@
                                 </div>
                             </div>
 
-                            <button type="submit" class="btn btn-grd btn-grd-primary mt-2">Update Profile</button>
+                            <button type="submit" class="btn btn-primary mt-2">Update Profile</button>
                         </form>
                     </div>
                 </div>
