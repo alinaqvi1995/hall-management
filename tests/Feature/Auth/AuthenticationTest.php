@@ -49,6 +49,7 @@ class AuthenticationTest extends TestCase
         $response = $this->actingAs($user)->post('/logout');
 
         $this->assertGuest();
-        $response->assertRedirect('/');
+        // The session controller sends signed-out users to the login screen.
+        $response->assertRedirect('/login');
     }
 }

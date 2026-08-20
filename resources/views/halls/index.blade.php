@@ -3,78 +3,119 @@
 @section('title', 'Halls')
 
 @section('content')
-    <h6 class="mb-0 text-uppercase">Halls</h6>
-    <hr>
-
-    @can('create-halls')
-        <div class="mb-3 text-end">
-            <a href="{{ route('halls.create') }}" class="btn btn-grd btn-grd-primary">
-                <i class="material-icons-outlined">add</i> Add Hall
-            </a>
-        </div>
-    @endcan
+    <x-page-header :title="auth()->user()->isSuperAdmin() ? 'Halls' : 'My Hall'"
+        subtitle="Venues, their spaces and their commercial settings" icon="festival"
+        :breadcrumbs="['Halls' => null]">
+        <x-slot:actions>
+            @can('create-halls')
+                <a href="{{ route('halls.create') }}" class="btn btn-primary btn-sm">
+                    <i class="material-icons-outlined fs-6 align-middle">add</i> Add Hall
+                </a>
+            @endcan
+        </x-slot:actions>
+    </x-page-header>
 
     <div class="card">
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table align-middle datatable">
-                    <thead>
+        <div class="card-body p-0">
+            <x-data-table :order="[[1, 'asc']]">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Hall</th>
+                        <th>Owner</th>
+                        <th>Location</th>
+                        <th class="text-end">Spaces</th>
+                        <th class="text-end">Capacity</th>
+                        <th class="text-end">Bookings</th>
+                        <th>Status</th>
+                        <th class="no-sort text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse ($halls as $hall)
                         <tr>
-                            <th>Sr#.</th>
-                            <th>Name</th>
-                            <th>Owner</th>
-                            <th>Users</th>
-                            <th>Status</th>
-                            <th>Created By</th>
-                            <th>Modified By</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($halls as $hall)
-                            <tr>
-                                <td>{{ $loop->iteration }}</td>
-                                <td>
-                                    <a href="{{ route('halls.show', $hall->id) }}">
-                                        {{ $hall->name }}
-                                    </a>
-                                </td>
-                                <td>{{ $hall->owner_name ?? '-' }}</td>
-                                <td>{{ $hall->users()->count() }}</td>
-                                <td>{!! $hall->status_label ?? '-' !!}</td>
-                                <td>
-                                    {{ $hall->creator_name ?? '-' }} <br>
-                                    {{ $hall->created_atformatted }} 
-                                </td>
-                                <td>
-                                    {{ $hall->editor_name ?? '-' }} <br>
-                                    {{ $hall->updated_atformatted }}
-                                </td>
-                                <td>
-                                    @can('edit-halls')
-                                        <a href="{{ route('halls.edit', $hall->id) }}" class="btn btn-sm btn-info">
-                                            <i class="material-icons-outlined">edit</i>
+                            <td class="text-secondary">{{ $loop->iteration }}</td>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    @if ($hall->logo)
+                                        <img src="{{ asset($hall->logo) }}" alt=""
+                                            style="width:36px;height:36px;object-fit:cover;border-radius:8px">
+                                    @else
+                                        <span class="avatar-initial">{{ mb_substr($hall->name, 0, 1) }}</span>
+                                    @endif
+                                    <div class="min-w-0">
+                                        <a href="{{ route('halls.show', $hall) }}"
+                                            class="fw-semibold text-decoration-none d-block text-truncate">
+                                            {{ $hall->name }}
                                         </a>
-                                    @endcan
-                                    @can('delete-halls')
-                                        <form action="{{ route('halls.destroy', $hall->id) }}" method="POST" class="d-inline">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?')">
-                                                <i class="material-icons-outlined">delete</i>
-                                            </button>
-                                        </form>
-                                    @endcan
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
+                                        <small class="text-secondary">{{ $hall->hall_type_label ?? '—' }}</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div>{{ $hall->owner_name ?: '—' }}</div>
+                                <small class="text-secondary">{{ $hall->phone ?: '' }}</small>
+                            </td>
+                            <td>
+                                <div>{{ $hall->cityRelation->name ?? $hall->city ?? '—' }}</div>
+                                <small class="text-secondary">{{ $hall->area ?: '' }}</small>
+                            </td>
+                            <td class="text-end tabular">{{ number_format($hall->lawns_count) }}</td>
+                            <td class="text-end tabular">{{ number_format($hall->hall_capacity) }}</td>
+                            <td class="text-end tabular">{{ number_format($hall->bookings_count) }}</td>
+                            <td>
+                                <x-status-badge :label="$hall->status ? 'Active' : 'Inactive'"
+                                    :tone="$hall->status ? 'success' : 'danger'" />
+                            </td>
+                            <td class="text-end">
+                                <div class="dropdown">
+                                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button"
+                                        data-bs-toggle="dropdown">Actions</button>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li>
+                                            <a class="dropdown-item d-flex align-items-center gap-2"
+                                                href="{{ route('halls.show', $hall) }}">
+                                                <i class="material-icons-outlined fs-6">visibility</i>View</a>
+                                        </li>
+                                        @can('edit-halls')
+                                            <li>
+                                                <a class="dropdown-item d-flex align-items-center gap-2"
+                                                    href="{{ route('halls.edit', $hall) }}">
+                                                    <i class="material-icons-outlined fs-6">edit</i>Edit</a>
+                                            </li>
+                                        @endcan
+                                        @can('delete-halls')
+                                            <li>
+                                                <hr class="dropdown-divider">
+                                            </li>
+                                            <li>
+                                                <form action="{{ route('halls.destroy', $hall) }}" method="POST">
+                                                    @csrf @method('DELETE')
+                                                    <button type="submit"
+                                                        class="dropdown-item d-flex align-items-center gap-2 text-danger"
+                                                        data-confirm="Delete {{ $hall->name }}? Its lawns, bookings and ledger go with it.">
+                                                        <i class="material-icons-outlined fs-6">delete</i>Delete</button>
+                                                </form>
+                                            </li>
+                                        @endcan
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                    @empty
+                        <x-empty-state :colspan="9" icon="festival" title="No halls yet"
+                            message="Add your first venue to start taking bookings.">
+                            @can('create-halls')
+                                <x-slot:action>
+                                    <a href="{{ route('halls.create') }}" class="btn btn-primary btn-sm">
+                                        <i class="material-icons-outlined fs-6 align-middle">add</i> Add Hall
+                                    </a>
+                                </x-slot:action>
+                            @endcan
+                        </x-empty-state>
+                    @endforelse
+                </tbody>
+            </x-data-table>
         </div>
     </div>
-@endsection
-
-@section('extra_js')
-    {{-- Optional JS for modal or datatable --}}
 @endsection

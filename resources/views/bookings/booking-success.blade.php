@@ -1,193 +1,137 @@
 @extends('dashboard.includes.partial.base')
-@section('title', 'Booking Created Successfully')
+
+@section('title', 'Booking Confirmed')
 
 @section('content')
-    <div class="page-breadcrumb d-none d-sm-flex align-items-center mb-3">
-        <div class="breadcrumb-title pe-3">Dashboard</div>
-        <div class="ps-3">
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb mb-0 p-0">
-                    <li class="breadcrumb-item"><a href="{{ route('dashboard') }}"><i class="bx bx-home-alt"></i></a></li>
-                    <li class="breadcrumb-item"><a href="{{ route('bookings.index') }}">Bookings</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">Booking Success</li>
-                </ol>
-            </nav>
-        </div>
-    </div>
-
     <div class="row justify-content-center">
-        <div class="col-12 col-lg-10">
-            <!-- Success Message Card -->
-            <div class="card border-0 shadow-sm mb-4">
-                <div class="card-body text-center py-5">
-                    <div class="mb-4">
-                        <i class="material-icons-outlined text-success" style="font-size: 80px;">check_circle</i>
-                    </div>
-                    <h3 class="mb-3 fw-bold text-success">Booking Created Successfully!</h3>
-                    <p class="text-muted mb-4">
-                        Booking #<strong>{{ $booking->formatted_booking_number }}</strong> has been created for
-                        <strong>{{ $booking->customer->name }}</strong>
-                    </p>
-                    <div class="row justify-content-center">
-                        <div class="col-md-8">
-                            <div class="alert alert-info border-0 mb-0">
-                                <i class="material-icons-outlined align-middle me-2">info</i>
-                                You can now send the invoice to the customer via WhatsApp or Email
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Quick Booking Summary -->
-            <div class="card border-0 shadow-sm mb-4">
-                <div class="card-header bg-light">
-                    <h5 class="mb-0 fw-bold">Booking Summary</h5>
-                </div>
-                <div class="card-body">
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <div class="d-flex align-items-start">
-                                <i class="material-icons-outlined text-primary me-2">event</i>
-                                <div>
-                                    <small class="text-muted d-block">Event Date & Time</small>
-                                    <strong>{{ $booking->start_datetime->format('d M, Y') }}</strong><br>
-                                    <small>{{ $booking->start_datetime->format('h:i A') }} -
-                                        {{ $booking->end_datetime->format('h:i A') }}</small>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="d-flex align-items-start">
-                                <i class="material-icons-outlined text-primary me-2">place</i>
-                                <div>
-                                    <small class="text-muted d-block">Venue</small>
-                                    <strong>{{ $booking->hall->name }}</strong><br>
-                                    <small>{{ $booking->lawn->name }}</small>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="d-flex align-items-start">
-                                <i class="material-icons-outlined text-primary me-2">person</i>
-                                <div>
-                                    <small class="text-muted d-block">Customer</small>
-                                    <strong>{{ $booking->customer->name }}</strong><br>
-                                    <small>{{ $booking->customer->phone }}</small>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="d-flex align-items-start">
-                                <i class="material-icons-outlined text-primary me-2">payments</i>
-                                <div>
-                                    <small class="text-muted d-block">Payment</small>
-                                    <strong class="text-success">Rs
-                                        {{ number_format($booking->booking_price, 2) }}</strong><br>
-                                    <small>Advance: Rs {{ number_format($booking->advance_paid, 2) }}</small>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Action Buttons -->
-            <div class="card border-0 shadow-sm mb-4">
-                <div class="card-header bg-light">
-                    <h5 class="mb-0 fw-bold">Send Invoice to Customer (Optional)</h5>
-                </div>
-                <div class="card-body">
-                    <p class="text-muted mb-4">
-                        <i class="material-icons-outlined align-middle me-1" style="font-size: 18px;">info</i>
-                        Choose how you'd like to share the invoice with your customer. Both options are optional.
+        <div class="col-xl-8">
+            <div class="card text-center mb-4">
+                <div class="card-body py-5">
+                    <span class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3"
+                        style="width:72px;height:72px;background:var(--bs-success-bg-subtle)">
+                        <i class="material-icons-outlined text-success" style="font-size:2.4rem">check_circle</i>
+                    </span>
+                    <h4 class="fw-semibold mb-1">Booking Saved</h4>
+                    <p class="text-secondary mb-3">
+                        Booking <strong>{{ $booking->formatted_booking_number }}</strong> has been created for
+                        {{ $booking->customer->name ?? 'the customer' }}.
                     </p>
 
-                    <div class="row g-3 mb-4">
-                        <!-- WhatsApp Option -->
-                        <div class="col-md-6">
-                            <div class="card border h-100 hover-shadow" style="transition: all 0.3s;">
-                                <div class="card-body text-center p-4">
-                                    <div class="mb-3">
-                                        <i class="bx bxl-whatsapp text-success" style="font-size: 48px;"></i>
-                                    </div>
-                                    <h6 class="fw-bold mb-2">Send via WhatsApp</h6>
-                                    <p class="text-muted small mb-3">
-                                        Opens WhatsApp Web with a pre-filled message and invoice link
-                                    </p>
-                                    <a href="{{ $whatsappUrl }}" target="_blank" class="btn btn-success w-100">
-                                        <i class="bx bxl-whatsapp me-2"></i>Open WhatsApp
-                                    </a>
-                                    <small class="text-muted d-block mt-2">
-                                        <i class="material-icons-outlined" style="font-size: 14px;">phone</i>
-                                        {{ $booking->customer->phone }}
-                                    </small>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Gmail Option -->
-                        <div class="col-md-6">
-                            <div class="card border h-100 hover-shadow" style="transition: all 0.3s;">
-                                <div class="card-body text-center p-4">
-                                    <div class="mb-3">
-                                        <i class="bx bxl-gmail text-danger" style="font-size: 48px;"></i>
-                                    </div>
-                                    <h6 class="fw-bold mb-2">Send via Gmail</h6>
-                                    <p class="text-muted small mb-3">
-                                        Opens Gmail in Chrome with a pre-filled message and invoice link
-                                    </p>
-                                    <a href="{{ $gmailUrl }}" target="_blank" class="btn btn-danger w-100">
-                                        <i class="bx bxl-gmail me-2"></i>Open Gmail
-                                    </a>
-                                    <small class="text-muted d-block mt-2">
-                                        <i class="material-icons-outlined" style="font-size: 14px;">alternate_email</i>
-                                        {{ $booking->customer->email ?? 'No email provided' }}
-                                    </small>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Invoice Download -->
-                    <div class="alert alert-light border d-flex align-items-center mb-0">
-                        <i class="material-icons-outlined text-danger me-3" style="font-size: 32px;">picture_as_pdf</i>
-                        <div class="flex-grow-1">
-                            <strong class="d-block">Invoice PDF</strong>
-                            <small class="text-muted">Download or share the invoice manually</small>
-                        </div>
-                        <a href="{{ asset($invoiceUrl) }}" target="_blank" class="btn btn-outline-danger">
-                            <i class="material-icons-outlined me-1" style="font-size: 18px;">download</i>Download PDF
+                    <div class="d-flex flex-wrap justify-content-center gap-2">
+                        <a href="{{ route('bookings.show', $booking) }}" class="btn btn-primary">
+                            <i class="material-icons-outlined fs-6 align-middle">visibility</i> View Booking
                         </a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Navigation Buttons -->
-            <div class="card border-0 shadow-sm">
-                <div class="card-body">
-                    <div class="d-flex gap-2 justify-content-center flex-wrap">
-                        <a href="{{ route('bookings.show', $booking->id) }}" class="btn btn-lg btn-dark">
-                            <i class="material-icons-outlined me-2">visibility</i>View Full Booking Details
+                        <a href="{{ route('bookings.invoice', $booking) }}" target="_blank"
+                            class="btn btn-outline-secondary">
+                            <i class="material-icons-outlined fs-6 align-middle">receipt_long</i> Invoice
                         </a>
-                        <a href="{{ route('bookings.index') }}" class="btn btn-lg btn-outline-secondary">
-                            <i class="material-icons-outlined me-2">list</i>Back to Bookings
-                        </a>
-                        @can('create-bookings')
-                            <a href="{{ route('bookings.create') }}" class="btn btn-lg btn-outline-primary">
-                                <i class="material-icons-outlined me-2">add</i>Create Another Booking
+                        @if ($whatsappUrl)
+                            <a href="{{ $whatsappUrl }}" target="_blank" rel="noopener"
+                                class="btn btn-outline-success">
+                                <i class="material-icons-outlined fs-6 align-middle">chat</i> Send on WhatsApp
                             </a>
-                        @endcan
+                        @endif
+                        @if ($gmailUrl)
+                            <a href="{{ $gmailUrl }}" target="_blank" rel="noopener" class="btn btn-outline-primary">
+                                <i class="material-icons-outlined fs-6 align-middle">mail</i> Email Invoice
+                            </a>
+                        @endif
                     </div>
+
+                    {{-- Share links need contact details on the customer record. --}}
+                    @if (! $whatsappUrl || ! $gmailUrl)
+                        <p class="text-secondary small mt-3 mb-0">
+                            @if (! $whatsappUrl && ! $gmailUrl)
+                                Add a phone number or email to the customer to share the invoice directly.
+                            @elseif (! $whatsappUrl)
+                                Add a mobile number to share on WhatsApp.
+                            @else
+                                Add an email address to send the invoice by email.
+                            @endif
+                        </p>
+                    @endif
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">Summary</div>
+                <div class="card-body">
+                    <div class="detail-grid mb-3">
+                        <div class="detail-item">
+                            <p class="detail-item__label">Event</p>
+                            <p class="detail-item__value">{{ $booking->event_type_label ?? '—' }}</p>
+                        </div>
+                        <div class="detail-item">
+                            <p class="detail-item__label">Venue</p>
+                            <p class="detail-item__value">
+                                {{ $booking->hall->name ?? '' }} · {{ $booking->lawn->name ?? '' }}
+                            </p>
+                        </div>
+                        <div class="detail-item">
+                            <p class="detail-item__label">Date &amp; Time</p>
+                            <p class="detail-item__value">
+                                {{ $booking->start_datetime?->format('d M Y, h:i A') }}
+                            </p>
+                        </div>
+                        <div class="detail-item">
+                            <p class="detail-item__label">Guests</p>
+                            <p class="detail-item__value">{{ number_format($booking->guest_count) }}</p>
+                        </div>
+                    </div>
+
+                    <div class="totals-row">
+                        <span class="totals-row__label">Total bill</span>
+                        <span><x-money :amount="$booking->total_amount" /></span>
+                    </div>
+                    <div class="totals-row">
+                        <span class="totals-row__label">Advance expected
+                            ({{ $booking->hall->advance_policy_percent ?? 0 }}%)</span>
+                        <span><x-money :amount="$booking->required_advance" /></span>
+                    </div>
+                    @if ($booking->amount_paid > 0)
+                        <div class="totals-row">
+                            <span class="totals-row__label">Received</span>
+                            <span class="text-success"><x-money :amount="$booking->amount_paid" /></span>
+                        </div>
+                    @endif
+
+                    <div class="totals-row totals-row--grand">
+                        <span class="totals-row__label">Balance due</span>
+                        <span><x-money :amount="$booking->balance_due" /></span>
+                    </div>
+
+                    @can('create-payments')
+                        @php $receipt = $booking->payments->firstWhere('direction', 'in'); @endphp
+
+                        @if ($receipt)
+                            <div class="alert alert-success app-alert mt-3 mb-0 py-2 small d-flex gap-2">
+                                <i class="material-icons-outlined fs-6">check_circle</i>
+                                <span class="flex-grow-1">
+                                    Advance of <strong>Rs. {{ number_format($receipt->amount, 2) }}</strong>
+                                    recorded &mdash; receipt {{ $receipt->receipt_number }}.
+                                </span>
+                                <a href="{{ route('payments.receipt', $receipt) }}" target="_blank"
+                                    class="text-nowrap">Print receipt</a>
+                            </div>
+                        @else
+                            <div class="alert alert-info app-alert mt-3 mb-0 py-2 small d-flex gap-2">
+                                <i class="material-icons-outlined fs-6">info</i>
+                                <span>No payment recorded yet. Open the booking to add a receipt.</span>
+                            </div>
+                        @endif
+                    @endcan
+                </div>
+                <div class="card-footer d-flex flex-wrap gap-2 justify-content-between">
+                    <a href="{{ route('bookings.index') }}" class="btn btn-outline-secondary btn-sm">
+                        <i class="material-icons-outlined fs-6 align-middle">list</i> All Bookings
+                    </a>
+                    @can('create-bookings')
+                        <a href="{{ route('bookings.create') }}" class="btn btn-outline-primary btn-sm">
+                            <i class="material-icons-outlined fs-6 align-middle">add</i> Another Booking
+                        </a>
+                    @endcan
                 </div>
             </div>
         </div>
     </div>
-
-    <style>
-        .hover-shadow:hover {
-            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
-            transform: translateY(-2px);
-        }
-    </style>
 @endsection

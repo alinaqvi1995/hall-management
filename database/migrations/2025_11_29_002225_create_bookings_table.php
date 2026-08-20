@@ -26,8 +26,8 @@ return new class extends Migration
             $table->integer('capacity')->nullable();
             $table->json('facilities')->nullable();
 
-            $table->enum('payment_status', ['pending', 'partial', 'paid'])->default('pending');
-            $table->enum('status', ['pending', 'confirmed', 'cancelled'])->default('pending');
+            $table->enum('payment_status', ['pending', 'partial', 'paid', 'refunded'])->default('pending');
+            $table->enum('status', ['pending', 'confirmed', 'completed', 'cancelled'])->default('pending');
 
             $table->text('notes')->nullable();
             $table->string('booking_number')->unique()->nullable();

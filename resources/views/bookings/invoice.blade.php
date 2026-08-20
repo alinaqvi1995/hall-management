@@ -1,345 +1,376 @@
-<!DOCTYPE html>
+@php
+    /**
+     * Invoice, rendered both to the browser and to PDF via dompdf.
+     *
+     * $forPdf is true when dompdf is rendering: it cannot resolve the admin
+     * theme, so this template is deliberately self-contained inline CSS with no
+     * external stylesheets, flexbox or CSS variables.
+     */
+    $hall = $booking->hall;
+    $customer = $booking->customer;
+    $paid = $booking->amount_paid;
+    $balance = $booking->balance_due;
+    $logo = $hall?->logo ? public_path($hall->logo) : null;
+    $hasLogo = $logo && file_exists($logo);
+@endphp
+    <!doctype html>
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Invoice #{{ $booking->formatted_booking_number }}</title>
+    <meta charset="utf-8">
+    <title>Invoice {{ $booking->formatted_booking_number }}</title>
     <style>
+        /* dompdf understands tables and floats far better than flex/grid. */
+        * { box-sizing: border-box; }
+
         body {
-            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-            font-size: 14px;
-            color: #333;
+            font-family: DejaVu Sans, Arial, sans-serif;
+            font-size: 11px;
+            color: #1f2937;
             margin: 0;
-            padding: 0;
-            background: #f4f4f4;
-        }
-
-        .invoice-container {
-            max-width: 850px;
-            margin: 30px auto;
+            padding: 24px;
             background: #fff;
-            padding: 40px;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
         }
 
-        /* Header */
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            border-bottom: 2px solid #eee;
-            padding-bottom: 20px;
-            margin-bottom: 20px;
-        }
+        table { width: 100%; border-collapse: collapse; }
 
-        .hall-info img {
-            max-width: 150px;
-            height: auto;
-            margin-bottom: 10px;
-        }
+        .header { border-bottom: 2px solid #fc5523; padding-bottom: 12px; margin-bottom: 18px; }
+        .hall-name { font-size: 20px; font-weight: bold; color: #111827; margin: 0 0 3px; }
+        .hall-meta { color: #6b7280; font-size: 10px; line-height: 1.55; }
+        .doc-title { font-size: 22px; font-weight: bold; color: #fc5523; margin: 0 0 4px; text-align: right; }
+        .doc-meta { text-align: right; font-size: 10px; color: #6b7280; line-height: 1.6; }
+        .logo { max-height: 58px; max-width: 150px; }
 
-        .hall-info h2 {
-            margin: 0;
-            font-size: 24px;
-            color: #2c3e50;
-        }
-
-        .hall-info p {
-            margin: 5px 0;
-            color: #7f8c8d;
-        }
-
-        .invoice-meta {
-            text-align: right;
-        }
-
-        .invoice-meta h1 {
-            margin: 0;
-            font-size: 32px;
-            color: #2c3e50;
-            text-transform: uppercase;
-        }
-
-        .invoice-meta .meta-item {
-            margin-top: 5px;
-        }
-
-        .invoice-meta .label {
-            font-weight: bold;
-            color: #7f8c8d;
-        }
-
-        /* Details Grid */
-        .details-grid {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 30px;
-            gap: 20px;
-        }
-
-        .details-col {
-            width: 48%;
-        }
-
-        .section-title {
-            font-size: 16px;
-            font-weight: bold;
-            color: #2c3e50;
-            border-bottom: 1px solid #ddd;
-            padding-bottom: 5px;
-            margin-bottom: 10px;
-            text-transform: uppercase;
-        }
-
-        .info-row {
-            display: flex;
-            margin-bottom: 5px;
-        }
-
-        .info-row .label {
-            width: 100px;
-            font-weight: bold;
-            color: #555;
-            flex-shrink: 0;
-        }
-
-        .info-row .value {
-            color: #333;
-        }
-
-        /* Tables */
-        .table-container {
-            margin-bottom: 30px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        th {
-            background: #f8f9fa;
-            color: #2c3e50;
-            font-weight: bold;
-            text-align: left;
-            padding: 12px;
-            border-bottom: 2px solid #ddd;
-        }
-
-        td {
-            padding: 12px;
-            border-bottom: 1px solid #eee;
-        }
-
-        .text-right {
-            text-align: right;
-        }
-
-        .total-row td {
-            font-weight: bold;
-            background: #fdfdfd;
-            border-bottom: 2px solid #ddd;
-        }
-
-        .grand-total {
-            font-size: 18px;
-            color: #e74c3c;
-        }
-
-        /* Facilities badge */
         .badge {
             display: inline-block;
-            padding: 3px 8px;
-            font-size: 12px;
-            background: #eef2f3;
-            color: #2c3e50;
-            border-radius: 4px;
-            margin-right: 5px;
-            margin-bottom: 5px;
-            border: 1px solid #ddd;
-        }
-
-        /* Signature */
-        .signatures {
-            margin-top: 60px;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .sign-box {
-            width: 200px;
-            text-align: center;
-            border-top: 1px solid #333;
-            padding-top: 10px;
+            padding: 2px 8px;
+            border-radius: 9px;
+            font-size: 9px;
             font-weight: bold;
+            text-transform: uppercase;
+        }
+        .badge-paid      { background: #dcfce7; color: #166534; }
+        .badge-partial   { background: #fef3c7; color: #92400e; }
+        .badge-pending   { background: #fee2e2; color: #991b1b; }
+        .badge-refunded  { background: #e5e7eb; color: #374151; }
+        .badge-cancelled { background: #fee2e2; color: #991b1b; }
+
+        .panel { border: 1px solid #e5e7eb; border-radius: 6px; padding: 10px 12px; }
+        .panel-title {
+            font-size: 9px; font-weight: bold; text-transform: uppercase;
+            letter-spacing: .6px; color: #6b7280; margin: 0 0 6px;
+        }
+        .kv { margin: 0 0 3px; }
+        .kv b { color: #111827; }
+
+        .items th {
+            background: #f9fafb; text-align: left; padding: 8px;
+            font-size: 9px; text-transform: uppercase; letter-spacing: .5px;
+            color: #4b5563; border-bottom: 1px solid #e5e7eb;
+        }
+        .items td { padding: 8px; border-bottom: 1px solid #f3f4f6; }
+        .num { text-align: right; }
+
+        .totals td { padding: 5px 8px; }
+        .totals .label { color: #6b7280; text-align: right; }
+        .totals .grand td {
+            border-top: 2px solid #111827; font-size: 14px;
+            font-weight: bold; color: #111827; padding-top: 8px;
+        }
+        .due td { color: #991b1b; font-weight: bold; }
+
+        .terms { margin-top: 20px; font-size: 9px; color: #6b7280; line-height: 1.7; }
+        .terms h4 { font-size: 10px; color: #374151; margin: 0 0 4px; text-transform: uppercase; letter-spacing: .5px; }
+
+        .signatures { margin-top: 34px; }
+        .sig-line { border-top: 1px solid #9ca3af; padding-top: 4px; font-size: 9px; color: #6b7280; }
+
+        .footer {
+            margin-top: 22px; padding-top: 10px; border-top: 1px solid #e5e7eb;
+            text-align: center; font-size: 9px; color: #9ca3af;
         }
 
-        /* Print Control */
+        .watermark {
+            position: absolute; top: 40%; left: 18%;
+            font-size: 68px; color: #fee2e2; font-weight: bold;
+            transform: rotate(-24deg); z-index: -1;
+        }
+
         @media print {
-            body {
-                background: #fff;
-            }
-
-            .invoice-container {
-                box-shadow: none;
-                border: none;
-                margin: 0;
-                padding: 0;
-            }
-
-            .no-print {
-                display: none;
-            }
-
-            .badge {
-                border: 1px solid #999;
-            }
+            body { padding: 0; }
+            .no-print { display: none !important; }
         }
     </style>
 </head>
 
 <body>
+    @if ($booking->isCancelled())
+        <div class="watermark">CANCELLED</div>
+    @endif
 
-    <div class="invoice-container">
-        <!-- HEADER -->
-        <div class="header">
-            <div class="hall-info">
-                @if ($booking->hall && $booking->hall->logo)
-                    <img src="{{ asset($booking->hall->logo) }}" alt="Logo">
-                @else
-                    <h2>{{ $booking->hall->name ?? 'Hall Management' }}</h2>
-                @endif
-                <p>{{ $booking->hall->address ?? 'Address Not Available' }}</p>
-                <p>{{ $booking->hall->city ?? '' }} {{ $booking->hall->state ? ', ' . $booking->hall->state : '' }}</p>
-                <p><strong>Phone:</strong> {{ $booking->hall->phone ?? '-' }}</p>
-                <p><strong>Email:</strong> {{ $booking->hall->email ?? '-' }}</p>
-            </div>
-            <div class="invoice-meta">
-                <h1>Invoice</h1>
-                <div class="meta-item">
-                    <span class="label">Invoice #:</span> {{ $booking->formatted_booking_number }}
-                </div>
-                <div class="meta-item">
-                    <span class="label">Date:</span> {{ now()->format('d M, Y') }}
-                </div>
-                <div class="meta-item">
-                    <span class="label">Status:</span>
-                    <span
-                        style="color: {{ $booking->status === 'confirmed' ? 'green' : 'orange' }}; font-weight: bold; text-transform: uppercase;">
-                        {{ $booking->status }}
-                    </span>
-                </div>
-            </div>
+    {{-- Browser-only toolbar; excluded from the PDF and from printing. --}}
+    @unless ($forPdf ?? false)
+        <div class="no-print" style="margin-bottom:16px;text-align:right">
+            <button onclick="window.print()"
+                style="padding:7px 14px;border:1px solid #d1d5db;border-radius:6px;background:#fc5523;color:#fff;cursor:pointer;font-weight:600">
+                Print / Save as PDF
+            </button>
+            <a href="{{ route('bookings.show', $booking) }}"
+                style="padding:7px 14px;border:1px solid #d1d5db;border-radius:6px;text-decoration:none;color:#374151;margin-left:6px">
+                Back to booking
+            </a>
         </div>
+    @endunless
 
-        <!-- CLIENT & EVENT INFO -->
-        <div class="details-grid">
-            <!-- Client -->
-            <div class="details-col">
-                <div class="section-title">Bill To</div>
-                <div class="info-row"><span class="label">Name:</span> <span
-                        class="value">{{ $booking->customer->name ?? '-' }}</span></div>
-                <div class="info-row"><span class="label">Phone:</span> <span
-                        class="value">{{ $booking->customer->phone ?? '-' }}</span></div>
-                <div class="info-row"><span class="label">CNIC:</span> <span
-                        class="value">{{ $booking->customer->cnic ?? '-' }}</span></div>
-                <div class="info-row"><span class="label">Email:</span> <span
-                        class="value">{{ $booking->customer->email ?? '-' }}</span></div>
-                <div class="info-row"><span class="label">Address:</span> <span
-                        class="value">{{ $booking->customer->address ?? '-' }}</span></div>
-            </div>
-
-            <!-- Event -->
-            <div class="details-col">
-                <div class="section-title">Event Details</div>
-                <div class="info-row"><span class="label">Event Start:</span> <span
-                        class="value">{{ $booking->start_datetime->format('d M, Y (h:i A)') }}</span></div>
-                <div class="info-row"><span class="label">Event End:</span> <span
-                        class="value">{{ $booking->end_datetime->format('d M, Y (h:i A)') }}</span></div>
-                <div class="info-row"><span class="label">Hall / Lawn:</span> <span
-                        class="value">{{ $booking->hall->name }} / {{ $booking->lawn->name }}</span></div>
-                <div class="info-row"><span class="label">Guests:</span> <span class="value">{{ $booking->capacity }}
-                        (Limit: {{ $booking->lawn->capacity ?? 'N/A' }})</span></div>
-                @if (!empty($booking->facilities))
-                    <div class="info-row">
-                        <span class="label">Facilities:</span>
-                        <span class="value">
-                            @foreach ($booking->facilities as $facility)
-                                <span class="badge">{{ ucwords(str_replace('_', ' ', $facility)) }}</span>
-                            @endforeach
+    {{-- ───────────────────────────────── header ─────────────────────────── --}}
+    <div class="header">
+        <table>
+            <tr>
+                <td style="width:60%;vertical-align:top">
+                    @if ($hasLogo)
+                        <img src="{{ $logo }}" class="logo" alt=""><br>
+                    @endif
+                    <p class="hall-name">{{ $hall->name ?? 'Hall' }}</p>
+                    <div class="hall-meta">
+                        {{ $hall->full_address ?? '' }}<br>
+                        @if ($hall?->phone)Phone: {{ $hall->phone }}@endif
+                        @if ($hall?->email) &nbsp;|&nbsp; {{ $hall->email }}@endif
+                        @if ($hall?->ntn_number)<br>NTN: {{ $hall->ntn_number }}@endif
+                        @if ($hall?->gst_number) &nbsp;|&nbsp; GST: {{ $hall->gst_number }}@endif
+                    </div>
+                </td>
+                <td style="width:40%;vertical-align:top">
+                    <p class="doc-title">INVOICE</p>
+                    <div class="doc-meta">
+                        <b>{{ $booking->formatted_booking_number }}</b><br>
+                        Issued: {{ now()->format('d M Y') }}<br>
+                        <span class="badge badge-{{ $booking->isCancelled() ? 'cancelled' : $booking->payment_status }}">
+                            {{ $booking->isCancelled() ? 'Cancelled' : $booking->payment_status_label }}
                         </span>
                     </div>
-                @endif
-            </div>
-        </div>
-
-        <!-- FINANCIALS -->
-        <div class="table-container">
-            <div class="section-title">Payment Summary</div>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Description</th>
-                        <th class="text-right">Amount (PKR)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>
-                            <strong>Hall Booking Charges</strong><br>
-                            <small style="color: #666;">Rental charges for {{ $booking->hall->name }} -
-                                {{ $booking->lawn->name }}</small>
-                        </td>
-                        <td class="text-right">{{ number_format($booking->booking_price, 2) }}</td>
-                    </tr>
-                    <!-- Can add extra rows here if we had detailed line items -->
-
-                    <tr class="total-row">
-                        <td>Total Amount</td>
-                        <td class="text-right">{{ number_format($booking->booking_price, 2) }}</td>
-                    </tr>
-                    <tr>
-                        <td>Advance Paid</td>
-                        <td class="text-right text-success">- {{ number_format($booking->advance_paid, 2) }}</td>
-                    </tr>
-                    <tr class="total-row">
-                        <td>Balance Due</td>
-                        <td class="text-right grand-total">
-                            {{ number_format($booking->booking_price - $booking->advance_paid, 2) }}</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Payment Status</strong></td>
-                        <td class="text-right" style="text-transform: capitalize;">{{ $booking->payment_status }}</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
-        <!-- NOTES -->
-        @if ($booking->notes)
-            <div class="table-container">
-                <div class="section-title">Notes & Special Instructions</div>
-                <p style="background: #fffbe6; padding: 10px; border: 1px solid #ffe58f; border-radius: 4px;">
-                    {{ $booking->notes }}
-                </p>
-            </div>
-        @endif
-
-        <!-- SIGNATURES -->
-        <div class="signatures">
-            <div class="sign-box">Manager Signature</div>
-            <div class="sign-box">Customer Signature</div>
-        </div>
-
-        <div class="no-print"
-            style="text-align: center; margin-top: 40px; border-top: 1px dashed #ccc; padding-top: 20px;">
-            <button onclick="window.print()"
-                style="background: #2c3e50; color: #fff; border: none; padding: 10px 20px; font-size: 16px; cursor: pointer; border-radius: 4px;">Print
-                Invoice</button>
-        </div>
+                </td>
+            </tr>
+        </table>
     </div>
 
+    {{-- ─────────────────────────── customer / event ───────────────────── --}}
+    <table style="margin-bottom:16px">
+        <tr>
+            <td style="width:49%;vertical-align:top">
+                <div class="panel">
+                    <p class="panel-title">Billed To</p>
+                    <p class="kv"><b>{{ $customer->name ?? '—' }}</b></p>
+                    @if ($customer?->formatted_cnic)
+                        <p class="kv">CNIC: {{ $customer->formatted_cnic }}</p>
+                    @endif
+                    @if ($customer?->phone)
+                        <p class="kv">Phone: {{ $customer->phone }}</p>
+                    @endif
+                    @if ($customer?->email)
+                        <p class="kv">Email: {{ $customer->email }}</p>
+                    @endif
+                    @if ($customer?->address)
+                        <p class="kv">{{ $customer->address }}</p>
+                    @endif
+                </div>
+            </td>
+            <td style="width:2%"></td>
+            <td style="width:49%;vertical-align:top">
+                <div class="panel">
+                    <p class="panel-title">Event Details</p>
+                    <p class="kv">Type: <b>{{ $booking->event_type_label ?? 'Event' }}</b></p>
+                    <p class="kv">Venue: <b>{{ $booking->lawn->name ?? ($hall->name ?? '—') }}</b></p>
+                    <p class="kv">Date: <b>{{ $booking->start_datetime?->format('d M Y') }}</b></p>
+                    <p class="kv">Time:
+                        {{ $booking->start_datetime?->format('h:i A') }} –
+                        {{ $booking->end_datetime?->format('h:i A') }}
+                    </p>
+                    <p class="kv">Guests: <b>{{ number_format($booking->guest_count) }}</b></p>
+                    @if ($booking->menu_amount <= 0)
+                        <p class="kv" style="color:#6b7280">Catering: arranged by customer</p>
+                    @endif
+                </div>
+            </td>
+        </tr>
+    </table>
+
+    {{-- ────────────────────────────── line items ──────────────────────── --}}
+    <table class="items" style="margin-bottom:12px">
+        <thead>
+            <tr>
+                <th style="width:46%">Description</th>
+                <th style="width:14%" class="num">Qty</th>
+                <th style="width:20%" class="num">Rate</th>
+                <th style="width:20%" class="num">Amount</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{-- Hall rent is the first line for a venue-only booking. --}}
+            @if ($booking->hall_rent > 0)
+                <tr>
+                    <td>
+                        <b>Hall / lawn rent</b>
+                        <br><span style="color:#6b7280">{{ $booking->lawn->name ?? ($hall->name ?? '') }}</span>
+                    </td>
+                    <td class="num">1</td>
+                    <td class="num">{{ number_format($booking->hall_rent, 2) }}</td>
+                    <td class="num">{{ number_format($booking->hall_rent, 2) }}</td>
+                </tr>
+            @endif
+
+            {{-- Catering is optional: many customers arrange their own caterer. --}}
+            @if ($booking->menu_amount > 0)
+                <tr>
+                    <td>
+                        <b>{{ $booking->package->name ?? 'Catering / Menu' }}</b>
+                        @if ($booking->package?->type)
+                            <br><span style="color:#6b7280">{{ $booking->package->type_label }}</span>
+                        @endif
+                    </td>
+                    <td class="num">{{ number_format($booking->guest_count) }}</td>
+                    <td class="num">{{ number_format($booking->per_head_rate, 2) }}</td>
+                    <td class="num">{{ number_format($booking->menu_amount, 2) }}</td>
+                </tr>
+            @endif
+
+            @foreach ($booking->addons as $addon)
+                <tr>
+                    <td>
+                        {{ $addon->name }}
+                        @if ($addon->pricing_mode === 'per_head')
+                            <span style="color:#6b7280">(per head)</span>
+                        @endif
+                    </td>
+                    <td class="num">
+                        {{ $addon->pricing_mode === 'per_head'
+                            ? number_format($addon->pivot->quantity * $booking->guest_count)
+                            : number_format($addon->pivot->quantity) }}
+                    </td>
+                    <td class="num">{{ number_format($addon->pivot->unit_price, 2) }}</td>
+                    <td class="num">{{ number_format($addon->pivot->line_total, 2) }}</td>
+                </tr>
+            @endforeach
+
+        </tbody>
+    </table>
+
+    {{-- ──────────────────────────────── totals ────────────────────────── --}}
+    <table>
+        <tr>
+            <td style="width:52%;vertical-align:top">
+                @if ($booking->payments->isNotEmpty())
+                    <div class="panel">
+                        <p class="panel-title">Payments Received</p>
+                        <table>
+                            @foreach ($booking->payments->sortBy('paid_on') as $payment)
+                                <tr>
+                                    <td style="padding:2px 0">
+                                        {{ $payment->paid_on?->format('d M Y') }}
+                                        <span style="color:#6b7280">· {{ $payment->method_label }}</span>
+                                        @if ($payment->direction === 'refund')
+                                            <span style="color:#991b1b">(refund)</span>
+                                        @endif
+                                    </td>
+                                    <td class="num" style="padding:2px 0">
+                                        {{ $payment->direction === 'refund' ? '-' : '' }}{{ number_format($payment->amount, 2) }}
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </table>
+                    </div>
+                @endif
+            </td>
+            <td style="width:4%"></td>
+            <td style="width:44%;vertical-align:top">
+                <table class="totals">
+                    @if ($booking->menu_amount > 0)
+                        <tr>
+                            <td class="label">Catering subtotal</td>
+                            <td class="num">{{ number_format($booking->menu_amount, 2) }}</td>
+                        </tr>
+                    @endif
+                    @if ($booking->addons_amount > 0)
+                        <tr>
+                            <td class="label">Extra services</td>
+                            <td class="num">{{ number_format($booking->addons_amount, 2) }}</td>
+                        </tr>
+                    @endif
+                    @if ($booking->hall_rent > 0)
+                        <tr>
+                            <td class="label">Hall rent</td>
+                            <td class="num">{{ number_format($booking->hall_rent, 2) }}</td>
+                        </tr>
+                    @endif
+                    @if ($booking->discount > 0)
+                        <tr>
+                            <td class="label">Discount</td>
+                            <td class="num">-{{ number_format($booking->discount, 2) }}</td>
+                        </tr>
+                    @endif
+                    @if ($booking->tax_amount > 0)
+                        <tr>
+                            <td class="label">
+                                Tax / GST ({{ rtrim(rtrim(number_format($booking->tax_percent, 2), '0'), '.') }}%)
+                            </td>
+                            <td class="num">{{ number_format($booking->tax_amount, 2) }}</td>
+                        </tr>
+                    @endif
+                    <tr class="grand">
+                        <td class="label" style="color:#111827">Total (PKR)</td>
+                        <td class="num">{{ number_format($booking->total_amount, 2) }}</td>
+                    </tr>
+                    <tr>
+                        <td class="label">Received</td>
+                        <td class="num">{{ number_format($paid, 2) }}</td>
+                    </tr>
+                    <tr class="due">
+                        <td class="label" style="color:#991b1b">Balance Due</td>
+                        <td class="num">{{ number_format(max($balance, 0), 2) }}</td>
+                    </tr>
+                    @if ($booking->isCancelled() && $booking->cancellation_charge > 0)
+                        <tr>
+                            <td class="label">Cancellation charge retained</td>
+                            <td class="num">{{ number_format($booking->cancellation_charge, 2) }}</td>
+                        </tr>
+                    @endif
+                </table>
+            </td>
+        </tr>
+    </table>
+
+    {{-- ──────────────────────────────── terms ─────────────────────────── --}}
+    <div class="terms">
+        <h4>Terms &amp; Conditions</h4>
+        1. An advance of {{ $hall->advance_policy_percent ?? 25 }}% of the total is required to confirm the booking.<br>
+        2. The remaining balance is payable before the event begins.<br>
+        3. Cancellation attracts a charge of {{ $hall->cancellation_charge_percent ?? 0 }}% of the total bill.<br>
+        4. Final guest numbers must be confirmed at least 48 hours before the event; charges are based on the
+        confirmed count or the actual attendance, whichever is higher.<br>
+        5. Any damage to the property will be charged separately.<br>
+        6. All rates are in Pakistani Rupees (PKR).
+    </div>
+
+    @if ($booking->notes)
+        <div class="terms">
+            <h4>Notes</h4>
+            {{ $booking->notes }}
+        </div>
+    @endif
+
+    <div class="signatures">
+        <table>
+            <tr>
+                <td style="width:45%"><div class="sig-line">Customer Signature</div></td>
+                <td style="width:10%"></td>
+                <td style="width:45%"><div class="sig-line">For {{ $hall->name ?? 'the Hall' }}</div></td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="footer">
+        This is a computer-generated invoice for {{ $hall->name ?? '' }} ·
+        Generated {{ now()->format('d M Y, h:i A') }}
+    </div>
 </body>
 
 </html>

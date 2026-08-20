@@ -12,8 +12,9 @@ class ExampleTest extends TestCase
      */
     public function test_the_application_returns_a_successful_response(): void
     {
-        $response = $this->get('/');
-
-        $response->assertStatus(200);
+        // There is no public landing page: "/" forwards to the dashboard,
+        // which in turn sends a guest to the login screen.
+        $this->get('/')->assertRedirect(route('dashboard'));
+        $this->get('/dashboard')->assertRedirect(route('login'));
     }
 }

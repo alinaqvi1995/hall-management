@@ -1,12 +1,14 @@
 <?php
+
 namespace App\Models;
 
+use App\Traits\BelongsToHall;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Lawn extends Model
 {
-    use HasFactory;
+    use BelongsToHall, HasFactory;
 
     protected $fillable = [
         'hall_id',
@@ -16,25 +18,40 @@ class Lawn extends Model
         'updated_by',
     ];
 
-    public function hall()
+    protected $casts = [
+        'capacity' => 'integer',
+    ];
+
+    public function bookings()
     {
-        return $this->belongsTo(Hall::class, 'hall_id');
+        return $this->hasMany(Booking::class);
     }
 
-    protected static function boot()
+    /**
+     * Is this lawn free for the given window?
+     * Cancelled bookings release the slot; only pending/confirmed ones hold it.
+     */
+    public function isAvailableBetween($start, $end, ?int $ignoreBookingId = null): bool
     {
-        parent::boot();
+        return ! $this->bookings()
+            ->active()
+            ->overlapping($start, $end)
+            ->when($ignoreBookingId, fn ($q) => $q->where('id', '!=', $ignoreBookingId))
+            ->exists();
+    }
 
-        static::creating(function ($model) {
+    protected static function booted(): void
+    {
+        static::creating(function (self $lawn) {
             if (auth()->check()) {
-                $model->created_by = auth()->id();
-                $model->updated_by = auth()->id();
+                $lawn->created_by ??= auth()->id();
+                $lawn->updated_by ??= auth()->id();
             }
         });
 
-        static::updating(function ($model) {
+        static::updating(function (self $lawn) {
             if (auth()->check()) {
-                $model->updated_by = auth()->id();
+                $lawn->updated_by = auth()->id();
             }
         });
     }

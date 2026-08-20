@@ -2,21 +2,25 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\View;
+use App\Listeners\LogAuthenticationActivity;
+use App\Models\Booking;
+use App\Models\Hall;
 use App\Models\Permission;
 use App\Models\User;
-use App\Models\Category;
-use App\Models\Subcategory;
-use App\Repositories\Hall\HallRepositoryInterface;
+use App\Policies\BookingPolicy;
+use App\Policies\HallPolicy;
+use App\Policies\UserPolicy;
 use App\Repositories\Hall\HallRepository;
-use Illuminate\Support\Facades\Event;
-use Illuminate\Auth\Events\Login;
-use Illuminate\Auth\Events\Logout;
+use App\Repositories\Hall\HallRepositoryInterface;
 use Illuminate\Auth\Events\Failed;
 use Illuminate\Auth\Events\Lockout;
-use App\Listeners\LogAuthenticationActivity;
+use Illuminate\Auth\Events\Login;
+use Illuminate\Auth\Events\Logout;
+use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -27,30 +31,45 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        Gate::before(function (User $user, string $ability) {
+        Gate::policy(Hall::class, HallPolicy::class);
+        Gate::policy(Booking::class, BookingPolicy::class);
+        Gate::policy(User::class, UserPolicy::class);
+
+        Gate::before(function (User $user) {
             if ($user->hasRole('super_admin')) {
                 return true;
             }
+
+            return null;
         });
 
-        try {
-            Permission::pluck('slug')->each(function ($slug) {
-                Gate::define($slug, function (User $user) use ($slug) {
-                    return $user->hasPermission($slug);
-                });
-            });
-        } catch (\Exception $e) {
-        }
+        $this->registerPermissionGates();
 
-        // Authentication Event Listeners
         Event::listen(
-            [
-                Login::class,
-                Logout::class,
-                Failed::class,
-                Lockout::class,
-            ],
+            [Login::class, Logout::class, Failed::class, Lockout::class],
             LogAuthenticationActivity::class
         );
+    }
+
+    /**
+     * Turn every row in `permissions` into a gate ability, so `@can('view-bookings')`
+     * works in Blade without a per-check database lookup.
+     *
+     * Wrapped because this runs during `migrate` and `db:seed` too, when the
+     * table may not exist yet.
+     */
+    private function registerPermissionGates(): void
+    {
+        try {
+            if (! Schema::hasTable('permissions')) {
+                return;
+            }
+
+            foreach (Permission::pluck('slug') as $slug) {
+                Gate::define($slug, fn (User $user) => $user->hasPermission($slug));
+            }
+        } catch (QueryException) {
+            // No usable database connection yet (fresh install, no .env).
+        }
     }
 }

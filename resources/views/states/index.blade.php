@@ -1,125 +1,125 @@
 @extends('dashboard.includes.partial.base')
 
-@section('title', 'States')
+@section('title', 'Provinces')
 
 @section('content')
-    <h6 class="mb-0 text-uppercase">States</h6>
-    <hr>
+    <x-page-header title="Provinces" subtitle="Provinces and territories of Pakistan" icon="map"
+        :breadcrumbs="['Locations' => null, 'Provinces' => null]">
+        <x-slot:actions>
+            @can('create-states')
+                <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addStateModal">
+                    <i class="material-icons-outlined fs-6 align-middle">add</i> Add Province
+                </button>
+            @endcan
+        </x-slot:actions>
+    </x-page-header>
+
+    <div class="card">
+        <div class="card-body p-0">
+            <x-data-table :order="[[0, 'asc']]">
+                <thead>
+                    <tr>
+                        <th>Province</th>
+                        <th class="text-end">Cities</th>
+                        <th>Created by</th>
+                        <th>Updated by</th>
+                        <th class="no-sort text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse ($states as $state)
+                        <tr>
+                            <td class="fw-semibold">{{ $state->name }}</td>
+                            <td class="text-end tabular">{{ number_format($state->cities_count) }}</td>
+                            <td class="text-secondary">{{ $state->creator->name ?? '—' }}</td>
+                            <td class="text-secondary">{{ $state->updater->name ?? '—' }}</td>
+                            <td class="text-end">
+                                @can('edit-states')
+                                    <button class="btn btn-sm btn-outline-secondary js-edit-state" title="Edit"
+                                        data-name="{{ $state->name }}"
+                                        data-action="{{ route('states.update', $state) }}">
+                                        <i class="material-icons-outlined fs-6">edit</i>
+                                    </button>
+                                @endcan
+                                @can('delete-states')
+                                    <form action="{{ route('states.destroy', $state) }}" method="POST"
+                                        class="d-inline">
+                                        @csrf @method('DELETE')
+                                        <button class="btn btn-sm btn-outline-danger" title="Delete"
+                                            data-confirm="Delete {{ $state->name }}? Its cities are deleted too.">
+                                            <i class="material-icons-outlined fs-6">delete</i>
+                                        </button>
+                                    </form>
+                                @endcan
+                            </td>
+                        </tr>
+                    @empty
+                        <x-empty-state :colspan="5" icon="map" title="No provinces"
+                            message="Add provinces so halls can record their location." />
+                    @endforelse
+                </tbody>
+            </x-data-table>
+        </div>
+    </div>
 
     @can('create-states')
-        <div class="mb-3 text-end">
-            <button class="btn btn-grd btn-grd-primary" id="addStateBtn">
-                <i class="material-icons-outlined">add</i> Add State
-            </button>
+        <div class="modal fade" id="addStateModal" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <form class="modal-content" method="POST" action="{{ route('states.store') }}">
+                    @csrf
+                    <div class="modal-header">
+                        <h5 class="modal-title">Add Province</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <label class="form-label">Province Name <span class="required-mark">*</span></label>
+                        <input type="text" name="name" class="form-control" required
+                            placeholder="e.g. Punjab">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary"
+                            data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary" data-loading-text="Saving…">Save</button>
+                    </div>
+                </form>
+            </div>
         </div>
     @endcan
 
-    <div class="card">
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table align-middle datatable">
-                    <thead>
-                        <tr>
-                            <th>Sr#</th>
-                            <th>State</th>
-                            <th>Created By</th>
-                            <th>Updated By</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($states as $state)
-                            <tr>
-                                <td>{{ $loop->iteration }}</td>
-                                <td>{{ $state->name }}</td>
-                                <td>{{ $state->creator->name ?? '-' }}</td>
-                                <td>{{ $state->updater->name ?? '-' }}</td>
-                                <td>
-                                    @can('edit-states')
-                                        <button class="btn btn-sm btn-info editStateBtn" data-id="{{ $state->id }}"
-                                            data-name="{{ $state->name }}">
-                                            <i class="material-icons-outlined">edit</i>
-                                        </button>
-                                    @endcan
-
-                                    @can('delete-states')
-                                        <form action="{{ route('states.destroy', $state->id) }}" method="POST"
-                                            class="d-inline">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button class="btn btn-sm btn-danger"
-                                                onclick="return confirm('Delete this state?')">
-                                                <i class="material-icons-outlined">delete</i>
-                                            </button>
-                                        </form>
-                                    @endcan
-
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    {{-- Modal --}}
-    <div class="modal fade" id="stateModal" tabindex="-1">
-        <div class="modal-dialog">
-            <form id="stateForm" method="POST">
-                @csrf
-                <input type="hidden" name="_method" id="formMethod" value="POST">
-
-                <div class="modal-content">
+    @can('edit-states')
+        <div class="modal fade" id="editStateModal" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <form class="modal-content" method="POST" id="editStateForm">
+                    @csrf @method('PUT')
                     <div class="modal-header">
-                        <h5 class="modal-title">State</h5>
+                        <h5 class="modal-title">Edit Province</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
-
                     <div class="modal-body">
-                        <div class="mb-3">
-                            <label class="form-label">State Name</label>
-                            <input type="text" name="name" id="stateName" class="form-control" required>
-                        </div>
+                        <label class="form-label">Province Name <span class="required-mark">*</span></label>
+                        <input type="text" name="name" id="editStateName" class="form-control" required>
                     </div>
-
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-dark" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-grd btn-grd-primary">Save</button>
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary" data-loading-text="Updating…">Update</button>
                     </div>
-                </div>
-            </form>
+                </form>
+            </div>
         </div>
-    </div>
+    @endcan
 
 @endsection
 
-@section('extra_js')
+@push('scripts')
     <script>
-        const modal = new bootstrap.Modal('#stateModal');
+        document.addEventListener('click', function (event) {
+            var button = event.target.closest('.js-edit-state');
+            if (!button) return;
 
-        // ADD
-        document.getElementById('addStateBtn').addEventListener('click', function() {
-            document.getElementById('stateForm').reset();
-            document.getElementById('formMethod').value = 'POST';
-            document.getElementById('stateForm').action = "{{ route('states.store') }}";
-            modal.show();
-        });
+            document.getElementById('editStateForm').action = button.dataset.action;
+            document.getElementById('editStateName').value = button.dataset.name;
 
-        // EDIT
-        document.querySelectorAll('.editStateBtn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const id = this.dataset.id;
-                const name = this.dataset.name;
-
-                document.getElementById('stateName').value = name;
-
-                document.getElementById('formMethod').value = 'PUT';
-                document.getElementById('stateForm').action =
-                    "/states/" + id;
-
-                modal.show();
-            });
+            bootstrap.Modal.getOrCreateInstance(document.getElementById('editStateModal')).show();
         });
     </script>
-@endsection
+@endpush

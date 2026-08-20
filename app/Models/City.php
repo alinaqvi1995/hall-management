@@ -15,4 +15,19 @@ class City extends Model
     {
         return $this->belongsTo(State::class);
     }
+
+    public function halls()
+    {
+        return $this->hasMany(Hall::class, 'city_id');
+    }
+
+    public function creator()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function updater()
+    {
+        return $this->belongsTo(User::class, 'updated_by');
+    }
 }

@@ -1,53 +1,79 @@
 <?php
+
 namespace App\Http\Controllers;
 
+use App\Models\Booking;
 use App\Models\Hall;
+use App\Models\Lawn;
 use App\Models\User;
-use Carbon\Carbon;
+use App\Services\ReportService;
+use App\Traits\ResolvesCurrentHall;
+use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
-    public function index()
+    use ResolvesCurrentHall;
+
+    public function __construct(protected ReportService $reports) {}
+
+    public function index(Request $request)
     {
-        $user      = auth()->user();
-        $today     = Carbon::today();
-        $yesterday = Carbon::yesterday();
+        $user = $request->user();
+        $hallId = $this->scopedHallId();
 
-        // --- Superadmin: global stats ---
-        if ($user->hasRole('super_admin')) {
-            $userCount = User::count();
-            $hallCount = Hall::count();
+        $from = now()->startOfMonth();
+        $to = now()->endOfMonth();
 
-            // Growth charts
-            $usersLast7Days = User::selectRaw('DATE(created_at) as date, COUNT(*) as count')
-                ->where('created_at', '>=', now()->subDays(7))
-                ->groupBy('date')
-                ->pluck('count', 'date');
+        // A hall admin whose account was never linked to a hall used to hit a
+        // fatal here; now they get an empty dashboard and a clear warning.
+        $hall = $hallId ? Hall::find($hallId) : null;
 
-            $hallsLast7Days = Hall::selectRaw('DATE(created_at) as date, COUNT(*) as count')
-                ->where('created_at', '>=', now()->subDays(7))
-                ->groupBy('date')
-                ->pluck('count', 'date');
-        } else {
-                                      // --- Hall Admin: hall-specific stats ---
-            $hall      = $user->hall; // Assuming each user is linked to a hall
-            $userCount = $hall->users()->count();
-            $hallCount = null; // Not shown to hall admin
+        $summary = $this->reports->summary($hallId, $from, $to);
 
-            $usersLast7Days = $hall->users()
-                ->selectRaw('DATE(created_at) as date, COUNT(*) as count')
-                ->where('created_at', '>=', now()->subDays(7))
-                ->groupBy('date')
-                ->pluck('count', 'date');
+        return view('dashboard.index', [
+            'hall' => $hall,
+            'isSuperAdmin' => $user->isSuperAdmin(),
+            'needsHallLink' => ! $user->isSuperAdmin() && ! $user->hall_id,
 
-            $hallsLast7Days = collect(); // Not shown
-        }
+            'summary' => $summary,
+            'occupancy' => $this->reports->occupancy($hallId, $from, $to, $this->lawnCount($hallId)),
 
-        return view('dashboard.index', compact(
-            'userCount',
-            'hallCount',
-            'usersLast7Days',
-            'hallsLast7Days',
-        ));
+            'hallCount' => $user->isSuperAdmin() ? Hall::count() : null,
+            'userCount' => User::when($hallId, fn ($q) => $q->where('hall_id', $hallId))->count(),
+            'lawnCount' => $this->lawnCount($hallId),
+
+            'todayBookings' => $this->reports->dailySheet($hallId, now()),
+            'upcoming' => $this->reports->upcoming($hallId, 30, 8),
+            'outstanding' => $this->reports->outstanding($hallId, 8),
+
+            'revenueByDay' => $this->reports->revenueByDay($hallId, now()->subDays(29), now()),
+            'bookingsByDay' => $this->reports->bookingsByDay($hallId, now()->subDays(29), now()),
+            'eventTypes' => $this->reports->eventTypeBreakdown($hallId, $from, $to),
+
+            'statusCounts' => $this->statusCounts($hallId),
+        ]);
+    }
+
+    /** Live booking counts by status, for the status strip. */
+    private function statusCounts(?int $hallId): array
+    {
+        $rows = Booking::when($hallId, fn ($q) => $q->where('hall_id', $hallId))
+            ->selectRaw('status, COUNT(*) as total')
+            ->groupBy('status')
+            ->pluck('total', 'status');
+
+        return [
+            'pending' => (int) ($rows['pending'] ?? 0),
+            'confirmed' => (int) ($rows['confirmed'] ?? 0),
+            'completed' => (int) ($rows['completed'] ?? 0),
+            'cancelled' => (int) ($rows['cancelled'] ?? 0),
+        ];
+    }
+
+    private function lawnCount(?int $hallId): int
+    {
+        return Lawn::when($hallId, fn ($q) => $q->where('hall_id', $hallId))
+            ->when(! $hallId, fn ($q) => $q->whereIn('hall_id', Hall::visibleTo()->select('id')))
+            ->count();
     }
 }

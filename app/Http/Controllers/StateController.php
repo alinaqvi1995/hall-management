@@ -18,7 +18,10 @@ class StateController extends Controller
     public function index()
     {
         // Get all states for table and modal dropdowns
-        $states = State::orderBy('name', 'asc')->get();
+        $states = State::with(['creator:id,name', 'updater:id,name'])
+            ->withCount('cities')
+            ->orderBy('name')
+            ->get();
         return view('states.index', compact('states'));
     }
 
@@ -31,6 +34,7 @@ class StateController extends Controller
         State::create([
             'name' => $request->name,
             'created_by' => Auth::id(),
+            'updated_by' => Auth::id(),
         ]);
 
         return back()->with('success', 'State created successfully.');
@@ -52,7 +56,14 @@ class StateController extends Controller
 
     public function destroy(State $state)
     {
+        // Deleting a province cascades to its cities, which halls may reference.
+        if ($state->halls()->exists()) {
+            return back()->with('error',
+                'This province is used by '.$state->halls()->count().' hall(s) and cannot be deleted.');
+        }
+
         $state->delete();
-        return back()->with('success', 'State deleted successfully.');
+
+        return back()->with('success', 'Province deleted successfully.');
     }
 }

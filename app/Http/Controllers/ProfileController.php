@@ -13,18 +13,6 @@ use Illuminate\Support\Facades\Hash;
 
 class ProfileController extends Controller
 {
-    public function __construct()
-    {
-        $permissions = [
-            'update'  => 'edit-profile',
-            'destroy' => 'delete-profile',
-        ];
-
-        foreach ($permissions as $method => $permission) {
-            $this->middleware("permission:{$permission}")->only($method);
-        }
-    }
-
     /**
      * Display the user's profile form.
      */
@@ -100,23 +88,4 @@ class ProfileController extends Controller
         return Redirect::route('profile.edit')->with('status', 'profile-updated');
     }
 
-    /**
-     * Delete the user's account.
-     */
-    public function destroy(Request $request): RedirectResponse
-    {
-        $request->validateWithBag('userDeletion', [
-            'password' => ['required', 'current_password'],
-        ]);
-
-        $user = $request->user();
-
-        Auth::logout();
-        $user->delete();
-
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-
-        return Redirect::to('/');
-    }
 }

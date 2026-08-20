@@ -3,16 +3,16 @@
 @section('title', 'Trusted IPs')
 
 @section('content')
-    <h6 class="mb-0 text-uppercase">Trusted IPs</h6>
-    <hr>
-
-    @can('create-trustedIps')
-        <div class="mb-3 text-end">
-            <button class="btn btn-grd btn-grd-primary" id="addIpBtn">
-                <i class="material-icons-outlined">add</i> Add Trusted IP
-            </button>
-        </div>
-    @endcan
+    <x-page-header title="Trusted IPs" subtitle="Addresses allowed to sign in without extra verification"
+        icon="security" :breadcrumbs="['Trusted IPs' => null]">
+        <x-slot:actions>
+            @can('create-trustedIps')
+                <button class="btn btn-primary btn-sm" id="addIpBtn">
+                    <i class="material-icons-outlined fs-6 align-middle">add</i> Add Trusted IP
+                </button>
+            @endcan
+        </x-slot:actions>
+    </x-page-header>
 
     <div class="card">
         <div class="card-body">

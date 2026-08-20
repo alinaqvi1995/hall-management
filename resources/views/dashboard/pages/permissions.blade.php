@@ -3,16 +3,17 @@
 @section('title', 'Permissions')
 
 @section('content')
-    <h6 class="mb-0 text-uppercase">Permissions</h6>
-    <hr>
-
-    @can('create-permissions')
-        <div class="mb-3 text-end">
-            <button class="btn btn-grd btn-grd-primary" data-bs-toggle="modal" data-bs-target="#permissionModal" id="addPermissionBtn">
-                <i class="material-icons-outlined">add</i> Add Permission
-            </button>
-        </div>
-    @endcan
+    <x-page-header title="Permissions" subtitle="Individual abilities that roles can grant" icon="key"
+        :breadcrumbs="['Access Control' => null, 'Permissions' => null]">
+        <x-slot:actions>
+            @can('create-permissions')
+                <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#permissionModal"
+                    id="addPermissionBtn">
+                    <i class="material-icons-outlined fs-6 align-middle">add</i> Add Permission
+                </button>
+            @endcan
+        </x-slot:actions>
+    </x-page-header>
 
     <div class="card">
         <div class="card-body">

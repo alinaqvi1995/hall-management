@@ -1,26 +1,40 @@
+@extends('dashboard.includes.partial.base-auth')
 
-    <div class="mb-4 text-sm text-gray-600 dark:text-gray-400">
-        {{ __('This is a secure area of the application. Please confirm your password before continuing.') }}
-    </div>
+@section('title', 'Confirm Password')
+
+@section('content')
+    <h1 class="auth-title">Confirm your password</h1>
+    <p class="auth-subtitle">
+        This is a secure area. Please re-enter your password to continue.
+    </p>
+
+    @if ($errors->any())
+        <div class="alert alert-danger d-flex align-items-start gap-2" role="alert">
+            <i class="material-icons-outlined fs-6">error_outline</i>
+            <span>{{ $errors->first() }}</span>
+        </div>
+    @endif
 
     <form method="POST" action="{{ route('password.confirm') }}">
         @csrf
 
-        <!-- Password -->
-        <div>
-            <x-input-label for="password" :value="__('Password')" />
-
-            <x-text-input id="password" class="block mt-1 w-full"
-                            type="password"
-                            name="password"
-                            required autocomplete="current-password" />
-
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
+        <div class="mb-3">
+            <label for="password" class="form-label">Password</label>
+            <div class="auth-password">
+                <input id="password" type="password" name="password"
+                    class="form-control @error('password') is-invalid @enderror" required
+                    autocomplete="current-password" autofocus>
+                <button type="button" class="btn-eye" data-toggle-password="password" aria-label="Show password">
+                    <i class="material-icons-outlined fs-6">visibility</i>
+                </button>
+            </div>
+            @error('password')
+                <div class="invalid-feedback d-block">{{ $message }}</div>
+            @enderror
         </div>
 
-        <div class="flex justify-end mt-4">
-            <x-primary-button>
-                {{ __('Confirm') }}
-            </x-primary-button>
-        </div>
+        <button type="submit" class="btn btn-primary btn-auth" data-loading-text="Confirming…">
+            Confirm
+        </button>
     </form>
+@endsection

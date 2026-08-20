@@ -3,14 +3,14 @@
 @section('title', 'Activity Logs')
 
 @section('content')
-    <h6 class="mb-0 text-uppercase">Activity Logs</h6>
-    <hr>
-
-    <div class="mb-3 text-end">
-        <button class="btn btn-grd btn-grd-primary" id="refreshLogsBtn">
-            <i class="material-icons-outlined">refresh</i> Refresh
-        </button>
-    </div>
+    <x-page-header title="Activity Logs" subtitle="Audit trail of changes made in the system" icon="history"
+        :breadcrumbs="['Activity Logs' => null]">
+        <x-slot:actions>
+            <button class="btn btn-outline-secondary btn-sm" id="refreshLogsBtn">
+                <i class="material-icons-outlined fs-6 align-middle">refresh</i> Refresh
+            </button>
+        </x-slot:actions>
+    </x-page-header>
 
     <div class="card">
         <div class="card-body">

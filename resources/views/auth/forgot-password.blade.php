@@ -1,25 +1,46 @@
+@extends('dashboard.includes.partial.base-auth')
 
-    <div class="mb-4 text-sm text-gray-600 dark:text-gray-400">
-        {{ __('Forgot your password? No problem. Just let us know your email address and we will email you a password reset link that will allow you to choose a new one.') }}
-    </div>
+@section('title', 'Forgot Password')
 
-    <!-- Session Status -->
-    <x-auth-session-status class="mb-4" :status="session('status')" />
+@section('content')
+    <h1 class="auth-title">Forgot your password?</h1>
+    <p class="auth-subtitle">
+        Enter the email address on your account and we will send you a link to choose a new password.
+    </p>
+
+    @if (session('status'))
+        <div class="alert alert-success d-flex align-items-start gap-2" role="alert">
+            <i class="material-icons-outlined fs-6">check_circle</i>
+            <span>{{ session('status') }}</span>
+        </div>
+    @endif
+
+    @if ($errors->any())
+        <div class="alert alert-danger d-flex align-items-start gap-2" role="alert">
+            <i class="material-icons-outlined fs-6">error_outline</i>
+            <span>{{ $errors->first() }}</span>
+        </div>
+    @endif
 
     <form method="POST" action="{{ route('password.email') }}">
         @csrf
 
-        <!-- Email Address -->
-        <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
+        <div class="mb-3">
+            <label for="email" class="form-label">Email Address</label>
+            <input id="email" type="email" name="email" value="{{ old('email') }}"
+                class="form-control @error('email') is-invalid @enderror" required autofocus
+                autocomplete="username" placeholder="you@example.com">
+            @error('email')
+                <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
         </div>
 
-        <div class="flex items-center justify-end mt-4">
-            <x-primary-button>
-                {{ __('Email Password Reset Link') }}
-            </x-primary-button>
-        </div>
+        <button type="submit" class="btn btn-primary btn-auth" data-loading-text="Sending…">
+            Email Password Reset Link
+        </button>
     </form>
 
+    <div class="auth-links">
+        Remembered it? <a href="{{ route('login') }}">Back to sign in</a>
+    </div>
+@endsection

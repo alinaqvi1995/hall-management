@@ -40,6 +40,74 @@ class UserManagementController extends Controller
     //     }
     // }
 
+
+    /* ------------------------------------------------ privilege containment */
+
+    /**
+     * Roles the signed-in user is allowed to hand out.
+     * A hall admin must not be able to mint another super admin.
+     */
+    private function assignableRoles()
+    {
+        $query = Role::orderBy('name');
+
+        if (! Auth::user()->isSuperAdmin()) {
+            $query->where('slug', '!=', 'super_admin');
+        }
+
+        return $query->get();
+    }
+
+    /**
+     * Direct permissions the signed-in user may grant. You cannot give away an
+     * ability you do not hold yourself.
+     */
+    private function assignablePermissions()
+    {
+        $user = Auth::user();
+
+        if ($user->isSuperAdmin()) {
+            return Permission::orderBy('name')->get();
+        }
+
+        return Permission::whereIn('slug', $user->allPermissions()->pluck('slug'))
+            ->orderBy('name')
+            ->get();
+    }
+
+    /** Strip any role id the current user is not allowed to assign. */
+    private function guardRoles($roleIds): array
+    {
+        $allowed = $this->assignableRoles()->pluck('id')->all();
+
+        return array_values(array_intersect(array_map('intval', (array) $roleIds), $allowed));
+    }
+
+    /** Strip any permission id the current user does not hold themselves. */
+    private function guardPermissions($permissionIds): array
+    {
+        $allowed = $this->assignablePermissions()->pluck('id')->all();
+
+        return array_values(array_intersect(array_map('intval', (array) $permissionIds), $allowed));
+    }
+
+    /**
+     * Force the target hall to the current user's own hall unless they are a
+     * super admin, so a crafted form cannot move a user to another venue.
+     */
+    private function guardHallId($requested)
+    {
+        $user = Auth::user();
+
+        if ($user->isSuperAdmin()) {
+            return $requested ?: null;
+        }
+
+        abort_unless($user->hall_id, 403, 'Your account is not linked to a hall.');
+
+        return $user->hall_id;
+    }
+
     /**
      * Show all users
      * Super admin → all users
@@ -83,17 +151,19 @@ class UserManagementController extends Controller
     public function userCreate()
     {
         $user = Auth::user();
-        $roles = Role::all();
-        // dd($roles->toArray());
-        $permissions = Permission::all();
+
+        Gate::authorize('create', $user);
+
+        // A hall admin may only ever place a user in their own hall, and may not
+        // hand out the super_admin role.
+        $roles = $this->assignableRoles();
+        $permissions = $this->assignablePermissions();
         $users = User::all();
-        $halls = Hall::all();
+        $halls = Hall::visibleTo()->orderBy('name')->get();
 
         // Order states & cities alphabetically
         $states = State::orderBy('name', 'asc')->get();
         $cities = City::orderBy('name', 'asc')->get();
-
-        Gate::authorize('create', $user);
 
         return view('dashboard.users.create', compact('roles', 'permissions', 'users', 'states', 'cities', 'halls'));
     }
@@ -117,7 +187,7 @@ class UserManagementController extends Controller
 
             // Create user
             $user = User::create([
-                'hall_id' => $request->hall_id,
+                'hall_id' => $this->guardHallId($request->hall_id),
                 'name' => $request->name,
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
@@ -214,8 +284,10 @@ class UserManagementController extends Controller
             ]);
 
             // Attach RBAC
-            $user->roles()->sync($request->roles);
-            $user->directPermissions()->sync($request->permissions ?? []);
+            $user->roles()->sync($this->guardRoles($request->roles));
+            $user->directPermissions()->sync($this->guardPermissions($request->permissions ?? []));
+            // The model caches role/permission lookups, so drop them after a sync.
+            $user->forgetAccessCache();
 
             DB::commit();
 
@@ -254,12 +326,12 @@ class UserManagementController extends Controller
     {
         Gate::authorize('update', $user);
 
-        $roles = Role::all();
-        $permissions = Permission::all();
+        $roles = $this->assignableRoles();
+        $permissions = $this->assignablePermissions();
         $users = User::all();
         $states = State::orderBy('name')->get();
         $cities = City::orderBy('name')->get();
-        $halls = Hall::all();
+        $halls = Hall::visibleTo()->orderBy('name')->get();
 
         return view('dashboard.users.edit', compact('user', 'roles', 'permissions', 'users', 'states', 'cities', 'halls'));
     }
@@ -288,7 +360,7 @@ class UserManagementController extends Controller
                 'email' => $request->email,
                 'password' => $request->filled('password') ? Hash::make($request->password) : $user->password,
                 'is_active' => $request->has('is_active') ? 1 : 0,
-                'hall_id' => $request->hall_id,
+                'hall_id' => $this->guardHallId($request->hall_id),
             ]);
 
             $detail = $user->detail ?: new UserDetail([
@@ -336,9 +408,10 @@ class UserManagementController extends Controller
             $detail->save();
 
             if ($request->has('roles') && ! empty($request->roles)) {
-                $user->roles()->sync($request->roles);
+                $user->roles()->sync($this->guardRoles($request->roles));
             }
-            $user->directPermissions()->sync($request->permissions ?? []);
+            $user->directPermissions()->sync($this->guardPermissions($request->permissions ?? []));
+            $user->forgetAccessCache();
 
             return redirect()->route('dashboard.users.index')
                 ->with('success', 'User updated successfully.');
@@ -657,7 +730,7 @@ class UserManagementController extends Controller
 
 //             // Sync roles, permissions
 //             if ($request->has('roles') && !empty($request->roles)) {
-//                 $user->roles()->sync($request->roles);
+//                 $user->roles()->sync($this->guardRoles($request->roles));
 //             }
 //             $user->directPermissions()->sync($request->permissions ?? []);
 

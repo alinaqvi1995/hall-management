@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Policies;
 
 use App\Models\Hall;
@@ -7,62 +8,59 @@ use App\Models\User;
 class HallPolicy
 {
     /**
-     * Only super admin can view list of all halls.
+     * Anyone with the view permission may open the hall list.
+     *
+     * The list itself is scoped by Hall::visibleTo(), so a hall admin sees only
+     * their own venue. Requiring super_admin here previously made the whole
+     * module unreachable for hall admins.
      */
     public function viewAny(User $user): bool
     {
-        return $user->hasRole('super_admin');
+        return $user->isSuperAdmin()
+            || $user->isHallAdmin()
+            || $user->hasPermission('view-halls');
     }
 
-    /**
-     * View a single hall.
-     * Super admin = can view all
-     * Hall admin = only own hall
-     */
     public function view(User $user, Hall $hall): bool
     {
-        if ($user->hasRole('super_admin')) {
+        if ($user->isSuperAdmin()) {
             return true;
         }
 
-        if ($user->hasRole('hall_admin')) {
-            return $user->hall_id === $hall->id;
-        }
-
-        return false;
+        // Everyone else is confined to the hall on their own record.
+        return (int) $user->hall_id === (int) $hall->id
+            && ($user->isHallAdmin() || $user->hasPermission('view-halls'));
     }
 
-    /**
-     * Only super admin can create halls.
-     */
+    /** New venues are onboarded centrally. */
     public function create(User $user): bool
     {
-        return $user->hasRole('super_admin');
+        return $user->isSuperAdmin();
     }
 
-    /**
-     * Update hall:
-     * - super admin: any hall
-     * - hall admin: only their own hall
-     */
     public function update(User $user, Hall $hall): bool
     {
-        if ($user->hasRole('super_admin')) {
+        if ($user->isSuperAdmin()) {
             return true;
         }
 
-        if ($user->hasRole('hall_admin')) {
-            return $user->hall_id === $hall->id;
-        }
-
-        return false;
+        return (int) $user->hall_id === (int) $hall->id
+            && ($user->isHallAdmin() || $user->hasPermission('edit-halls'));
     }
 
-    /**
-     * Only super admin can delete halls.
-     */
+    /** Deleting a venue removes its bookings and ledger, so it stays central. */
     public function delete(User $user, Hall $hall): bool
     {
-        return $user->hasRole('super_admin');
+        return $user->isSuperAdmin();
+    }
+
+    public function restore(User $user, Hall $hall): bool
+    {
+        return $user->isSuperAdmin();
+    }
+
+    public function forceDelete(User $user, Hall $hall): bool
+    {
+        return false;
     }
 }

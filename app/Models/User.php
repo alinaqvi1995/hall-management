@@ -28,6 +28,29 @@ class User extends Authenticatable
         'remember_token',
     ];
 
+    /**
+     * Model-level defaults matching the column defaults, so a newly created
+     * user is active on the returned instance and not only after a refresh.
+     */
+    protected $attributes = [
+        'is_active' => true,
+        'force_logout' => false,
+    ];
+
+    /**
+     * Per-instance caches for role and permission lookups.
+     *
+     * Every `@can` in a Blade view runs through Gate::before -> hasRole(), and
+     * a list page can render hundreds of them. Without these the roles table
+     * was queried once per check — several hundred queries on a long page.
+     *
+     * @var array<string, bool>|null
+     */
+    private ?array $roleCache = null;
+
+    /** @var array<int, string>|null */
+    private ?array $permissionCache = null;
+
     protected function casts(): array
     {
         return [
@@ -48,9 +71,9 @@ class User extends Authenticatable
         return (bool) $this->force_logout;
     }
 
-    public function getStatusFormattedAttribute()
+    public function getStatusFormattedAttribute(): string
     {
-        return $this->status == 1 ? 'Active' : 'Inactive';
+        return $this->is_active ? 'Active' : 'Inactive';
     }
 
     public function getStatusLabelAttribute()
@@ -95,12 +118,28 @@ class User extends Authenticatable
 
     public function isSuperAdmin(): bool
     {
-        return $this->roles()->where('slug', 'super_admin')->exists();
+        return $this->hasRole('super_admin');
     }
 
     public function isHallAdmin(): bool
     {
-        return $this->roles()->where('slug', 'hall_admin')->exists();
+        return $this->hasRole('hall_admin');
+    }
+
+    /**
+     * Role slugs held by this user, loaded once per instance.
+     *
+     * @return array<int, string>
+     */
+    public function roleSlugs(): array
+    {
+        if ($this->roleCache === null) {
+            $this->roleCache = $this->relationLoaded('roles')
+                ? $this->roles->pluck('slug')->all()
+                : $this->roles()->pluck('slug')->all();
+        }
+
+        return $this->roleCache;
     }
 
     public function directPermissions()
@@ -145,33 +184,68 @@ class User extends Authenticatable
         return $all;
     }
 
+    /**
+     * Permission slugs from roles plus direct grants, loaded once per instance.
+     *
+     * @return array<int, string>
+     */
+    public function permissionSlugs(): array
+    {
+        if ($this->permissionCache === null) {
+            $this->permissionCache = $this->allPermissions()->pluck('slug')->unique()->all();
+        }
+
+        return $this->permissionCache;
+    }
+
     public function hasPermission(string $slug): bool
     {
-        return $this->allPermissions()->pluck('slug')->contains($slug);
+        return in_array($slug, $this->permissionSlugs(), true);
     }
 
     public function hasAllPermissions(array $slugs): bool
     {
-        $all = $this->allPermissions()->pluck('slug')->toArray();
+        $all = $this->permissionSlugs();
 
-        return collect($slugs)->every(fn ($slug) => in_array($slug, $all));
+        foreach ($slugs as $slug) {
+            if (! in_array($slug, $all, true)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     public function hasAnyPermission(array $slugs): bool
     {
-        $all = $this->allPermissions()->pluck('slug')->toArray();
+        $all = $this->permissionSlugs();
 
-        return collect($slugs)->contains(fn ($slug) => in_array($slug, $all));
+        foreach ($slugs as $slug) {
+            if (in_array($slug, $all, true)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public function hasRole(string $slug): bool
     {
-        return $this->roles()->where('slug', $slug)->exists();
+        return in_array($slug, $this->roleSlugs(), true);
     }
 
     public function hasAnyRole(array $slugs): bool
     {
-        return $this->roles()->whereIn('slug', $slugs)->exists();
+        return (bool) array_intersect($slugs, $this->roleSlugs());
+    }
+
+    /** Drop the caches after roles or permissions are reassigned. */
+    public function forgetAccessCache(): static
+    {
+        $this->roleCache = null;
+        $this->permissionCache = null;
+
+        return $this;
     }
 
     public function trustedIps()
@@ -179,14 +253,24 @@ class User extends Authenticatable
         return $this->hasMany(UserTrustedIp::class);
     }
 
+    public function bookingsCreated()
+    {
+        return $this->hasMany(Booking::class, 'created_by');
+    }
+
+    public function paymentsReceived()
+    {
+        return $this->hasMany(Payment::class, 'received_by');
+    }
+
     /** Timestamps formatting */
     public function getCreatedAtFormattedAttribute()
     {
-        return $this->created_at ? $this->created_at->format('Md,  Y h:ia') : '-';
+        return $this->created_at ? $this->created_at->format('d M Y h:i A') : '-';
     }
 
     public function getUpdatedAtFormattedAttribute()
     {
-        return $this->updated_at ? $this->updated_at->format('Md, Y h:ia') : '-';
+        return $this->updated_at ? $this->updated_at->format('d M Y h:i A') : '-';
     }
 }

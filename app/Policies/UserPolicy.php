@@ -6,48 +6,72 @@ use App\Models\User;
 
 class UserPolicy
 {
-    /**
-     * Determine if the user can view another user.
-     */
-    public function view(User $currentUser, User $userToView)
+    public function viewAny(User $currentUser): bool
     {
-        return $this->update($currentUser, $userToView);
+        return $currentUser->isSuperAdmin() || $currentUser->hasPermission('view-users');
     }
 
-    /**
-     * Determine if the user can create a new user.
-     */
-    public function create(User $currentUser)
+    public function view(User $currentUser, User $userToView): bool
     {
-        // Only super admins can create users
-        return $currentUser->hasRole('super_admin');
-    }
-
-    /**
-     * Determine if the user can update another user.
-     */
-    public function update(User $currentUser, User $userToEdit)
-    {
-        // Super admins can edit anyone
-        if ($currentUser->hasRole('super_admin')) {
+        if ($currentUser->isSuperAdmin()) {
             return true;
         }
 
-        // Hall admins can only edit users in their hall
-        if ($currentUser->hasRole('hall_admin')) {
-            return $currentUser->hall_id === $userToEdit->hall_id;
+        if (! $currentUser->hasPermission('view-users')) {
+            return false;
         }
 
-        // Regular users cannot edit anyone
-        return false;
+        // Everyone else is confined to colleagues at their own hall.
+        return $currentUser->hall_id !== null
+            && (int) $currentUser->hall_id === (int) $userToView->hall_id;
     }
 
     /**
-     * Determine if the user can delete another user.
+     * A hall admin needs to be able to onboard their own staff, so this follows
+     * the `create-users` permission rather than requiring super_admin. The
+     * controller pins the new user to the creator's hall and blocks privilege
+     * escalation.
      */
-    public function delete(User $currentUser, User $userToDelete)
+    public function create(User $currentUser): bool
     {
-        // Only super admins can delete users
-        return $currentUser->hasRole('super_admin');
+        return $currentUser->isSuperAdmin() || $currentUser->hasPermission('create-users');
+    }
+
+    public function update(User $currentUser, User $userToEdit): bool
+    {
+        if ($currentUser->isSuperAdmin()) {
+            return true;
+        }
+
+        if (! $currentUser->hasPermission('edit-users')) {
+            return false;
+        }
+
+        // Nobody may edit a super admin except another super admin.
+        if ($userToEdit->isSuperAdmin()) {
+            return false;
+        }
+
+        return $currentUser->hall_id !== null
+            && (int) $currentUser->hall_id === (int) $userToEdit->hall_id;
+    }
+
+    public function delete(User $currentUser, User $userToDelete): bool
+    {
+        // Deleting your own account from the user list would lock you out.
+        if ($currentUser->id === $userToDelete->id) {
+            return false;
+        }
+
+        if ($currentUser->isSuperAdmin()) {
+            return true;
+        }
+
+        if (! $currentUser->hasPermission('delete-users') || $userToDelete->isSuperAdmin()) {
+            return false;
+        }
+
+        return $currentUser->hall_id !== null
+            && (int) $currentUser->hall_id === (int) $userToDelete->hall_id;
     }
 }

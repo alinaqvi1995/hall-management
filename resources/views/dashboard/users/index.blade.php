@@ -3,21 +3,19 @@
 @section('title', 'Users')
 
 @section('content')
-    <h6 class="mb-0 text-uppercase">All Users</h6>
-    <hr>
+    <x-page-header title="Users" subtitle="System accounts and the roles they hold" icon="people"
+        :breadcrumbs="['Users' => null]">
+        <x-slot:actions>
+            @can('create-users')
+                <a href="{{ route('dashboard.users.create') }}" class="btn btn-primary btn-sm">
+                    <i class="material-icons-outlined fs-6 align-middle">person_add</i> Add User
+                </a>
+            @endcan
+        </x-slot:actions>
+    </x-page-header>
+
     <div class="card">
         <div class="card-body">
-            <div class="d-flex align-items-start justify-content-between mb-3">
-                <div>
-                    <h5 class="mb-0">Users List</h5>
-                </div>
-
-                @can('create-users')
-                    <a href="{{ route('dashboard.users.create') }}" class="btn btn-grd btn-grd-primary">
-                        <i class="material-icons-outlined">add</i> Add New User
-                    </a>
-                @endcan
-            </div>
 
             {{-- <div class="row mb-3">
                 <div class="col-md-4">

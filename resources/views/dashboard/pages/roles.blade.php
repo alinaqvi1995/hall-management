@@ -3,16 +3,17 @@
 @section('title', 'Roles')
 
 @section('content')
-    <h6 class="mb-0 text-uppercase">Roles</h6>
-    <hr>
-
-    @can('create-roles')
-        <div class="mb-3 text-end">
-            <button class="btn btn-grd btn-grd-primary" data-bs-toggle="modal" data-bs-target="#roleModal" id="addRoleBtn">
-                <i class="material-icons-outlined">add</i> Add Role
-            </button>
-        </div>
-    @endcan
+    <x-page-header title="Roles" subtitle="Job roles and the permissions attached to them"
+        icon="admin_panel_settings" :breadcrumbs="['Access Control' => null, 'Roles' => null]">
+        <x-slot:actions>
+            @can('create-roles')
+                <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#roleModal"
+                    id="addRoleBtn">
+                    <i class="material-icons-outlined fs-6 align-middle">add</i> Add Role
+                </button>
+            @endcan
+        </x-slot:actions>
+    </x-page-header>
 
     <div class="card">
         <div class="card-body">

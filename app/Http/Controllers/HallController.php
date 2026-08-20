@@ -3,21 +3,21 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\HallRequest;
-use App\Models\Booking;
 use App\Models\Hall;
-use App\Models\Lawn;
+use App\Models\State;
+use App\Services\BookingService;
 use App\Services\HallService;
+use App\Traits\ResolvesCurrentHall;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class HallController extends Controller
 {
-    protected $service;
+    use ResolvesCurrentHall;
 
-    public function __construct(HallService $service)
-    {
-        $this->service = $service;
-
+    public function __construct(
+        protected HallService $service,
+        protected BookingService $bookings,
+    ) {
         $this->middleware('permission:view-halls')->only(['index', 'show', 'lawns']);
         $this->middleware('permission:create-halls')->only(['create', 'store']);
         $this->middleware('permission:edit-halls')->only(['edit', 'update']);
@@ -28,151 +28,100 @@ class HallController extends Controller
     {
         $this->authorize('viewAny', Hall::class);
 
-        if (auth()->user()->hasRole('hall_admin')) {
-            // hall admin sees only their hall
-            $halls = [Hall::find(auth()->user()->hall_id)];
-        } else {
-            // super admin sees all halls
-            $halls = $this->service->list();
-        }
+        // visibleTo() returns a single hall for a hall admin and every hall for
+        // a super admin, so both roles use the same query.
+        $halls = Hall::visibleTo()
+            ->withCount(['lawns', 'users', 'bookings'])
+            ->orderBy('name')
+            ->get();
 
         return view('halls.index', compact('halls'));
     }
-    // public function index()
-    // {
-    //     $this->authorize('viewAny', Hall::class);
-    //     $halls = $this->service->list();
-    //     return view('halls.index', compact('halls'));
-    // }
 
-    public function show(int $id)
+    public function show(Hall $hall)
     {
-        $currentUser = Auth::user();
-        $hall = $this->service->find($id);
+        $this->authorize('view', $hall);
 
-        if (! $hall) {
-            abort(404, 'Hall not found');
-        }
+        $hall->load(['lawns', 'users.roles', 'packages', 'addons', 'stateRelation', 'cityRelation'])
+            ->loadCount(['bookings', 'lawns']);
 
-        if ($currentUser->isHallAdmin() && $hall->id != $currentUser->hall_id) {
-            abort(403, 'Unauthorized');
-        }
-
-        return view('halls.show', compact('hall'));
+        return view('halls.show', [
+            'hall' => $hall,
+            'upcoming' => $hall->bookings()
+                ->with(['customer', 'lawn'])
+                ->where('status', '!=', 'cancelled')
+                ->where('start_datetime', '>=', now())
+                ->orderBy('start_datetime')
+                ->limit(5)
+                ->get(),
+        ]);
     }
 
     public function create()
     {
-        $currentUser = Auth::user();
+        $this->authorize('create', Hall::class);
 
-        // Only super admin can create
-        if (! $currentUser->isSuperAdmin()) {
-            abort(403, 'Unauthorized');
-        }
-
-        return view('halls.create');
+        return view('halls.create', [
+            'states' => State::orderBy('name')->get(),
+            'hall' => null,
+        ]);
     }
 
     public function store(HallRequest $request)
     {
-        $currentUser = Auth::user();
+        $this->authorize('create', Hall::class);
 
-        if (! $currentUser->isSuperAdmin()) {
-            abort(403, 'Unauthorized');
-        }
+        $data = $request->hallData();
+        $data['logo'] = $this->service->storeLogo($request->file('logo'));
 
-        $data = $request->validated();
-        if ($request->hasFile('logo')) {
-            $file = $request->file('logo');
-            $filename = time().'_'.$file->getClientOriginalName();
-            $file->move(public_path('hall/logo'), $filename);
-            $data['logo'] = 'hall/logo/'.$filename;
-        }
+        $hall = $this->service->createWithLawns($data, $request->lawnRows());
 
-        $this->service->createWithLawns($data, $request->lawns ?? []);
-
-        return redirect()->route('halls.index')->with('success', 'Hall created successfully.');
+        return redirect()->route('halls.show', $hall)
+            ->with('success', 'Hall created successfully.');
     }
-
-    // public function store(HallRequest $request)
-    // {
-    //     $currentUser = Auth::user();
-
-    //     if (! $currentUser->isSuperAdmin()) {
-    //         abort(403, 'Unauthorized');
-    //     }
-
-    //     $this->service->create($request->validated());
-    //     return redirect()->route('halls.index')->with('success', 'Hall created successfully.');
-    // }
 
     public function edit(Hall $hall)
     {
-        $currentUser = Auth::user();
-
-        // Hall admin can edit only their hall, super admin can edit all
-        if ($currentUser->isHallAdmin() && $hall->id != $currentUser->hall_id) {
-            abort(403, 'Unauthorized');
-        }
+        $this->authorize('update', $hall);
 
         $hall->load('lawns');
-        $lawns = Lawn::where('hall_id', $hall->id)->get();
 
-        return view('halls.edit', compact('hall', 'lawns'));
+        return view('halls.edit', [
+            'hall' => $hall,
+            'lawns' => $hall->lawns,
+            'states' => State::orderBy('name')->get(),
+        ]);
     }
 
     public function update(HallRequest $request, Hall $hall)
     {
-        $currentUser = Auth::user();
+        $this->authorize('update', $hall);
 
-        if ($currentUser->isHallAdmin() && $hall->id != $currentUser->hall_id) {
-            abort(403, 'Unauthorized');
-        }
-
-        $data = $request->validated();
-        $lawns = $data['lawns'] ?? [];
-        unset($data['lawns']); // remove lawns from hall update
+        $data = $request->hallData();
 
         if ($request->hasFile('logo')) {
-            $file = $request->file('logo');
-            $filename = time().'_'.$file->getClientOriginalName();
-            $file->move(public_path('hall/logo'), $filename);
-            $data['logo'] = 'hall/logo/'.$filename;
+            $data['logo'] = $this->service->storeLogo($request->file('logo'), $hall->logo);
         }
 
-        $this->service->updateWithLawns($hall, $data, $lawns);
+        $this->service->updateWithLawns($hall, $data, $request->lawnRows());
 
-        if ($currentUser->isSuperAdmin()) {
-            return redirect()->route('halls.index')->with('success', 'Hall updated successfully.');
-        } else {
-            return back()->with('success', 'Hall updated successfully.');
-        }
+        return redirect()->route('halls.show', $hall)
+            ->with('success', 'Hall updated successfully.');
     }
-
-    // public function update(HallRequest $request, Hall $hall)
-    // {
-    //     $currentUser = Auth::user();
-
-    //     if ($currentUser->isHallAdmin() && $hall->id != $currentUser->hall_id) {
-    //         abort(403, 'Unauthorized');
-    //     }
-
-    //     $this->service->update($hall, $request->validated());
-
-    //     if ($currentUser->isSuperAdmin()) {
-    //         return redirect()->route('halls.index')->with('success', 'Hall updated successfully.');
-    //     } else {
-    //         return back()->with('success', 'Hall updated successfully.');
-    //     }
-    // }
 
     public function destroy(Hall $hall)
     {
-        $currentUser = Auth::user();
+        $this->authorize('delete', $hall);
 
-        // Only super admin can delete
-        if (! $currentUser->isSuperAdmin()) {
-            abort(403, 'Unauthorized');
+        // Refuse to remove a venue that still has live events on the books.
+        $live = $hall->bookings()
+            ->whereIn('status', ['pending', 'confirmed'])
+            ->where('end_datetime', '>=', now())
+            ->count();
+
+        if ($live > 0) {
+            return back()->with('error',
+                "This hall has {$live} upcoming booking(s). Cancel or complete them before deleting it.");
         }
 
         $this->service->delete($hall);
@@ -180,48 +129,20 @@ class HallController extends Controller
         return redirect()->route('halls.index')->with('success', 'Hall deleted successfully.');
     }
 
+    /**
+     * Lawn availability for the booking form's lawn picker.
+     */
     public function lawns(Hall $hall, Request $request)
     {
-        $start = $request->query('start');
-        $end = $request->query('end');
+        $this->authorize('view', $hall);
 
-        $lawns = $hall->lawns()->select('id', 'name', 'capacity')->get();
-
-        if ($start && $end) {
-            $startDate = \Carbon\Carbon::parse($start);
-            $endDate = \Carbon\Carbon::parse($end);
-
-            $lawns->transform(function ($lawn) use ($startDate, $endDate) {
-                // Check if any booking overlaps in time
-                $booking = Booking::where('lawn_id', $lawn->id)
-                    ->where(function ($query) use ($startDate, $endDate) {
-                        $query->where('start_datetime', '<', $endDate)
-                            ->where('end_datetime', '>', $startDate);
-                    })
-                    ->first();
-
-                if ($booking) {
-                    $lawn->available = false;
-                    $lawn->booked_from = $booking->start_datetime->format('d M Y h:i A');
-                    $lawn->booked_to = $booking->end_datetime->format('d M Y h:i A');
-                } else {
-                    $lawn->available = true;
-                    $lawn->booked_from = null;
-                    $lawn->booked_to = null;
-                }
-
-                return $lawn;
-            });
-        } else {
-            $lawns->transform(function ($lawn) {
-                $lawn->available = true;
-                $lawn->booked_from = null;
-                $lawn->booked_to = null;
-
-                return $lawn;
-            });
-        }
-
-        return response()->json($lawns);
+        return response()->json(
+            $this->bookings->lawnAvailability(
+                $hall,
+                $request->query('start'),
+                $request->query('end'),
+                $request->integer('ignore') ?: null
+            )->values()
+        );
     }
 }

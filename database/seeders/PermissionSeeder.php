@@ -4,97 +4,105 @@ namespace Database\Seeders;
 
 use App\Models\Permission;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 
 class PermissionSeeder extends Seeder
 {
     /**
-     * Run the database seeds.
+     * Every ability in the system, grouped by module.
+     *
+     * Keys are module labels; values are the actions available on that module.
+     * Slugs come out as `<action>-<module key>`, e.g. `view-bookings`.
      */
+    public const MODULES = [
+        'dashboard' => ['label' => 'Dashboard', 'actions' => ['view']],
+        'reports' => ['label' => 'Reports', 'actions' => ['view']],
+        'halls' => ['label' => 'Halls', 'actions' => ['view', 'create', 'edit', 'delete']],
+        'bookings' => ['label' => 'Bookings', 'actions' => ['view', 'create', 'edit', 'delete']],
+        'payments' => ['label' => 'Payments', 'actions' => ['view', 'create', 'delete']],
+        'expenses' => ['label' => 'Expenses', 'actions' => ['view', 'create', 'edit', 'delete']],
+        'packages' => ['label' => 'Packages', 'actions' => ['view', 'create', 'edit', 'delete']],
+        'addons' => ['label' => 'Extra Services', 'actions' => ['view', 'create', 'edit', 'delete']],
+        'customers' => ['label' => 'Customers', 'actions' => ['view', 'edit']],
+        'staff' => ['label' => 'Staff', 'actions' => ['view', 'create', 'edit', 'delete']],
+        'vendors' => ['label' => 'Vendors', 'actions' => ['view', 'create', 'edit', 'delete']],
+        'users' => ['label' => 'Users', 'actions' => ['view', 'create', 'edit', 'delete']],
+        'roles' => ['label' => 'Roles', 'actions' => ['view', 'create', 'edit', 'delete']],
+        'permissions' => ['label' => 'Permissions', 'actions' => ['view', 'create', 'edit', 'delete']],
+        'states' => ['label' => 'Provinces', 'actions' => ['view', 'create', 'edit', 'delete']],
+        'cities' => ['label' => 'Cities', 'actions' => ['view', 'create', 'edit', 'delete']],
+        'activityLogs' => ['label' => 'Activity Logs', 'actions' => ['view']],
+        'trustedIps' => ['label' => 'Trusted IPs', 'actions' => ['view', 'create', 'edit', 'delete']],
+    ];
+
+    private const ACTION_LABELS = [
+        'view' => 'View',
+        'create' => 'Create',
+        'edit' => 'Edit',
+        'delete' => 'Delete',
+    ];
+
     public function run(): void
     {
-        $permissions = [
-            // Dashboard
-            ['name' => 'View Dashboard', 'slug' => 'view-dashboard'],
+        $keep = [];
 
-            // Profile
-            ['name' => 'View Profile', 'slug' => 'view-profile'],
-            ['name' => 'Edit Profile', 'slug' => 'edit-profile'],
+        foreach (self::MODULES as $module => $config) {
+            foreach ($config['actions'] as $action) {
+                $slug = $action.'-'.$module;
+                $keep[] = $slug;
 
-            // Bookings
-            ['name' => 'View Bookings', 'slug' => 'view-bookings'],
-            ['name' => 'Create Bookings', 'slug' => 'create-bookings'],
-            ['name' => 'Edit Bookings', 'slug' => 'edit-bookings'],
-            ['name' => 'Delete Bookings', 'slug' => 'delete-bookings'],
-
-            // Halls
-            ['name' => 'View Halls', 'slug' => 'view-halls'],
-            ['name' => 'Create Halls', 'slug' => 'create-halls'],
-            ['name' => 'Edit Halls', 'slug' => 'edit-halls'],
-            ['name' => 'Delete Halls', 'slug' => 'delete-halls'],
-
-            // Users
-            ['name' => 'View Users', 'slug' => 'view-users'],
-            ['name' => 'Create Users', 'slug' => 'create-users'],
-            ['name' => 'Edit Users', 'slug' => 'edit-users'],
-            ['name' => 'Delete Users', 'slug' => 'delete-users'],
-
-            // Roles
-            ['name' => 'View Roles', 'slug' => 'view-roles'],
-            ['name' => 'Create Roles', 'slug' => 'create-roles'],
-            ['name' => 'Edit Roles', 'slug' => 'edit-roles'],
-            ['name' => 'Delete Roles', 'slug' => 'delete-roles'],
-
-            // Permissions
-            ['name' => 'View Permissions', 'slug' => 'view-permissions'],
-            ['name' => 'Create Permissions', 'slug' => 'create-permissions'],
-            ['name' => 'Edit Permissions', 'slug' => 'edit-permissions'],
-            ['name' => 'Delete Permissions', 'slug' => 'delete-permissions'],
-
-            // Categories
-            ['name' => 'View Categories', 'slug' => 'view-categories'],
-            ['name' => 'Create Categories', 'slug' => 'create-categories'],
-            ['name' => 'Edit Categories', 'slug' => 'edit-categories'],
-            ['name' => 'Delete Categories', 'slug' => 'delete-categories'],
-
-            // Subcategories
-            ['name' => 'View Subcategories', 'slug' => 'view-subcategories'],
-            ['name' => 'Create Subcategories', 'slug' => 'create-subcategories'],
-            ['name' => 'Edit Subcategories', 'slug' => 'edit-subcategories'],
-            ['name' => 'Delete Subcategories', 'slug' => 'delete-subcategories'],
-
-            // Cities
-            ['name' => 'View Cities', 'slug' => 'view-cities'],
-            ['name' => 'Create Cities', 'slug' => 'create-cities'],
-            ['name' => 'Edit Cities', 'slug' => 'edit-cities'],
-            ['name' => 'Delete Cities', 'slug' => 'delete-cities'],
-
-            // States
-            ['name' => 'View States', 'slug' => 'view-states'],
-            ['name' => 'Create States', 'slug' => 'create-states'],
-            ['name' => 'Edit States', 'slug' => 'edit-states'],
-            ['name' => 'Delete States', 'slug' => 'delete-states'],
-
-            // Blogs
-            ['name' => 'View Blogs', 'slug' => 'view-blogs'],
-            ['name' => 'Create Blogs', 'slug' => 'create-blogs'],
-            ['name' => 'Edit Blogs', 'slug' => 'edit-blogs'],
-            ['name' => 'Delete Blogs', 'slug' => 'delete-blogs'],
-
-            // Activity Logs
-            ['name' => 'View Activity Logs', 'slug' => 'view-activityLogs'],
-
-            // Trusted IPs
-            ['name' => 'View Trusted IPs', 'slug' => 'view-trustedIps'],
-            ['name' => 'Create Trusted IPs', 'slug' => 'create-trustedIps'],
-            ['name' => 'Edit Trusted IPs', 'slug' => 'edit-trustedIps'],
-            ['name' => 'Delete Trusted IPs', 'slug' => 'delete-trustedIps'],
-        ];
-
-        foreach ($permissions as $permission) {
-            Permission::updateOrCreate(
-                ['slug' => $permission['slug']],
-                ['name' => $permission['name']]
-            );
+                Permission::updateOrCreate(
+                    ['slug' => $slug],
+                    ['name' => self::ACTION_LABELS[$action].' '.$config['label']]
+                );
+            }
         }
+
+        // Drop abilities left over from the removed blog/category modules so the
+        // roles screen does not offer permissions that no longer guard anything.
+        Permission::whereNotIn('slug', $keep)->delete();
+
+        $this->command?->info('Seeded '.count($keep).' permissions.');
+    }
+
+    /** All slugs, for the role seeder. @return array<int, string> */
+    public static function allSlugs(): array
+    {
+        $slugs = [];
+
+        foreach (self::MODULES as $module => $config) {
+            foreach ($config['actions'] as $action) {
+                $slugs[] = $action.'-'.$module;
+            }
+        }
+
+        return $slugs;
+    }
+
+    /** Slugs for the given modules. @return array<int, string> */
+    public static function slugsFor(array $modules): array
+    {
+        $slugs = [];
+
+        foreach ($modules as $module => $actions) {
+            $available = self::MODULES[$module]['actions'] ?? [];
+
+            foreach (($actions === '*' ? $available : (array) $actions) as $action) {
+                if (in_array($action, $available, true)) {
+                    $slugs[] = $action.'-'.$module;
+                }
+            }
+        }
+
+        return $slugs;
+    }
+
+    /** Human label for a slug, used by the roles UI. */
+    public static function labelFor(string $slug): string
+    {
+        [$action, $module] = array_pad(explode('-', $slug, 2), 2, '');
+
+        return (self::ACTION_LABELS[$action] ?? Str::title($action))
+            .' '.(self::MODULES[$module]['label'] ?? Str::title($module));
     }
 }

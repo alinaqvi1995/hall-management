@@ -9,162 +9,189 @@ use Illuminate\Support\Facades\Storage;
 class InvoiceService
 {
     /**
-     * Generate PDF invoice for a booking
+     * Render (or re-render) the booking's invoice PDF and return where it lives.
      *
-     * @param Booking $booking
-     * @return array ['path' => string, 'url' => string]
+     * @return array{path: string, url: string, filename: string}
      */
     public function generateInvoicePdf(Booking $booking): array
     {
-        // Load relationships needed for invoice
-        $booking->load(['customer', 'hall', 'lawn']);
+        $booking->loadMissing(['customer', 'hall', 'lawn', 'package', 'addons', 'payments']);
 
-        // Generate PDF from invoice view
-        $pdf = Pdf::loadView('bookings.invoice', compact('booking'));
+        $pdf = Pdf::loadView('bookings.invoice', ['booking' => $booking, 'forPdf' => true])
+            ->setPaper('a4');
 
-        // Create filename
-        $filename = 'invoice_' . $booking->formatted_booking_number . '.pdf';
-        
-        // Save to storage/app/public/invoices
-        $path = 'invoices/' . $filename;
+        $path = $this->pathFor($booking);
         Storage::disk('public')->put($path, $pdf->output());
 
-        // Return both storage path and public URL
         return [
             'path' => $path,
             'url' => Storage::disk('public')->url($path),
-            'filename' => $filename
+            'filename' => basename($path),
         ];
     }
 
-    /**
-     * Generate WhatsApp message URL with pre-filled text
-     *
-     * @param Booking $booking
-     * @param string $invoiceUrl
-     * @return string
-     */
-    public function generateWhatsAppUrl(Booking $booking, string $invoiceUrl): string
+    /** Storage path for a booking's invoice, derived from its number. */
+    public function pathFor(Booking $booking): string
     {
-        $customer = $booking->customer;
-        $phone = $this->formatPhoneForWhatsApp($customer->phone);
+        $safe = preg_replace('/[^A-Za-z0-9\-_]/', '', $booking->formatted_booking_number);
 
-        $message = "Hello {$customer->name},\n\n";
-        $message .= "Thank you for booking with {$booking->hall->name}!\n\n";
-        $message .= "📋 *Booking Details:*\n";
-        $message .= "Booking #: {$booking->formatted_booking_number}\n";
-        $message .= "Hall/Lawn: {$booking->hall->name} - {$booking->lawn->name}\n";
-        $message .= "Event Date: {$booking->start_datetime->format('d M, Y')}\n";
-        $message .= "Event Time: {$booking->start_datetime->format('h:i A')} - {$booking->end_datetime->format('h:i A')}\n\n";
-        $message .= "💰 *Payment Summary:*\n";
-        $message .= "Total Amount: Rs. " . number_format($booking->booking_price, 2) . "\n";
-        $message .= "Advance Paid: Rs. " . number_format($booking->advance_paid, 2) . "\n";
-        $message .= "Balance Due: Rs. " . number_format($booking->booking_price - $booking->advance_paid, 2) . "\n\n";
-        $message .= "📄 Invoice: {$invoiceUrl}\n\n";
-        $message .= "We look forward to hosting your event!";
-
-        // URL encode the message
-        $encodedMessage = urlencode($message);
-
-        // Return WhatsApp Web URL
-        return "https://web.whatsapp.com/send?phone={$phone}&text={$encodedMessage}";
+        return 'invoices/invoice_'.$safe.'.pdf';
     }
 
     /**
-     * Generate mailto URL with pre-filled email
-     *
-     * @param Booking $booking
-     * @param string $invoiceUrl
-     * @return string
+     * Public URL for the invoice, generating it on first request.
+     * The old code guessed the filename and 404'd whenever the PDF had never
+     * been rendered or the booking had since been edited.
      */
-    public function generateMailtoUrl(Booking $booking, string $invoiceUrl): string
+    public function urlFor(Booking $booking): string
     {
-        $customer = $booking->customer;
-        
-        $subject = "Invoice for Booking #{$booking->formatted_booking_number} - {$booking->hall->name}";
-        
-        $body = "Dear {$customer->name},\n\n";
-        $body .= "Thank you for booking with {$booking->hall->name}!\n\n";
-        $body .= "Please find your booking invoice details below:\n\n";
-        $body .= "Booking Number: {$booking->formatted_booking_number}\n";
-        $body .= "Hall/Lawn: {$booking->hall->name} - {$booking->lawn->name}\n";
-        $body .= "Event Date: {$booking->start_datetime->format('d M, Y')}\n";
-        $body .= "Event Time: {$booking->start_datetime->format('h:i A')} - {$booking->end_datetime->format('h:i A')}\n\n";
-        $body .= "Total Amount: Rs. " . number_format($booking->booking_price, 2) . "\n";
-        $body .= "Advance Paid: Rs. " . number_format($booking->advance_paid, 2) . "\n";
-        $body .= "Balance Due: Rs. " . number_format($booking->booking_price - $booking->advance_paid, 2) . "\n\n";
-        $body .= "Download Invoice: {$invoiceUrl}\n\n";
-        $body .= "Please download the invoice PDF from the link above and keep it for your records.\n\n";
-        $body .= "We look forward to hosting your event!\n\n";
-        $body .= "Best regards,\n";
-        $body .= "{$booking->hall->name}\n";
-        $body .= "{$booking->hall->phone}";
+        $path = $this->pathFor($booking);
 
-        // URL encode subject and body
-        $encodedSubject = rawurlencode($subject);
-        $encodedBody = rawurlencode($body);
-
-        // Return mailto URL
-        return "mailto:{$customer->email}?subject={$encodedSubject}&body={$encodedBody}";
-    }
-
-    /**
-     * Generate Gmail compose URL that opens in browser
-     *
-     * @param Booking $booking
-     * @param string $invoiceUrl
-     * @return string
-     */
-    public function generateGmailUrl(Booking $booking, string $invoiceUrl): string
-    {
-        $customer = $booking->customer;
-        
-        $subject = "Invoice for Booking #{$booking->formatted_booking_number} - {$booking->hall->name}";
-        
-        $body = "Dear {$customer->name},\n\n";
-        $body .= "Thank you for booking with {$booking->hall->name}!\n\n";
-        $body .= "Please find your booking invoice details below:\n\n";
-        $body .= "Booking Number: {$booking->formatted_booking_number}\n";
-        $body .= "Hall/Lawn: {$booking->hall->name} - {$booking->lawn->name}\n";
-        $body .= "Event Date: {$booking->start_datetime->format('d M, Y')}\n";
-        $body .= "Event Time: {$booking->start_datetime->format('h:i A')} - {$booking->end_datetime->format('h:i A')}\n\n";
-        $body .= "Total Amount: Rs. " . number_format($booking->booking_price, 2) . "\n";
-        $body .= "Advance Paid: Rs. " . number_format($booking->advance_paid, 2) . "\n";
-        $body .= "Balance Due: Rs. " . number_format($booking->booking_price - $booking->advance_paid, 2) . "\n\n";
-        $body .= "Download Invoice: {$invoiceUrl}\n\n";
-        $body .= "Please download the invoice PDF from the link above and keep it for your records.\n\n";
-        $body .= "We look forward to hosting your event!\n\n";
-        $body .= "Best regards,\n";
-        $body .= "{$booking->hall->name}\n";
-        $body .= "{$booking->hall->phone}";
-
-        // URL encode for Gmail
-        $encodedSubject = rawurlencode($subject);
-        $encodedBody = rawurlencode($body);
-        $encodedTo = rawurlencode($customer->email);
-
-        // Return Gmail compose URL
-        return "https://mail.google.com/mail/?view=cm&fs=1&to={$encodedTo}&su={$encodedSubject}&body={$encodedBody}";
-    }
-
-    /**
-     * Format phone number for WhatsApp (remove spaces, dashes, add country code if needed)
-     *
-     * @param string $phone
-     * @return string
-     */
-    private function formatPhoneForWhatsApp(string $phone): string
-    {
-        // Remove all non-numeric characters
-        $phone = preg_replace('/[^0-9]/', '', $phone);
-
-        // If phone doesn't start with country code, assume Pakistan (+92)
-        if (!str_starts_with($phone, '92')) {
-            // Remove leading zero if present
-            $phone = ltrim($phone, '0');
-            $phone = '92' . $phone;
+        if (! Storage::disk('public')->exists($path)) {
+            return $this->generateInvoicePdf($booking)['url'];
         }
 
-        return $phone;
+        return Storage::disk('public')->url($path);
+    }
+
+    /** Drop a stale PDF so the next request re-renders it. */
+    public function forget(Booking $booking): void
+    {
+        Storage::disk('public')->delete($this->pathFor($booking));
+    }
+
+    /* ------------------------------------------------------------------ sharing */
+
+    /**
+     * WhatsApp deep link with the booking summary pre-filled.
+     * Returns null when the customer has no phone number on file.
+     */
+    public function generateWhatsAppUrl(Booking $booking, string $invoiceUrl): ?string
+    {
+        $phone = $this->formatPhoneForWhatsApp($booking->customer?->phone);
+
+        if (! $phone) {
+            return null;
+        }
+
+        return 'https://wa.me/'.$phone.'?text='.rawurlencode($this->messageBody($booking, $invoiceUrl));
+    }
+
+    /** Gmail compose link. Null when the customer has no email on file. */
+    public function generateGmailUrl(Booking $booking, string $invoiceUrl): ?string
+    {
+        $email = $booking->customer?->email;
+
+        if (! $email) {
+            return null;
+        }
+
+        return 'https://mail.google.com/mail/?view=cm&fs=1'
+            .'&to='.rawurlencode($email)
+            .'&su='.rawurlencode($this->subject($booking))
+            .'&body='.rawurlencode($this->messageBody($booking, $invoiceUrl));
+    }
+
+    /** Plain mailto: fallback for users without Gmail. */
+    public function generateMailtoUrl(Booking $booking, string $invoiceUrl): ?string
+    {
+        $email = $booking->customer?->email;
+
+        if (! $email) {
+            return null;
+        }
+
+        return 'mailto:'.$email
+            .'?subject='.rawurlencode($this->subject($booking))
+            .'&body='.rawurlencode($this->messageBody($booking, $invoiceUrl));
+    }
+
+    private function subject(Booking $booking): string
+    {
+        return 'Invoice for Booking #'.$booking->formatted_booking_number
+            .' - '.($booking->hall->name ?? 'Hall');
+    }
+
+    /**
+     * Shared message body. Every relation is treated as optional so a deleted
+     * lawn or a missing phone number can never turn a share link into a crash.
+     */
+    private function messageBody(Booking $booking, string $invoiceUrl): string
+    {
+        $hallName = $booking->hall->name ?? 'our venue';
+        $venue = trim(($booking->hall->name ?? '').' - '.($booking->lawn->name ?? ''), ' -');
+        $paid = $booking->amount_paid;
+        $balance = $booking->balance_due;
+
+        $lines = [
+            'Dear '.($booking->customer->name ?? 'Customer').',',
+            '',
+            'Thank you for booking with '.$hallName.'.',
+            '',
+            'Booking Details',
+            'Booking #: '.$booking->formatted_booking_number,
+        ];
+
+        if ($booking->event_type_label) {
+            $lines[] = 'Event: '.$booking->event_type_label;
+        }
+
+        if ($venue !== '') {
+            $lines[] = 'Venue: '.$venue;
+        }
+
+        if ($booking->start_datetime) {
+            $lines[] = 'Date: '.$booking->start_datetime->format('d M Y');
+            $lines[] = 'Time: '.$booking->start_datetime->format('h:i A')
+                .' - '.($booking->end_datetime?->format('h:i A') ?? '');
+        }
+
+        if ($booking->guest_count) {
+            $lines[] = 'Guests: '.number_format($booking->guest_count);
+        }
+
+        $lines = array_merge($lines, [
+            '',
+            'Payment Summary',
+            'Total: Rs. '.number_format((float) $booking->total_amount, 2),
+            'Received: Rs. '.number_format($paid, 2),
+            'Balance Due: Rs. '.number_format($balance, 2),
+            '',
+            'Invoice: '.$invoiceUrl,
+            '',
+            'We look forward to hosting your event.',
+            '',
+            $hallName,
+        ]);
+
+        if ($booking->hall?->phone) {
+            $lines[] = $booking->hall->phone;
+        }
+
+        return implode("\n", $lines);
+    }
+
+    /**
+     * Normalise a Pakistani number to WhatsApp's country-code form.
+     * Returns null for blank or unusable input rather than throwing.
+     */
+    private function formatPhoneForWhatsApp(?string $phone): ?string
+    {
+        $digits = preg_replace('/\D/', '', (string) $phone);
+
+        if ($digits === '') {
+            return null;
+        }
+
+        if (str_starts_with($digits, '0092')) {
+            $digits = substr($digits, 2);
+        }
+
+        if (! str_starts_with($digits, '92')) {
+            $digits = '92'.ltrim($digits, '0');
+        }
+
+        // A Pakistani mobile is 92 + 10 digits; anything shorter is not dialable.
+        return strlen($digits) >= 11 ? $digits : null;
     }
 }

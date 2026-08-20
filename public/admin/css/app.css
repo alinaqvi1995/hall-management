@@ -1,0 +1,615 @@
+/* ==========================================================================
+   Hall Management — application overrides.
+   Loads after the vendor theme so these rules win. Everything here is driven
+   by Bootstrap's CSS variables, so light and dark themes stay in step instead
+   of relying on hard-coded colours.
+   ========================================================================== */
+
+:root {
+    --hm-brand: #fc5523;
+    --hm-brand-rgb: 252, 85, 35;
+    --hm-radius: 14px;
+    --hm-radius-sm: 10px;
+    --hm-shadow: 0 1px 2px rgba(16, 24, 40, .06), 0 4px 16px rgba(16, 24, 40, .06);
+    --hm-surface: var(--bs-body-bg);
+    --hm-muted: var(--bs-secondary-color);
+    --hm-line: var(--bs-border-color);
+}
+
+body {
+    font-family: 'Noto Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    font-size: .9rem;
+}
+
+/* --------------------------------------------------------------- typography */
+
+h1, h2, h3, h4, h5, h6 {
+    letter-spacing: -.01em;
+}
+
+.text-secondary {
+    color: var(--hm-muted) !important;
+}
+
+/* Tabular figures keep money columns aligned down the page. */
+.money,
+.tabular {
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.money__unit {
+    font-size: .78em;
+    opacity: .65;
+    margin-right: .1em;
+}
+
+/* ------------------------------------------------------------------- layout */
+
+.main-content {
+    padding: 1.25rem;
+}
+
+@media (min-width: 992px) {
+    .main-content {
+        padding: 1.75rem 2rem;
+    }
+}
+
+/* ------------------------------------------------------------- page header */
+
+.page-header__icon {
+    width: 44px;
+    height: 44px;
+    border-radius: var(--hm-radius-sm);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(var(--hm-brand-rgb), .12);
+    color: var(--hm-brand);
+    flex: 0 0 auto;
+}
+
+.page-header .breadcrumb-item + .breadcrumb-item::before {
+    content: '/';
+    color: var(--hm-muted);
+}
+
+/* -------------------------------------------------------------------- cards */
+
+.card {
+    border-radius: var(--hm-radius);
+    border: 1px solid var(--hm-line);
+    box-shadow: var(--hm-shadow);
+}
+
+.card-header {
+    background: transparent;
+    border-bottom: 1px solid var(--hm-line);
+    padding: .95rem 1.15rem;
+    font-weight: 600;
+}
+
+.card-body {
+    padding: 1.15rem;
+}
+
+.card-footer {
+    background: transparent;
+    border-top: 1px solid var(--hm-line);
+}
+
+/* Section heading inside a form card. */
+.form-section-title {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    font-size: .78rem;
+    font-weight: 700;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--hm-muted);
+    margin: 0 0 .9rem;
+}
+
+.form-section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--hm-line);
+}
+
+.form-section + .form-section {
+    margin-top: 1.75rem;
+}
+
+/* ---------------------------------------------------------------- stat card */
+
+.stat-card {
+    border-radius: var(--hm-radius);
+}
+
+.stat-card--link {
+    transition: transform .15s ease, box-shadow .15s ease;
+}
+
+.stat-card--link:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 22px rgba(16, 24, 40, .1);
+}
+
+.stat-card__icon {
+    width: 42px;
+    height: 42px;
+    border-radius: var(--hm-radius-sm);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+}
+
+.stat-card__label {
+    font-size: .74rem;
+    font-weight: 600;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    color: var(--hm-muted);
+}
+
+.stat-card__value {
+    font-size: 1.4rem;
+    font-weight: 700;
+    line-height: 1.15;
+    font-variant-numeric: tabular-nums;
+    color: var(--bs-body-color);
+}
+
+.stat-card__hint {
+    font-size: .76rem;
+    color: var(--hm-muted);
+    margin-top: .15rem;
+}
+
+/* -------------------------------------------------------------------- tables */
+
+.app-table > :not(caption) > * > * {
+    padding: .7rem .75rem;
+}
+
+.app-table thead th {
+    font-size: .72rem;
+    font-weight: 700;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    color: var(--hm-muted);
+    background: var(--bs-tertiary-bg);
+    border-bottom: 1px solid var(--hm-line);
+    white-space: nowrap;
+}
+
+.app-table tbody tr:last-child > * {
+    border-bottom: 0;
+}
+
+.table-responsive {
+    /* Wide tables scroll inside their card rather than the whole page. */
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* DataTables controls, restyled to match the rest of the UI. */
+.dataTables_wrapper .dataTables_filter input,
+.dataTables_wrapper .dataTables_length select {
+    border: 1px solid var(--hm-line);
+    border-radius: var(--hm-radius-sm);
+    background: var(--bs-body-bg);
+    color: var(--bs-body-color);
+    padding: .35rem .6rem;
+}
+
+.dataTables_wrapper .dataTables_filter {
+    margin-bottom: .75rem;
+}
+
+.dataTables_wrapper .dataTables_info,
+.dataTables_wrapper .dataTables_paginate {
+    font-size: .82rem;
+    padding-top: .85rem;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button.current {
+    background: var(--hm-brand) !important;
+    border-color: var(--hm-brand) !important;
+    color: #fff !important;
+}
+
+/* ------------------------------------------------------------- empty states */
+
+.empty-state i {
+    font-size: 2.6rem;
+    color: var(--hm-muted);
+    opacity: .45;
+}
+
+.empty-state__title {
+    margin: .6rem 0 .15rem;
+    font-weight: 600;
+    color: var(--bs-body-color);
+}
+
+.empty-state__message {
+    margin: 0;
+    font-size: .85rem;
+    color: var(--hm-muted);
+}
+
+/* ------------------------------------------------------------------- alerts */
+
+.app-alert {
+    border: 1px solid var(--hm-line);
+    border-left-width: 4px;
+    border-radius: var(--hm-radius-sm);
+    box-shadow: var(--hm-shadow);
+}
+
+.app-alert > i {
+    font-size: 1.25rem;
+    flex: 0 0 auto;
+}
+
+.alert-success.app-alert { border-left-color: var(--bs-success); }
+.alert-danger.app-alert  { border-left-color: var(--bs-danger); }
+.alert-warning.app-alert { border-left-color: var(--bs-warning); }
+.alert-info.app-alert    { border-left-color: var(--bs-info); }
+
+/* ------------------------------------------------------------------ sidebar */
+
+.sidebar-brand-mark {
+    width: 34px;
+    height: 34px;
+    border-radius: 9px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--hm-brand);
+    color: #fff;
+}
+
+.sidebar-brand-name {
+    color: var(--hm-brand) !important;
+    font-weight: 700;
+}
+
+.sidebar-wrapper .metismenu .menu-label {
+    font-size: .68rem;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--hm-muted);
+    padding: 1.1rem 1rem .35rem;
+    font-weight: 700;
+}
+
+.sidebar-wrapper .metismenu li.active > a {
+    background: rgba(var(--hm-brand-rgb), .12);
+    color: var(--hm-brand);
+    font-weight: 600;
+}
+
+.sidebar-wrapper .metismenu li.active > a .parent-icon i {
+    color: var(--hm-brand);
+}
+
+/* ------------------------------------------------------------------- topbar */
+
+.topbar-context {
+    padding-left: .25rem;
+}
+
+.topbar-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    color: var(--bs-body-color);
+}
+
+.topbar-icon:hover {
+    background: var(--bs-tertiary-bg);
+}
+
+.topbar-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--hm-brand);
+    color: #fff;
+    font-weight: 700;
+    text-transform: uppercase;
+    flex: 0 0 auto;
+}
+
+/* ------------------------------------------------------------------ badges */
+
+.badge {
+    font-weight: 600;
+    letter-spacing: .01em;
+}
+
+/* ------------------------------------------------------------------- forms */
+
+.form-label {
+    font-size: .82rem;
+    font-weight: 600;
+    margin-bottom: .3rem;
+}
+
+.form-control,
+.form-select {
+    border-radius: var(--hm-radius-sm);
+    border-color: var(--hm-line);
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--hm-brand);
+    box-shadow: 0 0 0 .2rem rgba(var(--hm-brand-rgb), .18);
+}
+
+.form-text {
+    font-size: .78rem;
+    color: var(--hm-muted);
+}
+
+/* Server-side errors use `is-invalid`; make the message visible either way. */
+.invalid-feedback.d-block,
+.is-invalid ~ .invalid-feedback {
+    display: block;
+}
+
+.required-mark {
+    color: var(--bs-danger);
+}
+
+/* Select2 sizing to match Bootstrap controls. */
+.select2-container--bootstrap-5 .select2-selection {
+    border-radius: var(--hm-radius-sm);
+    border-color: var(--hm-line);
+    min-height: calc(1.5em + .75rem + 2px);
+}
+
+/* --------------------------------------------------------- summary / totals */
+
+.totals-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 1rem;
+    padding: .4rem 0;
+    font-size: .88rem;
+}
+
+.totals-row + .totals-row {
+    border-top: 1px dashed var(--hm-line);
+}
+
+.totals-row--grand {
+    border-top: 2px solid var(--hm-line);
+    margin-top: .35rem;
+    padding-top: .65rem;
+    font-size: 1.05rem;
+    font-weight: 700;
+}
+
+.totals-row__label {
+    color: var(--hm-muted);
+}
+
+.totals-row--grand .totals-row__label {
+    color: var(--bs-body-color);
+}
+
+/* ------------------------------------------------------------ detail lists */
+
+.detail-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: .85rem 1.5rem;
+}
+
+.detail-item__label {
+    font-size: .72rem;
+    font-weight: 700;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    color: var(--hm-muted);
+    margin-bottom: .15rem;
+}
+
+.detail-item__value {
+    margin: 0;
+    font-weight: 500;
+    word-break: break-word;
+}
+
+/* ----------------------------------------------------------------- calendar */
+
+/* Driven by theme variables so the calendar is readable in dark mode, which
+   the previous hard-coded light palette was not. */
+#calendar {
+    background: var(--bs-body-bg);
+    color: var(--bs-body-color);
+    border-radius: var(--hm-radius);
+    padding: 1rem;
+}
+
+.fc {
+    --fc-border-color: var(--hm-line);
+    --fc-page-bg-color: var(--bs-body-bg);
+    --fc-neutral-bg-color: var(--bs-tertiary-bg);
+    --fc-today-bg-color: rgba(var(--hm-brand-rgb), .1);
+    --fc-list-event-hover-bg-color: var(--bs-tertiary-bg);
+}
+
+.fc .fc-toolbar-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--bs-body-color);
+}
+
+.fc .fc-button {
+    background: var(--bs-body-bg);
+    border: 1px solid var(--hm-line);
+    color: var(--bs-body-color);
+    border-radius: var(--hm-radius-sm);
+    padding: .35rem .7rem;
+    font-size: .82rem;
+    box-shadow: none;
+}
+
+.fc .fc-button:hover,
+.fc .fc-button:focus {
+    background: var(--bs-tertiary-bg);
+    color: var(--bs-body-color);
+    box-shadow: none;
+}
+
+.fc .fc-button-primary:not(:disabled).fc-button-active,
+.fc .fc-button-primary:not(:disabled):active {
+    background: var(--hm-brand);
+    border-color: var(--hm-brand);
+    color: #fff;
+}
+
+.fc-col-header-cell {
+    background: var(--bs-tertiary-bg);
+    font-size: .74rem;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    font-weight: 700;
+    padding: .5rem 0;
+}
+
+.fc-daygrid-day-number,
+.fc-col-header-cell-cushion {
+    color: var(--bs-body-color);
+    text-decoration: none;
+}
+
+.fc-event {
+    border-radius: 6px;
+    padding: 2px 5px;
+    font-size: .76rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+}
+
+.fc-event:hover {
+    filter: brightness(1.08);
+}
+
+/* Legend beneath the calendar. */
+.calendar-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    font-size: .8rem;
+    color: var(--hm-muted);
+}
+
+.calendar-legend span.dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: .35rem;
+}
+
+/* -------------------------------------------------------------- print rules */
+
+@media print {
+
+    .sidebar-wrapper,
+    .top-header,
+    .page-footer,
+    .no-print,
+    .btn,
+    .app-alert,
+    .dataTables_filter,
+    .dataTables_length,
+    .dataTables_paginate,
+    .dataTables_info {
+        display: none !important;
+    }
+
+    .main-wrapper,
+    .main-content {
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+    }
+
+    .card {
+        border: none !important;
+        box-shadow: none !important;
+    }
+
+    .print-only {
+        display: block !important;
+    }
+
+    body {
+        background: #fff !important;
+        color: #000 !important;
+        font-size: 11pt;
+    }
+
+    a[href]::after {
+        content: '';
+    }
+}
+
+.print-only {
+    display: none;
+}
+
+/* ------------------------------------------------------------------ helpers */
+
+.min-w-0 {
+    min-width: 0;
+}
+
+.cursor-pointer {
+    cursor: pointer;
+}
+
+.avatar-initial {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bs-tertiary-bg);
+    color: var(--bs-body-color);
+    font-weight: 700;
+    text-transform: uppercase;
+    flex: 0 0 auto;
+}
+
+/* Small screens: keep action button rows from overflowing. */
+@media (max-width: 575.98px) {
+    .page-header .btn {
+        flex: 1 1 auto;
+    }
+
+    .stat-card__value {
+        font-size: 1.2rem;
+    }
+}
